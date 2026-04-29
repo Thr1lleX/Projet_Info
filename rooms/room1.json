@@ -14,10 +14,26 @@
     [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
   ],
+  "music": "mus_overworld",
   "transitions": {
     "left": "room2",
     "right": null,
     "up": null,
     "down": "room3"
-  }
+  },
+
+  "enemies": [
+    {
+      "id" : "0",
+	  "type": "placeholder1",
+      "x": 5,
+      "y": 4
+    },
+    {
+      "id" : "1",
+	  "type": "placeholder1",
+      "x": 10,
+      "y": 3
+    }
+  ]
 }

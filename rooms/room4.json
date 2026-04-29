@@ -14,10 +14,21 @@
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
   ],
+  "music": "mus_night",
+  "fade_in": 1,
   "transitions": {
     "left": null,
     "right": null,
     "up": "room2",
     "down": null
-  }
+  },
+
+  "enemies": [
+    {
+      "id" : "0",
+	  "type": "placeholder1",
+      "x": 3,
+      "y": 5
+    }
+  ]
 }
