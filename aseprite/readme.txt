@@ -24,7 +24,6 @@ Raccourcis utiles:
 B Pinceau
 E Gomme
 I Color Picker
-G le truc qui fout de la couleur partout 
 
 Vue des Tileset:
 View → Tiled Mode → Tiled in Both Axes
