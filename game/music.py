@@ -37,6 +37,9 @@ class MusicManager:
             print("[MUSIC] Error loading sound")
 
     def play(self, music_name, fade_in = 0):
+        """
+        joue musique wav avec fide_in suivant le nom de la musique dans dossier mus
+        """
         music_path = os.path.join(self.base_path, f"{music_name}.wav")
 
         if not os.path.exists(music_path):
@@ -64,6 +67,9 @@ class MusicManager:
         QTimer.singleShot(0, self._load_pending)
 
     def play_mp3(self, music_name, fade_in = 0):
+        """
+        certains fichiers musicaux sont trop lourds en wav (>25mb), donc mp3
+        """
         music_path = os.path.join(self.base_path, f"{music_name}.mp3")
 
         if not os.path.exists(music_path):
