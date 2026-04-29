@@ -12,9 +12,9 @@ class GameWindow(QGraphicsView):
     def __init__(self):
         super().__init__()
         
-        
-        width = GRID_WIDTH * TILE_SIZE
-        height = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE
+        # + 2 car ajoute un pixel de chaque coté (sinon y'a un decalage et fentre peu bouger)
+        width = GRID_WIDTH * TILE_SIZE + 2
+        height = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE + 2
 
         self.setFixedSize(width, height)
 
