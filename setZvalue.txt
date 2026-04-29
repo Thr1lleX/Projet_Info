@@ -1,0 +1,8 @@
+entity = 90
+attaques = 99
+player = 100
+collisions = 500
+hitboxes = 999
+hud = 1000
+transition = 2000
+exit = 3000
