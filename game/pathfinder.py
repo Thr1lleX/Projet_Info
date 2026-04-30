@@ -35,13 +35,25 @@ def _tile_center(col, row, tile_size):
     ty = (row + HUD_HEIGHT) * tile_size + tile_size / 2.0
     return (tx, ty)
 
-def line_of_sight(start_pos, end_pos, grid, tile_size):
+def is_area_walkable(grid, col, row, w_size, h_size, width, height):
+    """
+    verifie est block de size x est libre a partir de (col,row)
+    """
+    for r in range(row, row + h_size):
+        for c in range(col, col + w_size):
+            if not (0 <= r < height and 0 <= c < width) or not grid[r][c]:
+                return False
+    return True
+
+def line_of_sight(start_pos, end_pos, grid, tile_size, w_size, h_size):
     """
     Verifie s'il existe une ligne de vue degagee entre deux points en coordonnees pixel.
     Utilise un raycasting par pas de tile_size/4, en testant les 4 coins
     de la hitbox de l'entite pour eviter les clips dans les angles.
 
     Retourne True si le chemin est libre, False s'il est bloque ou hors grille.
+    
+    prend en compte la taille de l'entite
     """
     x0, y0 = start_pos
     x1, y1 = end_pos
@@ -59,15 +71,16 @@ def line_of_sight(start_pos, end_pos, grid, tile_size):
     step_size = tile_size / 4.0
     steps = int(distance / step_size)
     
-    height = len(grid)
-    width = len(grid[0]) if height > 0 else 0
+    height_grid = len(grid)
+    width_grid = len(grid[0]) if height_grid > 0 else 0
     
-    margin = tile_size * 0.95
-    offsets = [
-        (0, 0),
-        (margin, 0),
-        (0, margin),
-        (margin, margin)
+    # On définit les coins du rectangle
+    margin_w = (tile_size * w_size) * 0.95
+    margin_h = (tile_size * h_size) * 0.95
+    offsets = [(0, 0), 
+               (margin_w, 0), 
+               (0, margin_h), 
+               (margin_w, margin_h)
     ]
     
     for i in range(steps + 1):
@@ -80,15 +93,12 @@ def line_of_sight(start_pos, end_pos, grid, tile_size):
             
             col, row = _pixel_to_tile(cx, cy, tile_size)
             
-            if 0 <= row < height and 0 <= col < width:
-                if not grid[row][col]:
+            if not (0 <= row < height_grid and 0 <= col < width_grid and grid[row][col]):
                     return False
-            else:
-                return False
                 
     return True
 
-def smooth_path(path_pixels, grid, tile_size):
+def smooth_path(path_pixels, grid, tile_size, w_size, h_size):
     """
     Lisse un chemin par elagage de ficelle (String Pulling) :
     si le point C est visible depuis le point A, le point intermediaire B est supprime.
@@ -104,7 +114,7 @@ def smooth_path(path_pixels, grid, tile_size):
     while current_index < len(path_pixels) - 1:
         furthest = current_index + 1
         for i in range(current_index + 2, len(path_pixels)):
-            if line_of_sight(path_pixels[current_index], path_pixels[i], grid, tile_size):
+            if line_of_sight(path_pixels[current_index], path_pixels[i], grid, tile_size, w_size, h_size):
                 furthest = i
             else:
                 break
@@ -114,7 +124,7 @@ def smooth_path(path_pixels, grid, tile_size):
         
     return smoothed
 
-def astar(grid, start_pos, goal_pos, tile_size):
+def astar(grid, start_pos, goal_pos, tile_size, w_size, h_size):
     """
     Calcule un chemin optimal entre deux points via l'algorithme A*.
 
@@ -141,9 +151,7 @@ def astar(grid, start_pos, goal_pos, tile_size):
     start_tile = _pixel_to_tile(start_pos[0], start_pos[1], tile_size)
     goal_tile = _pixel_to_tile(goal_pos[0], goal_pos[1], tile_size)
 
-    if not (0 <= goal_tile[1] < height and 0 <= goal_tile[0] < width):
-        return None
-    if not grid[goal_tile[1]][goal_tile[0]]:
+    if not is_area_walkable(grid, goal_tile[0], goal_tile[1], w_size, h_size, width, height):
         return None
 
     sx = max(0, min(start_tile[0], width - 1))
@@ -170,10 +178,11 @@ def astar(grid, start_pos, goal_pos, tile_size):
         
         for nx, ny in neighbors:
             if 0 <= ny < height and 0 <= nx < width:
-                if grid[ny][nx]:
+                if is_area_walkable(grid, nx, ny, w_size, h_size, width, height):
                     # Interdit de couper un coin diagonal si l'une des cases adjacentes est bloquante
                     if nx != x and ny != y:
-                        if not grid[y][nx] or not grid[ny][x]:
+                        if not is_area_walkable(grid, x, ny, w_size, h_size, width, height) or \
+                            not is_area_walkable(grid, nx, y, w_size, h_size, width, height):
                             continue
                     
                     step_cost = 1 if nx == x or ny == y else 1.414
@@ -197,13 +206,18 @@ def astar(grid, start_pos, goal_pos, tile_size):
     path_tiles.reverse()
     
     path_pixels = [start_pos]
+    offset_x = (w_size * tile_size) / 2.0
+    offset_y = (h_size * tile_size) / 2.0
     for i, tile in enumerate(path_tiles):
         if i == len(path_tiles) - 1:
             path_pixels.append((goal_pos[0], goal_pos[1]))
         else:
-            path_pixels.append(_tile_center(tile[0], tile[1], tile_size))
+            tx = tile[0] * tile_size + offset_x
+            ty = (tile[1] + HUD_HEIGHT) * tile_size + offset_y
+            path_pixels.append((tx, ty))
+            #path_pixels.append(_tile_center(tile[0], tile[1], tile_size))
             
-    smoothed = smooth_path(path_pixels, grid, tile_size)
+    smoothed = smooth_path(path_pixels, grid, tile_size, w_size, h_size)
     
     if smoothed and smoothed[0] == start_pos:
         smoothed.pop(0)

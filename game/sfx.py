@@ -60,17 +60,19 @@
 
 
 """
-sfx geres séparéments avec pygame (autorisation recu en cours)
+sfx geres separements avec pygame (autorisation recu en cours)
 """
 
 # -*- coding: utf-8 -*-
+
 import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame
 from game.config import DEBUG
 
 class SFXManager:
     def __init__(self):
-        # 44.1kHz, 16-bit signé, stéréo
+        # 48kHz, 16-bit signé, stereo
         try:
             pygame.mixer.init(frequency=48000, size=-16, channels=2, buffer=512)
             pygame.mixer.set_num_channels(32) # autorise 32 sons simultanés
@@ -80,7 +82,7 @@ class SFXManager:
 
         self.sounds = {}
         self.base_path = "sound_effect"
-        self.default_volume = 0.95
+        self.default_volume = 0.8
         
         self._preload_all_sounds()
 

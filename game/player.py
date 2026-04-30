@@ -42,21 +42,21 @@ class Player(Entity):
         self.attack_delay = 0.2   # s entre attaques, doit etre supp a anim
         self.attack_pressed = False
 
-        self.damage = 1 # degats qu'inflinge le joueur
+        self.damage = 10 # degats qu'inflinge le joueur
         
         # -- Dammaged--
         self.invuln_duration = 0.60 #en s
         
         # --- HITBOX ---
         self.hitbox_offset_x = 2/BASE_TILE_SIZE
-        self.hitbox_offset_y = 1/BASE_TILE_SIZE
+        self.hitbox_offset_y = 2/BASE_TILE_SIZE
 
         self.hitbox_width = self.tile_size * (1-4/BASE_TILE_SIZE)
-        self.hitbox_height = self.tile_size * (1-1/BASE_TILE_SIZE)
+        self.hitbox_height = self.tile_size * (1-1/BASE_TILE_SIZE) 
+        
+        self.corner_correction = False
         
         self.collision = 1
-
-        self.corner_correction = False
 
         # DEBUG couleur
         if DEBUG:
@@ -100,6 +100,8 @@ class Player(Entity):
         self.exit_label.setFont(font)
         self.exit_label.hide()
         self.exit_label_added = False
+        
+        
         self.is_attacking = False
         self.is_usingspear = False
         self.current_sword = None
@@ -109,6 +111,8 @@ class Player(Entity):
         self.projectiles_delay = 0.4 #0.5s min entre chaque
         
         self.shout_pressed = False
+        
+        self.can_go_on_water = True
         
         # update graphics
         self.update_graphics()
@@ -148,16 +152,18 @@ class Player(Entity):
         if scene.is_transitioning:
             return
 
-        # 2 - deplacements
+        # # 2 - deplacements
         # bloque le joueur si knockback, mais autorise wiggle de stun
         if self.kb_active:
             self.apply_knockback(dt, scene)
         elif self.is_stunned:
             self.apply_stun_wiggle(dt, scene)
+        elif self.is_attacking or self.is_usingspear:
+            # bloque le joeur durant animation d'attaque
+            pass
         else:
             self.handle_inputs(dt, scene)
-
-
+            
         # mise a jour des armes ! necessairement apres mouvement!
         self.update_held_weapons(dt, scene)
 

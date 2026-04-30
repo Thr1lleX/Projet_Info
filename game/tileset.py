@@ -7,11 +7,12 @@ TILE_TYPES = {
         "collision": 0
     },
     1: {
-        "name": "wall1",
-        "collision": 1
+        "name": "tree",
+        "collision": 1,
+        "animated": True
     },
     2: {
-        "name": "wall2",
+        "name": "wall",
         "collision": 1
     },
     3: {
@@ -20,7 +21,8 @@ TILE_TYPES = {
     },
     4: {
         "name": "water",
-        "collision": 1
+        "collision": 1,
+        "animated": True
     }
 }
 

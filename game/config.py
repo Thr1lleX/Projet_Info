@@ -3,7 +3,7 @@
 from PyQt5.QtCore import Qt
 
 # --- CONFIG 
-SCALE = 3  # x1 -> 1 tile = 16x16 pixels
+SCALE = 4  # x1 -> 1 tile = 16x16 pixels
 BASE_TILE_SIZE = 16
 
 TILE_SIZE = BASE_TILE_SIZE * SCALE
@@ -18,7 +18,7 @@ BASE_SPEED = BASE_SPEED_pxl * SCALE
 FPS = 60
 interval = int(1000 / FPS)
 
-DEBUG = True
+DEBUG = False
 
 
 DURATION_FADE_OUT_ROOM = 0.3
@@ -41,6 +41,8 @@ KEYS = {"UP": Qt.Key_Up,
 
 
 EXIT_HOLD_TIME = 2.0  # en secondes
+
+CRT_OVERLAY = True
 
 # music_volume = 0.6
 # sfx_volume = 1.0

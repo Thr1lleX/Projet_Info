@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QTimer
 from game.player import Player
 import time
+import random
 
 from game.room_loader import load_room
 from game.transition import TransitionManager
@@ -12,11 +13,13 @@ from game.music import MusicManager
 from game.sfx import SFXManager
 
 from game.tileset import TILE_TYPES
-from game.config import SCALE, BASE_TILE_SIZE, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, FPS, interval, DEBUG
+from game.config import SCALE, BASE_TILE_SIZE, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
+from game.config import FPS, interval, DEBUG, CRT_OVERLAY
 
 from game.player import Player
 #from game.enemies.placeholder1 import Placeholder1
 from game.enemies.enemy_registry import ENEMY_TYPES
+from game.animspr import load_animation_sequence
 
 # offset de placement lorsque transition ecran
 OFFSET = 2 # pixels
@@ -33,21 +36,6 @@ class GameScene(QGraphicsScene):
         
         self.tileset = {}
         self.current_biome = None
-        
-        # # --- TILESET -- pixmap
-        # self.tileset = {
-        #     0: QPixmap("assets/sand.png").scaled(
-        #         TILE_SIZE,
-        #         TILE_SIZE,
-        #         transformMode=Qt.FastTransformation
-        #     ),
-        #     1: QPixmap("assets/tree.png").scaled(
-        #         TILE_SIZE,
-        #         TILE_SIZE,
-        #         transformMode=Qt.FastTransformation
-        #     )
-        # }
-        
 
         self.draw_hud()
         
@@ -56,12 +44,6 @@ class GameScene(QGraphicsScene):
         self.addItem(self.player)
         
         self.enemies = []
-        
-        self.room_states = {}
-        room = load_room("rooms/room3.json") #room initiale
-        self.current_room = "room3"
-        self.room_data = room
-        self.draw_room(room)
         
         self.transition = TransitionManager(self)
 
@@ -75,6 +57,20 @@ class GameScene(QGraphicsScene):
         if DEBUG:
             self.addItem(self.player.debug_rect)
         
+        # effet CRT (test)
+        if CRT_OVERLAY:
+            self.crt_overlay = QGraphicsPixmapItem()
+            self.crt_overlay.setPixmap(QPixmap("assets/scanlines.png").scaled(width, height))
+            
+            # position
+            self.crt_overlay.setPos(0, 0)
+            
+            # priorité maximale
+            self.crt_overlay.setZValue(9999)
+            
+            
+            self.addItem(self.crt_overlay)
+        
         # --- GAME LOOP ---
         self.last_time = time.time()
         
@@ -87,7 +83,17 @@ class GameScene(QGraphicsScene):
         self.pending_music = None
         self.sfx_manager = SFXManager()
         
+        # variables d'animation des tiles
+        self.animated_tile_items = [] 
+        self.animation_timer = 0
+        self.frame_duree = 0.5 #duree de frame d'animation tile avant changement
+        
         # etats des rooms
+        self.room_states = {}
+        room = load_room("rooms/room3.json") #room initiale
+        self.current_room = "room3"
+        self.room_data = room
+        self.draw_room(room)
         self.room_states = {}
 
         
@@ -98,9 +104,15 @@ class GameScene(QGraphicsScene):
             self.player.exit_label
         }
         
+        if CRT_OVERLAY:
+            self.persistent_items.add(self.crt_overlay)
+        
+        
         if DEBUG:
             self.persistent_items.add(self.player.debug_rect)
-        
+            
+
+                    
 
     def draw_hud(self):
         width = GRID_WIDTH * TILE_SIZE
@@ -116,6 +128,9 @@ class GameScene(QGraphicsScene):
 
 
     def game_loop(self):
+        """
+        toutes les updates de la scene
+        """
         
         #on n'update pas si mort
         if getattr(self, "game_over_triggered", False):
@@ -128,6 +143,7 @@ class GameScene(QGraphicsScene):
         if not self.is_transitioning:
             self.player.update(dt, self)
             self.check_room_transition()
+            self.update_animations(dt)
         
             if hasattr(self, "enemies"):
                 for enemy in self.enemies:
@@ -138,12 +154,23 @@ class GameScene(QGraphicsScene):
         #     self.check_room_transition()
             
         #     for enemy in self.enemies:
-        #         enemy.update(dt, self)
-    
+        #         enemy.update(dt, self) 
+           
         self.transition.update(dt)
         self.music_manager.update(dt)
+        if CRT_OVERLAY:
+            self.update_crt()
+    
 
-    def is_blocking_rect(self, x, y, w, h):
+
+    def update_crt(self):
+        self.crt_overlay.setOpacity(random.uniform(0.1, 0.15))
+    
+        if random.random() < 0.1:
+            y = self.crt_overlay.y()
+            self.crt_overlay.setY((y + 1*SCALE) % 2)
+
+    def is_blocking_rect(self, x, y, w, h, entity=None):
         """
         
 
@@ -192,9 +219,18 @@ class GameScene(QGraphicsScene):
                 return True
     
             tile_id = self.room_data["tiles"][tile_y][tile_x]
-    
-            if TILE_TYPES[tile_id]["collision"] == 1:
+            
+            tile = TILE_TYPES[tile_id]
+            
+            # jesus update
+            if tile["name"] == "water" and entity.can_go_on_water:
+                continue
+            
+            if tile["collision"] == 1:
                 return True
+                
+            # if TILE_TYPES[tile_id]["collision"] == 1:
+            #     return True
     
         return False
 
@@ -212,24 +248,46 @@ class GameScene(QGraphicsScene):
         
         self.tileset = {}
         
-        for tile_id, props in TILE_TYPES.items():
-            tile_filename = f"{props['name']}.png"
+        for tile_id, props in TILE_TYPES.items():    
+            name = props["name"]
             
-            path = f"assets/{biome_name}/{tile_filename}"
-            pix = QPixmap(path)
+            # code pour looper si animation de tiles
+            if props.get("animated"):
+    
+                path = f"assets/{biome_name}/{name}"
+                sequence = load_animation_sequence(path, (1, 1), None)
+                
+                if not sequence and biome_name != "default":
+                    sequence = load_animation_sequence(path,(1,1), None)
+                    # self.tileset[tile_id] = sequence
             
-            # backup si chemin non trouve, on utilise default
-            if pix.isNull() and biome_name != "default":
-                path_fallback = f"assets/default/{tile_filename}"
-                pix = QPixmap(path_fallback)
-                if DEBUG and not pix.isNull():
-                    print(f"  > Tile '{props['name']}' non trouvée dans {biome_name}, utilisation du dossier default.")
+                if sequence:
+                    self.tileset[tile_id] = sequence
+                elif DEBUG:
+                    print(f"Erreur : Séquence introuvable pour {name}")
+                
+            # code standard pour 1 frame
+            else:
+                tile_filename = f"{name}.png"
+                
+                # 1e cas, chemin specifique au biome
+                path = f"assets/{biome_name}/{tile_filename}"
+                pix = QPixmap(path)
+    
             
-            if not pix.isNull():
-                self.tileset[tile_id] = pix.scaled(
-                    TILE_SIZE, TILE_SIZE, 
-                    transformMode=Qt.FastTransformation
-                )
+                
+                # 2e cas, backup si chemin non trouve, on utilise default
+                if pix.isNull() and biome_name != "default":
+                    path_fallback = f"assets/default/{tile_filename}"
+                    pix = QPixmap(path_fallback)
+                    if DEBUG and not pix.isNull():
+                        print(f"  > Tile '{props['name']}' non trouvée dans {biome_name}, utilisation du dossier default.")
+                
+                if not pix.isNull():
+                    self.tileset[tile_id] = pix.scaled(
+                        TILE_SIZE, TILE_SIZE, 
+                        transformMode=Qt.FastTransformation
+                    )
 
         self.current_loaded_biome = biome_name
 
@@ -251,7 +309,7 @@ class GameScene(QGraphicsScene):
         for y, row in enumerate(room["tiles"]):
             for x, tile_id in enumerate(row):
                 
-                # dessins du sol d'abord
+                # dessins du sol d'abord - pas d'animation
                 if ground_pixmap:
                     ground_item = QGraphicsPixmapItem(ground_pixmap)
                     ground_item.setPos(
@@ -262,28 +320,50 @@ class GameScene(QGraphicsScene):
                     ground_item.setZValue(0)
 
                 if tile_id != 0:
-                    pixmap = self.tileset.get(tile_id)
+                    data = self.tileset.get(tile_id)
                     
-                    if pixmap:
+                    # check si liste -> anime tile
+                    if isinstance(data, list):
+                        pixmap = data[0]
                         item = QGraphicsPixmapItem(pixmap)
-                        item.setPos(
-                            x * TILE_SIZE,
-                            (y + HUD_HEIGHT) * TILE_SIZE
-                        )
-                        self.addItem(item)
-                        item.setZValue(1)
+                        self.animated_tile_items.append((item, tile_id))
+                        # on l'ajoute a la liste des objets a animer
+                    
+                    # cas normal
+                    else:
+                        pixmap = data
+                        
+                        # check si non vide
+                        if pixmap:
+                            item = QGraphicsPixmapItem(pixmap)
+                            
+                    item.setPos(
+                        x * TILE_SIZE,
+                        (y + HUD_HEIGHT) * TILE_SIZE
+                    )
+                    self.addItem(item)
+                    item.setZValue(1)
 
-                        if DEBUG and TILE_TYPES[tile_id]["collision"] == 1:
-                            rect = QGraphicsRectItem(
-                                x * TILE_SIZE,
-                                (y + HUD_HEIGHT) * TILE_SIZE,
-                                TILE_SIZE, TILE_SIZE
-                            )
-                            rect.setPen(QPen(QColor("blue"), 1))
-                            rect.setZValue(500)
-                            self.addItem(rect)
-        
+                    if DEBUG and TILE_TYPES[tile_id]["collision"] == 1:
+                        rect = QGraphicsRectItem(
+                            x * TILE_SIZE,
+                            (y + HUD_HEIGHT) * TILE_SIZE,
+                            TILE_SIZE, TILE_SIZE
+                        )
+                        rect.setPen(QPen(QColor("blue"), 1))
+                        rect.setZValue(500)
+                        self.addItem(rect)
+            
         self.spawn_enemies(room)
+
+    def update_animations(self, dt):
+        self.animation_timer += dt
+        frame_index = int(self.animation_timer / self.frame_duree)
+    
+        for item, tile_id in self.animated_tile_items:
+            frames = self.tileset[tile_id]
+            current_frame = frame_index % len(frames)
+            item.setPixmap(frames[current_frame])
         
     def _change_room_internal(self, room_name, direction):
         """
@@ -307,10 +387,13 @@ class GameScene(QGraphicsScene):
         self.room_data = room
         self.enemies = []
     
+        # netoyer frames animees
+        self.animated_tile_items.clear()
         # nettoyer scene (items persistants), conserver joueur, ecran, fondu... lors de chgmt
         for item in list(self.items()):
             if item not in self.persistent_items: 
                 self.removeItem(item)
+        
 
         self.draw_hud()
         self.draw_room(room)

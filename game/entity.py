@@ -93,7 +93,7 @@ class Entity(QGraphicsPixmapItem):
         self.cries = []
         self.death_cry = "snd_placeholderdeath"
 
-
+        self.can_go_on_water = False
 
         # --- DEBUG ---
         if DEBUG:
@@ -165,7 +165,7 @@ class Entity(QGraphicsPixmapItem):
 
         def passable(x, y):
             """Retourne True si la hitbox retrecie à (x, y) ne chevauche aucun mur."""
-            return not scene.is_blocking_rect(*self.shrink_hitbox(*self.get_hitbox(x, y), MARGIN))
+            return not scene.is_blocking_rect(*self.shrink_hitbox(*self.get_hitbox(x, y), MARGIN),entity=self)
 
         # --- Axe X
         if passable(new_x, self.y):
@@ -353,7 +353,7 @@ class Entity(QGraphicsPixmapItem):
                 hx, hy, hw, hh = self.get_hitbox(test_x, self.y)
                 
                 #bloquer le deplcament si collision
-                if self.scene().is_blocking_rect(hx, hy, hw, hh):
+                if self.scene().is_blocking_rect(hx, hy, hw, hh,self):
                     return
                 
                 #bloquer le deplacement si oob
@@ -366,7 +366,7 @@ class Entity(QGraphicsPixmapItem):
                 test_y = self.y + direction
                 hx, hy, hw, hh = self.get_hitbox(self.x, test_y)
     
-                if self.scene().is_blocking_rect(hx, hy, hw, hh):
+                if self.scene().is_blocking_rect(hx, hy, hw, hh,self):
                     return
                 
                 if self._is_out_of_bounds(self.x,test_y):
@@ -383,14 +383,14 @@ class Entity(QGraphicsPixmapItem):
             test_x = self.x + direction * rest
             hx, hy, hw, hh = self.get_hitbox(test_x, self.y)
     
-            if not self.scene().is_blocking_rect(hx, hy, hw, hh) and not self._is_out_of_bounds(test_x, self.y):
+            if not self.scene().is_blocking_rect(hx, hy, hw, hh,self) and not self._is_out_of_bounds(test_x, self.y):
                 self.x = test_x
     
         else:
             test_y = self.y + direction * rest
             hx, hy, hw, hh = self.get_hitbox(self.x, test_y)
     
-            if not self.scene().is_blocking_rect(hx, hy, hw, hh) and not self._is_out_of_bounds(self.x,test_y):
+            if not self.scene().is_blocking_rect(hx, hy, hw, hh,self) and not self._is_out_of_bounds(self.x,test_y):
                 self.y = test_y
 
     def _is_out_of_bounds(self, x, y):
