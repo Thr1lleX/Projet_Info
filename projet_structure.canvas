@@ -1,0 +1,313 @@
+{
+  "nodes": [
+    {
+      "id": "root",
+      "type": "text",
+      "x": 0,
+      "y": 0,
+      "width": 320,
+      "height": 120,
+      "color": "1",
+      "text": "# 🎮 Projet Info — Zelda-like\n**Entry point:** `main.py`\nPyQt5 + pygame\nGrille 16×11 tiles · 60 FPS · Scale ×3"
+    },
+    {
+      "id": "main",
+      "type": "text",
+      "x": 420,
+      "y": 0,
+      "width": 280,
+      "height": 100,
+      "color": "6",
+      "text": "## `main.py`\n- Lance `QApplication`\n- Crée `GameWindow`\n- Icône : `assets/logo.png`"
+    },
+    {
+      "id": "config",
+      "type": "text",
+      "x": -500,
+      "y": -300,
+      "width": 320,
+      "height": 200,
+      "color": "3",
+      "text": "## ⚙️ `game/config.py`\nConstantes globales partagées :\n- `TILE_SIZE` = 16 × 3 = 48 px\n- `GRID_WIDTH/HEIGHT` = 16 × 11\n- `BASE_SPEED` = 90 × 3 px/s\n- `FPS` = 60\n- `DEBUG` = True\n- `KEYS` = mapping clavier\n- `EXIT_HOLD_TIME` = 2.0s\n- Durées fade in/out transitions"
+    },
+    {
+      "id": "window",
+      "type": "text",
+      "x": 420,
+      "y": 200,
+      "width": 300,
+      "height": 180,
+      "color": "5",
+      "text": "## 🪟 `game/window.py` — GameWindow\n- Fenêtre taille fixe, sans scrollbars\n- `keyPressEvent / keyReleaseEvent`\n  → transmet au joueur ET à la scène\n- `closeEvent` → stop musique\n- `quitter_jeu()` → exit propre PyQt"
+    },
+    {
+      "id": "scene",
+      "type": "text",
+      "x": 0,
+      "y": 300,
+      "width": 380,
+      "height": 340,
+      "color": "5",
+      "text": "## 🗺️ `game/scene.py` — GameScene\n- Init : tileset, joueur, ennemis, transition, musique, sfx\n- `game_loop()` @60Hz : update joueur, ennemis, transitions\n- `draw_room(room)` : dessine tiles depuis JSON\n- `is_blocking_rect(x,y,w,h)` : collision tiles solides\n- `check_room_transition()` : détecte sortie joueur\n- `_change_room_internal()` : charge JSON, nettoie scène\n- `spawn_enemies(room)` : instancie depuis JSON\n- `reposition_player(direction)` : replace après transition\n- `start_room_music()` : lance musique de la salle\n- `game_over()` : stop gameplay, écran noir"
+    },
+    {
+      "id": "entity",
+      "type": "text",
+      "x": -500,
+      "y": 300,
+      "width": 380,
+      "height": 380,
+      "color": "4",
+      "text": "## 🧩 `game/entity.py` — Entity (base)\nHéritée par Player et Enemy\n- `get_hitbox(x,y)` → (x,y,w,h)\n- `get_center()` → centre hitbox\n- `move(dx,dy,dt,scene)` → déplacement avec collision\n- `take_damage(scene, dmg, src)` → PV, flash, knockback, invuln\n- `die()` → retire de la liste + invisible\n- `apply_red_flash()` → sprite rouge\n- `get_knockback / apply_knockback` → recul\n- `_move_with_collision_limit(axis, amount)`\n- `_is_out_of_bounds(x,y)`\n- `update_graphics()` → sprite + position\n- `update_damage_state(dt)` → timers flash/invuln/stun\n- `apply_stun_wiggle(dt, scene)` → oscillation visuelle\n- `stun(duration, wiggle)` → bloque mouvements\n- `update(dt, scene)` ← **abstraite**"
+    },
+    {
+      "id": "player",
+      "type": "text",
+      "x": -500,
+      "y": 750,
+      "width": 340,
+      "height": 280,
+      "color": "2",
+      "text": "## 🧑 `game/player.py` — Player\nHérite de Entity\n- `key_press / key_release` → set de touches\n- `update(dt, scene)` : knockback > stun > attaque > mouvement\n- `get_hitbox` override (hitbox réduite)\n- `die()` → `scene.game_over()`\n- `handle_exit_logic(dt, scene)` → maintien Échap, texte EXIT\n- `attack(scene)` → crée SwordSlash\n- `spear(scene)` → crée Spear\n- `shout(scene)` → joue son test (M)"
+    },
+    {
+      "id": "enemy_base",
+      "type": "text",
+      "x": 0,
+      "y": 750,
+      "width": 340,
+      "height": 220,
+      "color": "4",
+      "text": "## 👾 `game/enemies/enemy.py` — Enemy\nHérite de Entity\n- `set_target(target)` → cible (joueur)\n- `update(dt, scene)` : knockback > stun > fonce sur cible\n- `die()` → marque comme tué en session\n- `try_hit_player(scene)` → AABB, dégâts + knockback + stun"
+    },
+    {
+      "id": "enemy_registry",
+      "type": "text",
+      "x": 420,
+      "y": 750,
+      "width": 300,
+      "height": 160,
+      "color": "4",
+      "text": "## 📋 `enemies/enemy_registry.py`\n- `load_enemy_types()` : scanne `enemies/`\n  auto-import + enregistre `{nom: Classe}`\n- `ENEMY_TYPES` : dict utilisé par scene.py\n  pour instancier depuis JSON"
+    },
+    {
+      "id": "placeholder1",
+      "type": "text",
+      "x": 0,
+      "y": 1050,
+      "width": 280,
+      "height": 120,
+      "color": "4",
+      "text": "## 🟥 `enemies/placeholder1.py`\nEnnemi basique\n- Hérite Enemy · vitesse/3 · 2 PV\n- Sprite unique toutes directions\n- IA : fonce sur le joueur"
+    },
+    {
+      "id": "placeholder2",
+      "type": "text",
+      "x": 340,
+      "y": 1050,
+      "width": 300,
+      "height": 160,
+      "color": "4",
+      "text": "## 🟦 `enemies/placeholder2.py` — Boss\n- 10 PV · 2 dmg · stun 5s · knockback ×5\n- Hitbox 2×2 tiles · invuln 1.5s\n- `die()` : 1/11 chance → Rick Astley 🎵\n- `rick()` → crée RickWindow"
+    },
+    {
+      "id": "rick",
+      "type": "text",
+      "x": 700,
+      "y": 1050,
+      "width": 260,
+      "height": 120,
+      "color": "6",
+      "text": "## 🤡 `game/rick.py` — RickWindow\nEaster egg\n- Popup GIF Rick Astley\n- Lance `mus_rick.mp3`\n- `closeEvent` → stop musique"
+    },
+    {
+      "id": "sword_slash",
+      "type": "text",
+      "x": -500,
+      "y": 1280,
+      "width": 360,
+      "height": 260,
+      "color": "1",
+      "text": "## 🗡️ `attacks/sword_slash.py` — SwordSlash\n- `__init__` : frames d'anim + hitbox par frame\n- `update_position()` : colle au joueur (offset rotation)\n- `update_hitbox()` : hitbox selon frame + direction\n- `rotate_point(x,y,dir)` : rotation coins hitbox\n- `check_collisions(scene)` : AABB → dégâts ennemi\n  + léger recul joueur (effet choc)\n- `update(dt, scene)` : avance anim, check collisions\n- `die()` : retire sprite, `is_attacking = False`\n- `get_center()` : centre hitbox (pour knockback)"
+    },
+    {
+      "id": "spear",
+      "type": "text",
+      "x": -100,
+      "y": 1280,
+      "width": 320,
+      "height": 180,
+      "color": "1",
+      "text": "## 🏹 `attacks/spear.py` — Spear\nMême structure que SwordSlash\n- Dégâts ×3\n- Pas de knockback sur joueur\n- Pas de stun\n- Animation 1×4 tiles (longue portée)\n- `die()` → `is_usingspear = False`"
+    },
+    {
+      "id": "attack_base",
+      "type": "text",
+      "x": -800,
+      "y": 1280,
+      "width": 240,
+      "height": 100,
+      "color": "1",
+      "text": "## ⚔️ `game/attack.py`\nClasse de base `Attack`\n(QGraphicsPixmapItem)\n⚠️ En construction"
+    },
+    {
+      "id": "transition",
+      "type": "text",
+      "x": 420,
+      "y": 400,
+      "width": 320,
+      "height": 180,
+      "color": "5",
+      "text": "## 🔁 `game/transition.py` — TransitionManager\n- Overlay noir par-dessus la scène\n- `start(room, dir)` : lance fade_out → change_room → fade_in → music_wait → idle\n- `update(dt)` : machine à états\n- Gère fade musique si nouvelle salle"
+    },
+    {
+      "id": "room_loader",
+      "type": "text",
+      "x": 800,
+      "y": 300,
+      "width": 260,
+      "height": 100,
+      "color": "3",
+      "text": "## 📄 `game/room_loader.py`\n- `load_room(path)` : lit JSON\n  → tiles, ennemis, transitions, musique"
+    },
+    {
+      "id": "tileset",
+      "type": "text",
+      "x": 800,
+      "y": 450,
+      "width": 260,
+      "height": 120,
+      "color": "3",
+      "text": "## 🧱 `game/tileset.py`\nDict `TILE_TYPES` :\n- `0` = sable (pas de collision)\n- `1` = arbre (collision solide)"
+    },
+    {
+      "id": "animspr",
+      "type": "text",
+      "x": -900,
+      "y": 300,
+      "width": 340,
+      "height": 180,
+      "color": "6",
+      "text": "## 🖼️ `game/animspr.py`\n- `load_animation_sequence(folder, count, size)`\n  → liste QPixmap numérotées\n- `generate_directional_animations(frames, pos, size)`\n  → dict {up/left/right/down: {frames, offset}}\n  (rotation + recentrage auto)"
+    },
+    {
+      "id": "fonts",
+      "type": "text",
+      "x": -900,
+      "y": 530,
+      "width": 300,
+      "height": 140,
+      "color": "6",
+      "text": "## 🖋️ `game/fonts.py`\n- `get_font(path, size, bold)` : charge + cache .ttf\n  fallback Arial si introuvable\n- `get_font0(size)` → 8bitoperator.ttf\n- `get_font1(size)` → undertale-wingdings.ttf"
+    },
+    {
+      "id": "music",
+      "type": "text",
+      "x": -900,
+      "y": 720,
+      "width": 340,
+      "height": 240,
+      "color": "6",
+      "text": "## 🎵 `game/music.py` — MusicManager (PyQt)\n- `play(name, fade_in)` : joue .wav (async, dédupliqué)\n- `play_mp3(name, fade_in)` : pour gros fichiers\n- `_load_pending()` : chargement différé anti-freeze\n- `update(dt)` : gère fade in / fade out volume\n- `stop()` : arrêt + reset\n- `start_fade_out()` : fondu sortant progressif\n- `on_status_changed()` : callback prêt/erreur"
+    },
+    {
+      "id": "sfx",
+      "type": "text",
+      "x": -900,
+      "y": 1010,
+      "width": 320,
+      "height": 180,
+      "color": "6",
+      "text": "## 🎶 `game/sfx.py` — SFXManager (pygame)\nMixer 48kHz · 32 canaux simultanés\n- `_preload_all_sounds()` : charge tous .wav en RAM\n- `play(name)` : joue son par nom, non-bloquant\n- `set_volume(vol)` : volume global 0.0–1.0"
+    },
+    {
+      "id": "rooms_data",
+      "type": "text",
+      "x": 800,
+      "y": 620,
+      "width": 320,
+      "height": 200,
+      "color": "3",
+      "text": "## 🗂️ `rooms/` — Données de salles (JSON)\n4 salles : room1, room2, room3, room4\nChaque JSON contient :\n- `tiles[][]` : grille 16×11 (0=sable, 1=arbre)\n- `music` : nom de la piste\n- `transitions` : {left, right, up, down → room_id}\n- `enemies[]` : [{id, type, x, y}]"
+    },
+    {
+      "id": "assets_data",
+      "type": "text",
+      "x": 800,
+      "y": 870,
+      "width": 320,
+      "height": 200,
+      "color": "3",
+      "text": "## 🖼️ `assets/` — Ressources graphiques\n- `logo.png` : icône fenêtre\n- `chara_*.png` : sprites directionnels joueur\n- `entity.png`, `sand.png`, `tree.png`, `troll.png`\n- `placeholder1/2.png` : sprites ennemis\n- `rick.gif` : GIF easter egg (4.5 Mo)\n- `player/attack/` : frames attaque joueur"
+    },
+    {
+      "id": "audio_data",
+      "type": "text",
+      "x": 800,
+      "y": 1120,
+      "width": 300,
+      "height": 140,
+      "color": "3",
+      "text": "## 🔊 Audio\n`mus/` : musiques .wav / .mp3\n`sound_effect/` : effets sonores .wav\n(préchargés au démarrage par SFXManager)"
+    },
+    {
+      "id": "save_data",
+      "type": "text",
+      "x": 800,
+      "y": 1310,
+      "width": 280,
+      "height": 120,
+      "color": "3",
+      "text": "## 💾 `savefiles/`\n- `config.txt` : configuration sauvegardée\n  (progression, options…)"
+    },
+    {
+      "id": "fonts_data",
+      "type": "text",
+      "x": 800,
+      "y": 1480,
+      "width": 280,
+      "height": 100,
+      "color": "3",
+      "text": "## 🔤 `fonts/`\n- `8bitoperator.ttf`\n- `undertale-wingdings.ttf`"
+    },
+    {
+      "id": "legend",
+      "type": "text",
+      "x": -900,
+      "y": -300,
+      "width": 340,
+      "height": 220,
+      "color": "6",
+      "text": "## 🗺️ Légende couleurs\n🔴 Rouge = Point d'entrée / Attaques\n🟠 Orange = Fenêtre / Scène / Transition\n🟡 Jaune = Utilitaires (anim, fonts, audio)\n🟢 Vert = Config & Data (rooms, assets)\n🔵 Bleu = Entity / AI / Ennemis\n🟣 Violet = Méta (easter egg, config)\n⚫ Neutre = Héritage principal"
+    }
+  ],
+  "edges": [
+    { "id": "e1", "fromNode": "main", "fromSide": "bottom", "toNode": "window", "toSide": "top", "label": "crée" },
+    { "id": "e2", "fromNode": "window", "fromSide": "bottom", "toNode": "scene", "toSide": "top", "label": "contient GameScene" },
+    { "id": "e3", "fromNode": "scene", "fromSide": "left", "toNode": "entity", "toSide": "right", "label": "utilise" },
+    { "id": "e4", "fromNode": "entity", "fromSide": "bottom", "toNode": "player", "toSide": "top", "label": "hérite" },
+    { "id": "e5", "fromNode": "entity", "fromSide": "right", "toNode": "enemy_base", "toSide": "left", "label": "hérite" },
+    { "id": "e6", "fromNode": "enemy_base", "fromSide": "bottom", "toNode": "placeholder1", "toSide": "top", "label": "hérite" },
+    { "id": "e7", "fromNode": "enemy_base", "fromSide": "right", "toNode": "placeholder2", "toSide": "left", "label": "hérite" },
+    { "id": "e8", "fromNode": "placeholder2", "fromSide": "right", "toNode": "rick", "toSide": "left", "label": "1/11 chance" },
+    { "id": "e9", "fromNode": "player", "fromSide": "bottom", "toNode": "sword_slash", "toSide": "top", "label": "attack()" },
+    { "id": "e10", "fromNode": "player", "fromSide": "bottom", "toNode": "spear", "toSide": "top", "label": "spear()" },
+    { "id": "e11", "fromNode": "attack_base", "fromSide": "right", "toNode": "sword_slash", "toSide": "left", "label": "hérite" },
+    { "id": "e12", "fromNode": "attack_base", "fromSide": "right", "toNode": "spear", "toSide": "left", "label": "hérite" },
+    { "id": "e13", "fromNode": "scene", "fromSide": "right", "toNode": "transition", "toSide": "left", "label": "gère" },
+    { "id": "e14", "fromNode": "scene", "fromSide": "right", "toNode": "room_loader", "toSide": "left", "label": "charge JSON" },
+    { "id": "e15", "fromNode": "room_loader", "fromSide": "right", "toNode": "rooms_data", "toSide": "left", "label": "lit" },
+    { "id": "e16", "fromNode": "scene", "fromSide": "right", "toNode": "tileset", "toSide": "left", "label": "réf types" },
+    { "id": "e17", "fromNode": "scene", "fromSide": "right", "toNode": "assets_data", "toSide": "left", "label": "charge" },
+    { "id": "e18", "fromNode": "scene", "fromSide": "right", "toNode": "audio_data", "toSide": "left", "label": "joue" },
+    { "id": "e19", "fromNode": "scene", "fromSide": "right", "toNode": "save_data", "toSide": "left", "label": "config" },
+    { "id": "e20", "fromNode": "enemy_registry", "fromSide": "left", "toNode": "enemy_base", "toSide": "right", "label": "enregistre" },
+    { "id": "e21", "fromNode": "scene", "fromSide": "bottom", "toNode": "enemy_registry", "toSide": "top", "label": "instancie ennemis" },
+    { "id": "e22", "fromNode": "animspr", "fromSide": "right", "toNode": "entity", "toSide": "left", "label": "fournit frames" },
+    { "id": "e23", "fromNode": "fonts", "fromSide": "right", "toNode": "scene", "toSide": "left", "label": "polices" },
+    { "id": "e24", "fromNode": "music", "fromSide": "right", "toNode": "scene", "toSide": "left", "label": "gère musique" },
+    { "id": "e25", "fromNode": "sfx", "fromSide": "right", "toNode": "scene", "toSide": "left", "label": "gère SFX" },
+    { "id": "e26", "fromNode": "config", "fromSide": "right", "toNode": "root", "toSide": "left", "label": "constantes globales" },
+    { "id": "e27", "fromNode": "fonts", "fromSide": "right", "toNode": "fonts_data", "toSide": "left", "label": "charge .ttf" }
+  ]
+}
