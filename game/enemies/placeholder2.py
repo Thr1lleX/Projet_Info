@@ -15,7 +15,7 @@ class Placeholder2(Enemy):
         # --- STATS ---
         self.speed = self.speed / 20
         self.pv_max = 10
-        self.pv_main = 10
+        self.pv_main = self.pv_max
         self.aggro_range = self.tile_size * 10
         
         self.invuln_duration = 1.5

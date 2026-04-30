@@ -14,6 +14,8 @@ class Placeholder1(Enemy):
         self.speed = self.speed/3
         self.pv_max = 2
         self.pv_main = 2
+        
+        self.aggro_range = self.tile_size * 10
 
         # --- SPRITE UNIQUE (même pour toutes directions) ---
         sprite = QPixmap("assets/placeholder1.png").scaled(

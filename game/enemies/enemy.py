@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt
 from game.entity import Entity
 from game.config import BASE_SPEED, DEBUG, HUD_HEIGHT
 from game.pathfinder import astar, get_walkable_grid
+import math
 
 class Enemy(Entity):
     def __init__(self, scale, x, y):
@@ -49,6 +50,8 @@ class Enemy(Entity):
             self.apply_knockback(dt, scene)
             self.update_graphics()
             self.update_damage_state(dt)
+            if DEBUG:
+                self.draw_debug_path(scene)
             return
         
         #ensuite prio stun, comme pour player
@@ -56,6 +59,8 @@ class Enemy(Entity):
             self.apply_stun_wiggle(dt,scene)
             self.update_graphics()
             self.update_damage_state(dt)
+            if DEBUG:
+                self.draw_debug_path(scene)
             return
 
         if not self.target:
@@ -77,11 +82,18 @@ class Enemy(Entity):
             if self.path_timer >= self.path_interval:
                 self.path_timer = 0.0
                 
-                start_pos = (self.x + self.tile_size / 2.0, self.y + self.tile_size / 2.0)
+                # On calcule les dimensions en tuiles séparément
+                w_tiles = max(1, math.ceil(self.hitbox_width / self.tile_size))
+                h_tiles = max(1, math.ceil(self.hitbox_height / self.tile_size))
+                
+                start_pos = start_pos = (self.x + self.tile_size / 2.0, self.y + self.tile_size / 2.0)
                 goal_pos = (self.target.x + self.target.tile_size / 2.0, self.target.y + self.target.tile_size / 2.0)
                 
                 grid = get_walkable_grid(scene.room_data)
-                new_path = astar(grid, start_pos, goal_pos, self.tile_size)
+                
+                # On passe les deux dimensions
+                new_path = astar(grid, start_pos, goal_pos, self.tile_size, w_tiles, h_tiles)
+                
                 
                 if new_path is not None:
                     self.path = new_path
@@ -150,6 +162,11 @@ class Enemy(Entity):
                     if rect.scene() == scene:
                         scene.removeItem(rect)
                 self.path_rects.clear()
+                
+                for line in self.path_lines:
+                    if line.scene() == scene:
+                        scene.removeItem(line)
+                self.path_lines.clear()
     
             room = self.room_name
     
