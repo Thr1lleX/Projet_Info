@@ -127,16 +127,21 @@ class Entity(QGraphicsPixmapItem):
     
         return x, y    
 
+    def shrink_hitbox(self, hx, hy, hw, hh, margin):
+        return hx + margin, hy + margin, hw - 2 * margin, hh - 2 * margin
+
     def move(self, dx, dy, dt, scene):
         new_x = self.x + dx * self.speed * dt
         new_y = self.y + dy * self.speed * dt
         # --- collision par rapport a hitbox
         if self.collision:
             hx, hy, hw, hh = self.get_hitbox(new_x, self.y)
+            hx, hy, hw, hh = self.shrink_hitbox(hx, hy, hw, hh, 2)
             if not scene.is_blocking_rect(hx, hy, hw, hh):
                 self.x = new_x
 
             hx, hy, hw, hh = self.get_hitbox(self.x, new_y)
+            hx, hy, hw, hh = self.shrink_hitbox(hx, hy, hw, hh, 2)
             if not scene.is_blocking_rect(hx, hy, hw, hh):
                 self.y = new_y
         else:
