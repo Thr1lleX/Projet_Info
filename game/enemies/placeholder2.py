@@ -23,14 +23,14 @@ class Placeholder2(Enemy):
         
         # -- Parametres d'attaque ---
         self.damage = 2
-        self.give_stun = 5
+        self.give_stun = 20
 
         # --- HITBOX ---
         self.hitbox_width = self.tile_size * 2
         self.hitbox_height = self.tile_size * 2
         
-        self.knockback = 5
-        self.duree_knockback = 2
+        self.knockback = 7
+        self.duree_knockback = 1.5
 
         # --- SPRITE UNIQUE (même pour toutes directions) ---
         sprite = QPixmap("assets/placeholder2.png").scaled(
