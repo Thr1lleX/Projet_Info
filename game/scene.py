@@ -30,20 +30,23 @@ class GameScene(QGraphicsScene):
         height = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE
 
         self.setSceneRect(0, 0, width, height)
-
-        # --- TILESET -- pixmap
-        self.tileset = {
-            0: QPixmap("assets/sand.png").scaled(
-                TILE_SIZE,
-                TILE_SIZE,
-                transformMode=Qt.FastTransformation
-            ),
-            1: QPixmap("assets/tree.png").scaled(
-                TILE_SIZE,
-                TILE_SIZE,
-                transformMode=Qt.FastTransformation
-            )
-        }
+        
+        self.tileset = {}
+        self.current_biome = None
+        
+        # # --- TILESET -- pixmap
+        # self.tileset = {
+        #     0: QPixmap("assets/sand.png").scaled(
+        #         TILE_SIZE,
+        #         TILE_SIZE,
+        #         transformMode=Qt.FastTransformation
+        #     ),
+        #     1: QPixmap("assets/tree.png").scaled(
+        #         TILE_SIZE,
+        #         TILE_SIZE,
+        #         transformMode=Qt.FastTransformation
+        #     )
+        # }
         
 
         self.draw_hud()
@@ -196,42 +199,92 @@ class GameScene(QGraphicsScene):
         return False
 
 
+    def load_biome_tileset(self, biome_name):
+        """
+        Fonction qui recupere le biome de la salle et update current_loaded_biome
+        """
+        # si le biome en chargement les le meme que current biome, on ne fait rien
+        if hasattr(self, 'current_loaded_biome') and self.current_loaded_biome == biome_name:
+            return 
+        
+        if DEBUG:
+            print(f"Changement de biome détecté : chargement de {biome_name}...")
+        
+        self.tileset = {}
+        
+        for tile_id, props in TILE_TYPES.items():
+            tile_filename = f"{props['name']}.png"
+            
+            path = f"assets/{biome_name}/{tile_filename}"
+            pix = QPixmap(path)
+            
+            # backup si chemin non trouve, on utilise default
+            if pix.isNull() and biome_name != "default":
+                path_fallback = f"assets/default/{tile_filename}"
+                pix = QPixmap(path_fallback)
+                if DEBUG and not pix.isNull():
+                    print(f"  > Tile '{props['name']}' non trouvée dans {biome_name}, utilisation du dossier default.")
+            
+            if not pix.isNull():
+                self.tileset[tile_id] = pix.scaled(
+                    TILE_SIZE, TILE_SIZE, 
+                    transformMode=Qt.FastTransformation
+                )
+
+        self.current_loaded_biome = biome_name
+
+
     def draw_room(self, room):
         """
         invoquee par _change_room_internal et prend en parametre la room
         dessine salle suivante avec ses tiles
-
-        """
         
+        On rempli la room du sol (ground.png id = 0)
+        on place par dessus les autres assets en fonction du biome
+        On a pas securite biome default
+        """
+        biome_actuel = room.get("biome", "default")
+        self.load_biome_tileset(biome_actuel)
+        
+        ground_pixmap = self.tileset.get(0)
+
         for y, row in enumerate(room["tiles"]):
             for x, tile_id in enumerate(row):
-    
-                pixmap = self.tileset[tile_id]
-    
-                item = QGraphicsPixmapItem(pixmap)
-    
-                item.setPos(
-                    x * TILE_SIZE,
-                    (y + HUD_HEIGHT) * TILE_SIZE
-                )
-    
-                self.addItem(item)
-                # --- Affichage DEBUG collisions ---
-                if DEBUG and TILE_TYPES[tile_id]["collision"] == 1:
-                    rect = QGraphicsRectItem(
+                
+                # dessins du sol d'abord
+                if ground_pixmap:
+                    ground_item = QGraphicsPixmapItem(ground_pixmap)
+                    ground_item.setPos(
                         x * TILE_SIZE,
-                        (y + HUD_HEIGHT) * TILE_SIZE,
-                        TILE_SIZE,
-                        TILE_SIZE
+                        (y + HUD_HEIGHT) * TILE_SIZE
                     )
-                    rect.setPen(QPen(QColor("blue"), 1))
-                    rect.setBrush(QBrush())
-                    rect.setZValue(500)
-    
-                    self.addItem(rect)
-    
-        self.spawn_enemies(room)
+                    self.addItem(ground_item)
+                    ground_item.setZValue(0)
 
+                if tile_id != 0:
+                    pixmap = self.tileset.get(tile_id)
+                    
+                    if pixmap:
+                        item = QGraphicsPixmapItem(pixmap)
+                        item.setPos(
+                            x * TILE_SIZE,
+                            (y + HUD_HEIGHT) * TILE_SIZE
+                        )
+                        self.addItem(item)
+                        item.setZValue(1)
+
+                        if DEBUG and TILE_TYPES[tile_id]["collision"] == 1:
+                            rect = QGraphicsRectItem(
+                                x * TILE_SIZE,
+                                (y + HUD_HEIGHT) * TILE_SIZE,
+                                TILE_SIZE, TILE_SIZE
+                            )
+                            rect.setPen(QPen(QColor("blue"), 1))
+                            rect.setZValue(500)
+                            self.addItem(rect)
+        
+        self.spawn_enemies(room)
+        
     def _change_room_internal(self, room_name, direction):
         """
         Fonction de changement de salle
@@ -254,7 +307,7 @@ class GameScene(QGraphicsScene):
         self.room_data = room
         self.enemies = []
     
-        # nettoyer scène (items persistants), conserver joueur, écran, fondu... lors de chgmt
+        # nettoyer scene (items persistants), conserver joueur, ecran, fondu... lors de chgmt
         for item in list(self.items()):
             if item not in self.persistent_items: 
                 self.removeItem(item)
