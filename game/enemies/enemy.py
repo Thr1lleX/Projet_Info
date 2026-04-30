@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from PyQt5.QtGui import QPen, QColor
+from PyQt5.QtGui import QPen, QColor, QBrush
+from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsLineItem
+from PyQt5.QtCore import Qt
 
 from game.entity import Entity
-from game.config import BASE_SPEED, DEBUG
+from game.config import BASE_SPEED, DEBUG, HUD_HEIGHT
+from game.pathfinder import astar, get_walkable_grid
 
 class Enemy(Entity):
     def __init__(self, scale, x, y):
@@ -18,10 +21,19 @@ class Enemy(Entity):
         self.target = None
 
         # portée détection standard
-        self.aggro_range = self.tile_size * 7
+        self.aggro_range = self.tile_size * 13
         
         self.damage = 1 #degats de base
         self.give_stun = 0 # duree du stun infligé au joueur (0 = pas de stun)
+
+        # Pathfinding
+        self.use_pathfinding = True
+        self.path = []
+        self.path_timer = 0.0
+        self.path_interval = 0.05
+        self.show_path = DEBUG
+        self.path_rects = []
+        self.path_lines = []
 
 
         if DEBUG:
@@ -60,10 +72,62 @@ class Enemy(Entity):
             self.update_damage_state(dt)
             return
 
-        if dist > 0:
-            dx /= dist
-            dy /= dist
+        if self.use_pathfinding:
+            self.path_timer += dt
+            if self.path_timer >= self.path_interval:
+                self.path_timer = 0.0
+                
+                start_pos = (self.x + self.tile_size / 2.0, self.y + self.tile_size / 2.0)
+                goal_pos = (self.target.x + self.target.tile_size / 2.0, self.target.y + self.target.tile_size / 2.0)
+                
+                grid = get_walkable_grid(scene.room_data)
+                new_path = astar(grid, start_pos, goal_pos, self.tile_size)
+                
+                if new_path is not None:
+                    self.path = new_path
+                else:
+                    self.path = []
+                    
+                if self.show_path:
+                    self.draw_debug_path(scene)
 
+            if self.path:
+                next_pos = self.path[0]
+                target_x = next_pos[0]
+                target_y = next_pos[1]
+                
+                # Cible par rapport au CENTRE de l'ennemi
+                center_x = self.x + self.tile_size / 2.0
+                center_y = self.y + self.tile_size / 2.0
+                
+                dx = target_x - center_x
+                dy = target_y - center_y
+                
+                dist_to_next = (dx**2 + dy**2) ** 0.5
+                
+                if dist_to_next < self.speed * dt:
+                    self.path.pop(0)
+                    if self.path:
+                        next_pos = self.path[0]
+                        target_x = next_pos[0]
+                        target_y = next_pos[1]
+                        dx = target_x - center_x
+                        dy = target_y - center_y
+                        dist_to_next = (dx**2 + dy**2) ** 0.5
+
+                if dist_to_next > 0:
+                    dx /= dist_to_next
+                    dy /= dist_to_next
+            else:
+                if dist > 0:
+                    dx /= dist
+                    dy /= dist
+        else:
+            if dist > 0:
+                dx /= dist
+                dy /= dist
+
+        if dx != 0 or dy != 0:
             if abs(dx) > abs(dy):
                 self.direction = "right" if dx > 0 else "left"
             else:
@@ -80,6 +144,12 @@ class Enemy(Entity):
         scene = self.scene()
     
         if scene:
+            # Nettoyer les chemins de debug
+            if self.path_rects:
+                for rect in self.path_rects:
+                    if rect.scene() == scene:
+                        scene.removeItem(rect)
+                self.path_rects.clear()
     
             room = self.room_name
     
@@ -113,6 +183,45 @@ class Enemy(Entity):
             if self.give_stun > 0: 
                 # on doit additionner les temps car ils demarrent tout deux au coup
                 self.target.stun(self.give_stun+self.duree_knockback, wiggle=True)
+
+    def draw_debug_path(self, scene):
+        # Clear old items
+        for item in self.path_rects + self.path_lines:
+            if item.scene() == scene:
+                scene.removeItem(item)
+        self.path_rects.clear()
+        self.path_lines.clear()
+
+        if not self.path:
+            return
+
+        # Use centers for visualization
+        current_x = self.x + self.tile_size / 2
+        current_y = self.y + self.tile_size / 2
+
+        for px, py in self.path:
+            # Red line connecting waypoints
+            line = QGraphicsLineItem(current_x, current_y, px, py)
+            line.setPen(QPen(QColor(255, 0, 0, 180), 2))
+            line.setZValue(84)
+            scene.addItem(line)
+            self.path_lines.append(line)
+
+            # Green waypoint markers
+            rect = QGraphicsRectItem(
+                px - 4,
+                py - 4,
+                8,
+                8
+            )
+            rect.setBrush(QBrush(QColor(0, 255, 0, 200)))
+            rect.setPen(QPen(Qt.NoPen))
+            rect.setZValue(85)
+            scene.addItem(rect)
+            self.path_rects.append(rect)
+
+            # Update current to next point
+            current_x, current_y = px, py
             
         
 """
