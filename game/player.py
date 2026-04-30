@@ -16,6 +16,8 @@ from game.fonts import get_font0
 #from game.window import GameWindow
 from game.attacks.sword_slash import SwordSlash
 from game.attacks.spear import Spear
+from game.attacks.test_fireball import Fireball
+from game.attacks.boomerang import Boomerang
 import random
 
 class Player(Entity):
@@ -100,6 +102,9 @@ class Player(Entity):
         self.is_usingspear = False
         self.current_sword = None
         self.current_spear = None
+        self.projectiles = []
+        self.projectiles_cooldown = 0
+        self.projectiles_delay = 0.4 #0.5s min entre chaque
         
         self.shout_pressed = False
         
@@ -112,121 +117,90 @@ class Player(Entity):
     def key_release(self, key):
         self.keys.discard(key)
  
-    
+
     def update(self, dt, scene):
         """
-        Fonction qui s'occupe de reagir aux touches
-        On utilise update_graphics de entity.py
-        donc ici, simplement pour touches
-        """
-
-        self.handle_exit_logic(dt, scene)
+        Cette fonction va s'occuper de charger logique au fur et a mesure en gros
         
-        # priorite au knockback pour bloquer mvt du joueur
+        On divise ca en 3:
+            - les systemes globaux qui doivent toujours etre updates
+            - tout ce qui est lie au deplacement
+            - follow logic, en l'occurence les armes suivent le joueur lors de knockback
+        """
+        # exit, 
+        self.handle_exit_logic(dt, scene)
+        self.update_damage_state(dt) # invuln, clignot etc.
+        
+        if self.attack_cooldown > 0:
+            self.attack_cooldown = max(0, self.attack_cooldown - dt)
+        
+        if self.projectiles_cooldown > 0:
+            self.projectiles_cooldown = max(0, self.projectiles_cooldown - dt)
+        
+        # mise a jours des projectiles en fond
+        for proj in self.projectiles[:]:
+            proj.update(dt, scene)
+            if proj.scene() is None:
+                self.projectiles.remove(proj)
+
+        if scene.is_transitioning:
+            return
+
+        # 2 - deplacements
+        # bloque le joueur si knockback, mais autorise wiggle de stun
         if self.kb_active:
             self.apply_knockback(dt, scene)
-            
-            # update des attaques pendant knockback
-            if self.is_attacking and self.current_sword:
-                self.current_sword.update(dt, scene)
-            # plus tard remplacer par item au lieu de lance
-            if self.is_usingspear and self.current_spear:
-                self.current_spear.update(dt, scene)
-        
-            self.update_graphics()
-            self.update_damage_state(dt)
-            return
-
-        # # priorite au knockback pour bloquer mvt du joueur
-        # if self.kb_active:
-        #     self.apply_knockback(dt, scene)
-            
-        #     # il faut aussi updater animation de epee durant knockback si attaque
-        #     if self.is_attacking and self.current_sword:
-        #         self.current_sword.update(dt,scene)
-        #     self.update_graphics()
-        #     self.update_damage_state(dt)
-        #     return
-        # # plus tard remplacer par item au lieu de lance
-        #     if self.is_usingspear and self.current_spear:
-        #         self.current_spear.update(dt,scene)
-        #     self.update_graphics()
-        #     self.update_damage_state(dt)
-        #     return
-        # prio au stun ensuite, mais autorise wiggle (voir entity.py)
-        if self.is_stunned:
-            self.apply_stun_wiggle(dt,scene)
-            self.update_graphics()
-            self.update_damage_state(dt)
-            return
-            
-        if not scene.is_transitioning:
-            pass
-        
-        # bloque le joeur durant animation d'attaque
-        if self.is_attacking:
-            if self.current_sword:
-                self.current_sword.update(dt, scene)
-    
-            self.update_graphics()
-            self.update_damage_state(dt)
-            return
-        
-        
-        if self.is_usingspear:
-            if self.current_spear:
-                self.current_spear.update(dt, scene)
-    
-            self.update_graphics()
-            self.update_damage_state(dt)
-            return
-
-        # --COOLDOWN ATTAQUE ---
-        if self.attack_cooldown > 0:
-            self.attack_cooldown -= dt
-        
-            if self.attack_cooldown < 0:
-                self.attack_cooldown = 0
-        
-        # -- MOUVEMENTS--
-        dx, dy = 0, 0
-    
-        if KEYS["UP"] in self.keys:
-            dy -= 1
-            self.direction = "up"
-        if KEYS["DOWN"] in self.keys:
-            dy += 1
-            self.direction = "down"
-        if KEYS["LEFT"] in self.keys:
-            dx -= 1
-            self.direction = "left"
-        if KEYS["RIGHT"] in self.keys:
-            dx += 1
-            self.direction = "right"
-        
-        if KEYS["SHOUTS"] in self.keys:
-            if not self.shout_pressed:
-                self.shout(scene)
-                self.shout_pressed = True
+        elif self.is_stunned:
+            self.apply_stun_wiggle(dt, scene)
         else:
-            self.shout_pressed = False
+            self.handle_inputs(dt, scene)
+
+
+        # mise a jour des armes ! necessairement apres mouvement!
+        self.update_held_weapons(dt, scene)
+
+        self.update_graphics()
+
+    def update_held_weapons(self, dt, scene):
+        """
+        mise a jour de position et animation des armes bound au joueur
+        """
+        if self.is_attacking and self.current_sword:
+            self.current_sword.update(dt, scene)
             
+        if self.is_usingspear and self.current_spear:
+            self.current_spear.update(dt, scene)
+
+    def handle_inputs(self, dt, scene):
+        """
+        Gestion des touches
+        """
+        dx, dy = 0, 0
+        if KEYS["UP"] in self.keys:    dy -= 1; self.direction = "up"
+        if KEYS["DOWN"] in self.keys:  dy += 1; self.direction = "down"
+        if KEYS["LEFT"] in self.keys:  dx -= 1; self.direction = "left"
+        if KEYS["RIGHT"] in self.keys: dx += 1; self.direction = "right"
+
+         # normalisation diagonale
+        if dx != 0 and dy != 0:
+            dx *= 0.707106
+            dy *= 0.707106
+
+        self.move(dx, dy, dt, scene)
+
         if KEYS["ATTACK"] in self.keys:
             if not self.attack_pressed and self.attack_cooldown == 0:
                 self.attack(scene)
                 self.attack_pressed = True
                 self.attack_cooldown = self.attack_delay
-        else:
-            self.attack_pressed = False     
-        
-        if KEYS["ITEM"] in self.keys:
-            if not self.attack_pressed and self.attack_cooldown == 0:
-                self.spear(scene)
+        elif KEYS["ITEM"] in self.keys:
+            if not self.attack_pressed and self.projectiles_cooldown == 0:
+                self.throw_boomerang(scene)
                 self.attack_pressed = True
-                self.attack_cooldown = self.attack_delay
+                self.projectiles_cooldown = self.projectiles_delay
         else:
             self.attack_pressed = False
-            
+        
         if DEBUG:
             if KEYS["CROUCH"] in self.keys:
                 self.speed = BASE_SPEED * 0.5
@@ -234,18 +208,7 @@ class Player(Entity):
                 self.speed = BASE_SPEED * 5
             else:
                 self.speed = BASE_SPEED
-                
-        # normalisation diagonale
-        if dx != 0 and dy != 0:
-            dx *= (2**0.5)/2
-            dy *= (2**0.5)/2
-    
-        if self.is_attacking and self.current_sword:
-            self.current_sword.update(dt, scene)
-            
-        self.move(dx, dy, dt, scene)
-        self.update_graphics()
-        self.update_damage_state(dt)
+
     
     def get_hitbox(self, x=None, y=None):
         if x is None:
@@ -377,5 +340,26 @@ class Player(Entity):
         # Créer l'épée et l'ajouter à la scène
         self.current_spear = Spear(self, self.direction)
         scene.addItem(self.current_spear)
-    
-    
+
+    def is_projectile_active(self, projectile_class):
+        for p in self.projectiles:
+            if isinstance(p, projectile_class) and getattr(p, 'only_one', False):
+                return True
+        return False
+        
+    def shoot_fireball(self, scene):
+        new_fireball = Fireball(self, self.direction)
+        scene.addItem(new_fireball)
+        self.projectiles.append(new_fireball)
+        
+        
+    def throw_boomerang(self, scene):
+
+        if self.is_projectile_active(Boomerang):
+            if DEBUG:
+                print("Ne peut pas lancer plus d'un boomerang à la fois")
+            return 
+            
+        new_boom = Boomerang(self, self.direction)
+        self.projectiles.append(new_boom)
+        scene.addItem(new_boom)

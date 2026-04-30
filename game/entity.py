@@ -20,7 +20,7 @@ class Entity(QGraphicsPixmapItem):
         self.x = 0
         self.y = 0
 
-        # --- STATS ---
+        # --- STATS --- (on peut avoir des pv non entiers)
         self.pv_max = 1
         self.pv_main = 1
         self.speed = 0
@@ -161,16 +161,19 @@ class Entity(QGraphicsPixmapItem):
         if DEBUG:
             class_name = self.__class__.__name__
             print(f"[{class_name.upper()} HP] : {self.pv_main}/{self.pv_max}")
-    
-        # les degats aie j'ai mal
-        self.is_damaged = True
-        self.damage_timer = 0
         
-        self.is_invulnerable = True
-        self.invuln_timer = 0
-        
-        self.apply_red_flash()
+        # gestion des degats
+        # attaques a 0 degats (ex boomerang) ne font pas flash rouge et ne rendent pas invulnerable
+        if damage != 0:
+            # les degats aie j'ai mal
+            self.is_damaged = True
+            self.damage_timer = 0
+            
+            self.is_invulnerable = True
+            self.invuln_timer = 0
     
+            self.apply_red_flash()
+        
         # knockback
         self.get_knockback(scene,source)
 

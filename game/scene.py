@@ -55,7 +55,7 @@ class GameScene(QGraphicsScene):
         self.enemies = []
         
         self.room_states = {}
-        room = load_room("rooms/room3.json")
+        room = load_room("rooms/room3.json") #room initiale
         self.current_room = "room3"
         self.room_data = room
         self.draw_room(room)

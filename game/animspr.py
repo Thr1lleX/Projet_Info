@@ -36,7 +36,8 @@ def load_animation_sequence(folder_path, frame_count, size):
             transformMode=Qt.FastTransformation
         )
         frames.append(scaled_frame)
-        
+    if not frames:
+        raise FileNotFoundError(f"La sequence d'image de {folder_path} n'existe pas.")
     return frames
 
 

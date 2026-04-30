@@ -33,6 +33,7 @@ KEYS = {"UP": Qt.Key_Up,
         "SPRINT" : Qt.Key_Shift,
         "CROUCH" : Qt.Key_Control,
         "LEAVE" : Qt.Key_Escape,
+        "INTERACT" : Qt.Key_Q,
         "ATTACK" : Qt.Key_W,
         "ITEM" : Qt.Key_X,
         "SHOUTS" : Qt.Key_M
