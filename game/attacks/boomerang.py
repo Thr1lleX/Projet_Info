@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import math
 from game.attacks.attack_entity import PersistentAttack
 from game.config import TILE_SIZE
 
 class Boomerang(PersistentAttack):
     def __init__(self, source, direction):
+        speed = 8
         super().__init__(
             source=source,
             direction=direction,
@@ -13,14 +15,22 @@ class Boomerang(PersistentAttack):
             nb_frames=8,
             size=(1, 1),
             pos=(0, 0),
-            speed=7
+            speed=speed
         )
         
         self.only_one = True
-        
         self.anim_speed = 7
         self.do_stun = 3
+        self.can_go_on_water = True
         
+        # variables de logique de boomerang
+        self.start_x = self.x
+        self.start_y = self.y
+        self.max_travel_dist = 7
+        self.returning = False
+        self.base_speed = speed
+        # -------------------------------------------------------
+
         self.raw_hitbox_data = {
             1: ((1, 13), (15, 4)),
             2: ((3, 15), (16, 2)),
@@ -32,8 +42,59 @@ class Boomerang(PersistentAttack):
             8: ((0, 1), (13, 15))
         }
         
+        self.k = -0.75
+        
         self.update_hitbox()
 
-    def die(self):
-        if self.scene():
-            self.scene().removeItem(self)
+    def f_exp(self, x):
+        """ 
+        vitesse du boomerang suit loi expoentielle decroissante
+        """
+        return self.base_speed * (1 - math.exp(self.k * x))
+
+    def update_position(self):
+        dist_px = ((self.x - self.start_x)**2 + (self.y - self.start_y)**2)**0.5
+        dist_tiles = dist_px / TILE_SIZE
+        
+        # etat aller
+        if not self.returning:
+            if dist_tiles >= self.max_travel_dist:
+                self.returning = True
+                self.turn_x, self.turn_y = self.x, self.y
+                return
+            
+
+            # calcul de vitesse qui decroit exp plus on est proche
+            # pas nulle sinon se bloque
+            current_speed = max(self.f_exp(-dist_tiles + self.max_travel_dist), 0.2)
+            
+            move_dist = current_speed * TILE_SIZE * self.current_dt
+
+            if self.direction == "up": self.y -= move_dist
+            elif self.direction == "down": self.y += move_dist
+            elif self.direction == "left": self.x -= move_dist
+            elif self.direction == "right": self.x += move_dist
+        
+        # etat retour
+        else:
+            dx = self.source.x - self.x
+            dy = self.source.y - self.y
+            dist_to_player = (dx**2 + dy**2)**0.5
+
+            if dist_to_player < TILE_SIZE * 0.5:
+                self.die()
+                return
+
+            dist_since_turn = math.hypot(self.x - self.turn_x, self.y - self.turn_y) / TILE_SIZE
+            
+            current_speed = max(self.f_exp(dist_since_turn), 0.05)
+
+            if dist_to_player > 0:
+                self.x += (dx / dist_to_player) * current_speed * TILE_SIZE * self.current_dt
+                self.y += (dy / dist_to_player) * current_speed * TILE_SIZE * self.current_dt
+
+        self.setPos(self.x + self.anim_offset[0], self.y + self.anim_offset[1]) 
+
+    # def die(self):
+    #     if self.scene():
+    #         self.scene().removeItem(self)

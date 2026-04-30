@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem
-from PyQt5.QtMultimedia import QSoundEffect
+#from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtGui import QPen, QColor
 from game.config import TILE_SIZE, DEBUG, SCALE, BASE_TILE_SIZE
 from abc import abstractmethod
@@ -34,6 +34,7 @@ class AttackEntity(QGraphicsPixmapItem):
         self.duree_knockback = self.source.duree_knockback # knockback inflige a la cible en terme de tiles
         self.give_player_knockback = False
         self.do_stun = 0  # 0 = aucun stun, x = duree
+        self.can_go_on_water = False
         
         # VISUELS
         self.setZValue(99) #voir doc setZvalue.txt
@@ -218,7 +219,7 @@ class MeleeAttack(TemporaryAttack):
         self.pos = pos
         
         # recupere frames ainsi qu'offset
-        self.animation_sequence = load_animation_sequence("assets/"+self.spr,self.nb_frames,self.size)
+        self.animation_sequence = load_animation_sequence("assets/"+self.spr,self.size,self.nb_frames)
         self.gen_anim_direct = generate_directional_animations(self.animation_sequence, self.pos,self.size)[self.direction]
         self.frames = self.gen_anim_direct["frames"]
         self.anim_offset = self.gen_anim_direct["offset"] #en pxl!
@@ -320,7 +321,7 @@ class PersistentAttack(AttackEntity):
         self.y = self.source.y
         self.setPos(self.x, self.y)
         
-        self.animation_sequence = load_animation_sequence("assets/"+self.spr, self.nb_frames, self.size)
+        self.animation_sequence = load_animation_sequence("assets/"+self.spr, self.size, self.nb_frames)
         self.gen_anim_direct = generate_directional_animations(self.animation_sequence, self.pos, self.size)[self.direction]
         self.frames = self.gen_anim_direct["frames"]
         self.anim_offset = self.gen_anim_direct["offset"]
@@ -380,12 +381,13 @@ class PersistentAttack(AttackEntity):
         hw, hh = hitbox_zone.width(), hitbox_zone.height()
         
         # collision avec bords de l'ecran
-        marge = 2 * TILE_SIZE
+        marge = 0 * TILE_SIZE
         limit_left = 0 - marge
         limit_right = (16 * TILE_SIZE) + marge
         limit_top = (2 * TILE_SIZE) - marge
         limit_bottom = (13 * TILE_SIZE) + marge
         if (hx < limit_left) or (hx + hw > limit_right) or (hy < limit_top) or (hy + hh > limit_bottom):
+            scene.sfx_manager.play("snd_woodhit")
             self.die()
             return
 
@@ -394,8 +396,10 @@ class PersistentAttack(AttackEntity):
                 hitbox_zone.x(),
                 hitbox_zone.y(),
                 hitbox_zone.width(),
-                hitbox_zone.height()
+                hitbox_zone.height(),
+                entity = self
         ):
+            scene.sfx_manager.play("snd_woodhit")
             self.die()
             return
         # collision avec ennemis
@@ -406,17 +410,57 @@ class PersistentAttack(AttackEntity):
                     item.take_damage(scene, self.damage, self)
                     item.stun(self.do_stun)
                     self.targets_hit.add(item)
+                    scene.sfx_manager.play("snd_woodhit")
                     self.die() 
                     return
                 
+    # def die(self):
+    #     """ 
+    #     suppression du projectile du jeu 
+    #     """
+    #     if self.scene():
+    #         self.scene().removeItem(self)
     def die(self):
-        """ 
-        suppression du projectile du jeu 
         """
-        if self.scene():
-            self.scene().removeItem(self)
+        joue une animation de fin puis supprime le projectile
+        """
+        # si eviter double appel
+        if hasattr(self, "dying") and self.dying:
+            return
+    
+        self.dying = True
+    
+        poof_sequence = load_animation_sequence(
+            "assets/player/attack/poof",
+            (1, 1),
+            3
+        )
+    
+        self.frames = poof_sequence
+        self.current_frame = 0
+        self.setPixmap(self.frames[0])
+    
+        self.projectile_speed = 0
+        self.anim_timer = 0
+        self.anim_speed = 15
 
-    # voir avant pour explication
+        self.update = self.update_death
+
+    def update_death(self, dt, scene):
+        self.anim_timer += dt
+        time_per_frame = 1.0 / self.anim_speed
+    
+        if self.anim_timer >= time_per_frame:
+            self.anim_timer -= time_per_frame
+            self.current_frame += 1
+    
+            if self.current_frame >= len(self.frames):
+                if self.scene():
+                    self.scene().removeItem(self)
+                return
+    
+            self.setPixmap(self.frames[self.current_frame])
+
     def transform_point(self, x, y):
         (nx, ny), offset = self.rotate_point(x, y, self.direction)
         return nx + offset[0], ny + offset[1]
