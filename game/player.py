@@ -56,6 +56,8 @@ class Player(Entity):
         
         self.collision = 1
 
+        self.corner_correction = False
+
         # DEBUG couleur
         if DEBUG:
             self.debug_rect.setPen(QPen(QColor("green"), 1))

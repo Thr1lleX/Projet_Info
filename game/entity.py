@@ -61,6 +61,9 @@ class Entity(QGraphicsPixmapItem):
         # --- COLLISION ---
         self.collision = 1
 
+        # -- CORRECTIONS COIN --
+        self.corner_correction = True
+
         # --- HITBOX ---
         self.hitbox_offset_x = 0
         self.hitbox_offset_y = 0
@@ -89,6 +92,8 @@ class Entity(QGraphicsPixmapItem):
         
         self.cries = []
         self.death_cry = "snd_placeholderdeath"
+
+
 
         # --- DEBUG ---
         if DEBUG:
@@ -125,29 +130,64 @@ class Entity(QGraphicsPixmapItem):
     #     x = max(0, min(x, room_w - w))
     #     y = max(0, min(y, room_h - h))
     
-        return x, y    
+    #     return x, y    
 
     def shrink_hitbox(self, hx, hy, hw, hh, margin):
+        """
+        Reduit une hitbox en appliquant une marge sur chaque cote.
+        Retourne (hx, hy, hw, hh) reduit de `margin` pixels de chaque cote.
+        """
         return hx + margin, hy + margin, hw - 2 * margin, hh - 2 * margin
 
     def move(self, dx, dy, dt, scene):
+        """
+        Deplace l'entite en tenant compte des collisions et de la correction de coin.
+        Details :
+            - Si self.collision est False, le deplacement est applique sans verification.
+            - La hitbox est rétrécie de MARGIN pixels sur chaque cote avant chaque test
+            de collision, pour tolérer un leger chevauchement visuel avec les murs.
+            - Si self.corner_correction est True et que l'axe est bloque, on tente
+            un leger decalage perpendiculaire (corner) dans les deux sens pour faire
+            glisser l'entite autour des coins au lieu de la bloquer net.
+            - Le nudge applique sur Y lors de la correction X est repercute sur new_y
+            pour éviter que le bloc Y ne l'écrase immédiatement après.
+        """
         new_x = self.x + dx * self.speed * dt
         new_y = self.y + dy * self.speed * dt
-        # --- collision par rapport a hitbox
-        if self.collision:
-            hx, hy, hw, hh = self.get_hitbox(new_x, self.y)
-            hx, hy, hw, hh = self.shrink_hitbox(hx, hy, hw, hh, 2)
-            if not scene.is_blocking_rect(hx, hy, hw, hh):
-                self.x = new_x
 
-            hx, hy, hw, hh = self.get_hitbox(self.x, new_y)
-            hx, hy, hw, hh = self.shrink_hitbox(hx, hy, hw, hh, 2)
-            if not scene.is_blocking_rect(hx, hy, hw, hh):
-                self.y = new_y
-        else:
+        if not self.collision:
             self.x = new_x
             self.y = new_y
+            return
 
+        MARGIN = 6          # Reduction de la hitbox en pixels pour les tests de collision
+        corner = self.tile_size * 0.3  # Amplitude du decalage de correction de coin
+
+        def passable(x, y):
+            """Retourne True si la hitbox retrecie à (x, y) ne chevauche aucun mur."""
+            return not scene.is_blocking_rect(*self.shrink_hitbox(*self.get_hitbox(x, y), MARGIN))
+
+        # --- Axe X
+        if passable(new_x, self.y):
+            self.x = new_x
+        elif self.corner_correction:
+            for nudge in (corner, -corner):
+                if passable(new_x, self.y + nudge) and passable(self.x, self.y + nudge):
+                    self.x = new_x
+                    self.y += nudge
+                    new_y += nudge  # repercuter le nudge pour ne pas ecraser la correction en Y
+                    break
+
+        # --- Axe Y
+        if passable(self.x, new_y):
+            self.y = new_y
+        elif self.corner_correction:
+            for nudge in (corner, -corner):
+                if passable(self.x + nudge, new_y) and passable(self.x + nudge, self.y):
+                    self.y = new_y
+                    self.x += nudge
+                    break
+    
     def take_damage(self, scene, damage, source=None):
         """
         on a 4 points
