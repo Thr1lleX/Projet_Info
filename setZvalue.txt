@@ -1,5 +1,6 @@
 entity = 90
-attaques = 99
+attaques = 98
+projectiles = 99
 player = 100
 collisions = 500
 hitboxes = 999
