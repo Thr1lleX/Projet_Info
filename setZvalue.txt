@@ -1,3 +1,6 @@
+ground = 0
+tile = 1
+debug_path = 84
 entity = 90
 attaques = 98
 projectiles = 99
