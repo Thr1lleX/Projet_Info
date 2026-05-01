@@ -145,6 +145,15 @@ class MusicManager:
                 self.player.setVolume(self.target_volume)
                 self.state = "idle"
 
+    def set_volume(self, volume):
+        """
+        Definit le volume cible (0.0 - 1.0).
+        Si aucun fondu n'est en cours, applique immediatement.
+        """
+        self.target_volume = max(0.0, min(1.0, volume))
+        if self.state == "idle":
+            self.player.setVolume(self.target_volume)
+
     def stop(self):
         self.player.stop()
         self.current_music = None

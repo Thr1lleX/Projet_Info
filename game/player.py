@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem, QApplication, QGraphicsTextItem
+from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 #from PyQt5.QtWidgets import QGraphicsRectItem, QApplication
 from PyQt5.QtGui import QPen, QColor, QFont, QFontDatabase
 
 from game.config import BASE_TILE_SIZE, BASE_SPEED, DEBUG, TILE_SIZE
-from game.config import KEYS, EXIT_HOLD_TIME
+from game.config import KEYS
 
 from game.entity import Entity
 from game.enemies.enemy import Enemy
-from game.fonts import get_font0
 #from game.window import GameWindow
 from game.attacks.sword_slash import SwordSlash
 from game.attacks.spear import Spear
@@ -88,20 +87,6 @@ class Player(Entity):
         self.cries = ["snd_playerhit1","snd_playerhit2"]
         self.death_cry = "snd_deathchara"
 
-        # Quitter le jeu
-        self.echap = 0
-        
-        # Layout de exit
-        self.exit_label = QGraphicsTextItem()
-        self.exit_label.setZValue(3000)
-        self.exit_label.setPos(0.25 * TILE_SIZE, 0.25 * TILE_SIZE)
-        
-        font = get_font0(size=int(0.65 * TILE_SIZE))
-        self.exit_label.setFont(font)
-        self.exit_label.hide()
-        self.exit_label_added = False
-        
-        
         self.is_attacking = False
         self.is_usingspear = False
         self.current_sword = None
@@ -111,7 +96,7 @@ class Player(Entity):
         self.projectiles_delay = 0.4 #0.5s min entre chaque
         
         self.shout_pressed = False
-        
+
         self.can_go_on_water = True
         
         # update graphics
@@ -133,8 +118,6 @@ class Player(Entity):
             - tout ce qui est lie au deplacement
             - follow logic, en l'occurence les armes suivent le joueur lors de knockback
         """
-        # exit, 
-        self.handle_exit_logic(dt, scene)
         self.update_damage_state(dt) # invuln, clignot etc.
         
         if self.attack_cooldown > 0:
@@ -235,70 +218,12 @@ class Player(Entity):
     def die(self):
         scene = self.scene()
         if scene:
-            scene.game_over()
-
-    """
-    Fonctions pour quitter le jeu
-    """
-    
-    def handle_exit_logic(self, dt, scene):
-        """
-        gere maintien de l'echap et affichage du texte EXIT
-        utilise dans update
-        """
-
-        # -- gestion de la sortie (echap)---
-        if KEYS["LEAVE"] not in self.keys:
-            if self.echap > 0:
-                self.exit_label.hide()
-            self.echap = 0
-            return
-
-        # -- gestion de la sortie (echap)---
-        if not self.exit_label_added:
-            scene.addItem(self.exit_label)
-            self.exit_label_added = True
-
-        self.echap += dt
-        self.exit_label.show()
-
-        if DEBUG:
-            print(f"Échap maintenu : {self.echap:.2f}s / {EXIT_HOLD_TIME}s") 
-
-        # calcul de progression pour affichage
-        progress = min(self.echap / EXIT_HOLD_TIME, 1.0)
-        
-        alpha = int(progress * 255)
-        self.exit_label.setDefaultTextColor(QColor(255, 255, 255, alpha))
-
-        # points de sus tous les 0.25 EXIT_HOLD_TIME
-        dots = "." * int(progress / 0.25) 
-        self.exit_label.setPlainText(f"EXIT{dots}")
-
-        # delai atteint
-        if self.echap >= EXIT_HOLD_TIME:
-            # on bloque le compteur pour ne pas qu'il continue apres (securite)
-            self.echap = -999999 
-            # declenche fermeture
-            self.trigger_quit(scene)
-
-    def trigger_quit(self, scene):
-        """
-        trigger de fermeture de fenetre
-        """
-        # on arrête le Timer de la scene
-        if hasattr(scene, 'timer'):
-            scene.timer.stop()
-            
-        views = scene.views()
-        if views:
-            window = views[0].window()
-            # ferme fenetre
-            if hasattr(window, 'quitter_jeu'):
-                window.quitter_jeu()
+            sm = getattr(scene, 'screen_manager', None)
+            if sm is not None:
+                sm.on_game_over()
             else:
-                window.close()
-    
+                scene.game_over()   # retro-compatibilite si pas de ScreenManager
+
     ##### ATTAQUES ####
 
     # def attack(self, scene):

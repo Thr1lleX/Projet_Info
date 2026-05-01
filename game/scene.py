@@ -4,6 +4,7 @@ from PyQt5.QtGui import QPixmap, QBrush, QColor, QPen
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QTimer
 from game.player import Player
+from game.hud import HUD
 import time
 import random
 
@@ -26,18 +27,24 @@ OFFSET = 2 # pixels
 
 # --- SCENE ---
 class GameScene(QGraphicsScene):
-    def __init__(self):
+    def __init__(self, screen_manager=None):
         super().__init__()
+
+        # reference vers le ScreenManager (definie ici ou par ScreenManager.set_scene)
+        self.screen_manager = screen_manager
+
+        # le jeu reste en pause jusqu'a ce que start_new_game() soit appele
+        self.game_paused = True
 
         width = GRID_WIDTH * TILE_SIZE
         height = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE
 
         self.setSceneRect(0, 0, width, height)
-        
+
         self.tileset = {}
         self.current_biome = None
 
-        self.draw_hud()
+        self.hud = HUD(self)
         
         # --- PLAYER 
         self.player = Player(SCALE)
@@ -97,13 +104,14 @@ class GameScene(QGraphicsScene):
         self.room_states = {}
 
         
-        # IMPORTANT ! items persistant, à ajouter pour conservation lors de chgmt de salle
+        # IMPORTANT ! items persistant, a ajouter pour conservation lors de chgmt de salle
         self.persistent_items = {
             self.player,
             self.transition.overlay,
-            self.player.exit_label
         }
-        
+        # les items du HUD doivent survivre aux changements de salle
+        self.persistent_items.update(self.hud.get_items())
+
         if CRT_OVERLAY:
             self.persistent_items.add(self.crt_overlay)
         
@@ -114,41 +122,28 @@ class GameScene(QGraphicsScene):
 
                     
 
-    def draw_hud(self):
-        width = GRID_WIDTH * TILE_SIZE
-        height = HUD_HEIGHT * TILE_SIZE
-        
-        hud = QGraphicsRectItem(0, 0, width, height)
-        hud.setBrush(QBrush(QColor("#000000")))
-        hud.setPen(QColor("#000000"))
-        
-        hud.setZValue(1000) # car sinon problème quand ennemi a hauteur de 2, passe au dessus
-        
-        self.addItem(hud)
-
-
     def game_loop(self):
         """
         toutes les updates de la scene
         """
-        
-        #on n'update pas si mort
-        if getattr(self, "game_over_triggered", False):
-            return 
-        
+        # last_time est mis a jour en premier pour eviter un grand dt au depause
         current_time = time.time()
-        dt = current_time - self.last_time
+        dt = min(current_time - self.last_time, 0.1)
         self.last_time = current_time
+
+        if getattr(self, "game_over_triggered", False):
+            return
+        if self.game_paused:
+            return
 
         if not self.is_transitioning:
             self.player.update(dt, self)
             self.check_room_transition()
             self.update_animations(dt)
-        
+
             if hasattr(self, "enemies"):
                 for enemy in self.enemies:
                     enemy.update(dt, self)
-            
         # if not self.is_transitioning:
         #     self.player.update(dt, self)
         #     self.check_room_transition()
@@ -160,6 +155,8 @@ class GameScene(QGraphicsScene):
         self.music_manager.update(dt)
         if CRT_OVERLAY:
             self.update_crt()
+
+        self.hud.update_hearts(self.player.pv_main, self.player.pv_max)
     
 
 
@@ -395,7 +392,6 @@ class GameScene(QGraphicsScene):
                 self.removeItem(item)
         
 
-        self.draw_hud()
         self.draw_room(room)
     
         self.reposition_player(direction)
@@ -560,29 +556,16 @@ class GameScene(QGraphicsScene):
     def game_over(self):
         if hasattr(self, "game_over_triggered") and self.game_over_triggered:
             return
-    
+
         self.game_over_triggered = True
-    
-        #stop gameplay
         self.is_transitioning = True
-    
-        # stop musique actuelle
+
         self.music_manager.stop()
-    
-        # son gameover, avec loopcount = 1
         self.music_manager.player.setLoopCount(1)
-        self.music_manager.play("mus_gameover", fade_in = 5)
-    
-        # clear tout
+        self.music_manager.play("mus_gameover", fade_in=5)
+
         for enemy in self.enemies:
             self.removeItem(enemy)
         self.enemies.clear()
-    
-        # ecran noir
-        self.game_over_overlay = QGraphicsRectItem(
-            self.sceneRect()
-        )
-        self.game_over_overlay.setBrush(QBrush(QColor(0, 0, 0)))
-        self.game_over_overlay.setZValue(9999)
-        self.addItem(self.game_over_overlay)
+        # l'ecran de game over est gere par ScreenManager.on_game_over()
                 
