@@ -11,22 +11,22 @@
 - biomes
 - armes/items
 - loi de move pour ennemis + pathfinding
-
-
+- ecran titre
+- ecran de game over (actuellement juste un écran noir)
+- items et inventaire avec hud d’items, trql
 
 # En cours:
 - clignotement blanc si invulnérable, ca passe
 - animation de stun, un peu plus dur
 
-# À faire:
+- settings
 - systeme d'items
+
+# À faire:
+
 - biomes pour mieux gérer sprites de tiles, un peu chiant mais ok
-- items et inventaire avec hud d’items, trql
 - pnj
 - boites de dialogues
 - sauvegarde
-- ecran titre
-- ecran de game over (actuellement juste un écran noir)
-- settings
 - (.exe)
 - (autres transitions??)
