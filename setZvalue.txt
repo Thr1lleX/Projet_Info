@@ -10,3 +10,5 @@ hitboxes = 999
 hud = 1000
 transition = 2000
 exit = 3000
+Z_CRT    = 9999
+Z_SCREEN = 10000
