@@ -18,7 +18,7 @@ from game.screens.pause_screen import PauseScreen
 from game.screens.inventory_screen import InventoryScreen
 from game.settings_manager import SettingsManager
 from game.item import Inventory
-from game.config import GAME_TITLE
+from game.config import GAME_TITLE, LOGO
 
 
 
@@ -32,7 +32,7 @@ def main():
 
     # parametres persistants et inventaire
     sm.settings  = SettingsManager()
-    sm.inventory = Inventory(total_slots=30)
+    sm.inventory = Inventory(total_slots=6)
 
     # enregistrement des ecrans
     sm.register_screen("title",     TitleScreen(sm))
@@ -46,12 +46,9 @@ def main():
 
     # demarre sur l'ecran titre (cree la premiere scene en pause)
     sm.go_to_title()
-
-    # application des parametres de fenetre (plein ecran au demarrage si configure)
-    sm.settings.apply_to_window(window)
-
+    
     window.setWindowTitle(GAME_TITLE)
-    window.setWindowIcon(QIcon('assets/logo.png'))
+    window.setWindowIcon(QIcon(LOGO))
     window.show()
 
     sys.exit(app.exec_())
