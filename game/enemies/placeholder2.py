@@ -18,14 +18,16 @@ class Placeholder2(Enemy):
         self.pv_main = self.pv_max
         self.aggro_range = self.tile_size * 10
         
-        self.invuln_duration = 1.5
+        self.invuln_duration = 5
         self.effect_immunity_duration = 1.5
         
         # -- Parametres d'attaque ---
         self.damage = 2
-        self.give_stun = 20
+        self.give_stun = 10
 
         # --- HITBOX ---
+        self.hitbox_offset_x = 0
+        self.hitbox_offset_y = 0
         self.hitbox_width = self.tile_size * 2
         self.hitbox_height = self.tile_size * 2
         

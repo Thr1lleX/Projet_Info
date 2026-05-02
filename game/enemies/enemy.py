@@ -45,6 +45,7 @@ class Enemy(Entity):
 
     def update(self, dt, scene):
         
+        
         # priorite knockback pour bloquer mvmt
         if self.kb_active:
             self.apply_knockback(dt, scene)
@@ -59,6 +60,7 @@ class Enemy(Entity):
             self.apply_stun_wiggle(dt,scene)
             self.update_graphics()
             self.update_damage_state(dt)
+            self.update_stun_animation(dt)
             if DEBUG:
                 self.draw_debug_path(scene)
             return
@@ -147,7 +149,7 @@ class Enemy(Entity):
 
         self.move(dx, dy, dt, scene)
         self.update_graphics()
-        
+        self.update_stun_animation(dt)
         self.update_damage_state(dt)
         
         self.try_hit_player(scene)

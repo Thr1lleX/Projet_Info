@@ -16,6 +16,9 @@ class Placeholder1(Enemy):
         self.pv_main = 2
         
         self.aggro_range = self.tile_size * 10
+        
+        self.damage = 1
+        self.give_stun = 0
 
         # --- SPRITE UNIQUE (même pour toutes directions) ---
         sprite = QPixmap("assets/placeholder1.png").scaled(
@@ -53,3 +56,4 @@ class Placeholder1(Enemy):
     #     self.move(dx, dy, dt, scene)
     #     self.update_graphics()
     #     self.update_damage_state(dt)
+    
