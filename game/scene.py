@@ -107,7 +107,9 @@ class GameScene(QGraphicsScene):
         # IMPORTANT ! items persistant, a ajouter pour conservation lors de chgmt de salle
         self.persistent_items = {
             self.player,
-            self.transition.overlay,
+            self.transition.overlay,  
+            self.player.exit_label_shadow,
+            self.player.exit_label_main
         }
         # les items du HUD doivent survivre aux changements de salle
         self.persistent_items.update(self.hud.get_items())
@@ -561,8 +563,9 @@ class GameScene(QGraphicsScene):
         self.is_transitioning = True
 
         self.music_manager.stop()
+        # son gameover, avec loopcount = 1
         self.music_manager.player.setLoopCount(1)
-        self.music_manager.play("mus_gameover", fade_in=5)
+        self.music_manager.play("mus_gameover", fade_in=0)
 
         for enemy in self.enemies:
             self.removeItem(enemy)

@@ -32,9 +32,8 @@ Pour ajouter un nouvel ecran :
     3. Appeler sm.show_screen("mon_ecran") au moment voulu.
 """
 
-from PyQt5.QtCore import Qt
-
-from game.config import PAUSE_VOLUME_FACTOR
+from PyQt5.QtCore import Qt, QTimer
+from game.config import KEYS
 
 
 class ScreenManager:
@@ -54,7 +53,6 @@ class ScreenManager:
         self._active_screen = None
         self.state          = None
         self._prev_state    = None      # etat precedent (retour depuis parametres)
-        self._pre_pause_volume = 1.0   # volume avant pause (restaure au resume)
 
         # injectes depuis main.py
         self.settings  = None   # SettingsManager
@@ -132,10 +130,10 @@ class ScreenManager:
             return True
 
         if self.state == self.STATE_GAME:
-            if key == Qt.Key_Escape:
+            if key == KEYS["PAUSE"]:
                 self.open_pause()
                 return True
-            if key == Qt.Key_Tab:
+            if key == KEYS["INVENTORY"]:
                 self.open_inventory()
                 return True
 
@@ -233,54 +231,69 @@ class ScreenManager:
     # pause
     # ------------------------------------------------------------------
 
+
     def open_pause(self):
-        """
-        Met le jeu en pause :
-          - gele la boucle de jeu (game_paused = True),
-          - baisse le volume de la musique,
-          - affiche le menu pause.
-        """
+        """Met le jeu en pause et joue la musique de pause avec le sfx (joue musique 600ms apres)."""
         if self._scene is None:
             return
+        if hasattr(self._scene, 'player'):
+            self._scene.player.stop_movement()
+        
         self._scene.game_paused = True
         if hasattr(self._scene, 'music_manager'):
-            mm = self._scene.music_manager
-            self._pre_pause_volume = mm.target_volume
-            mm.set_volume(self._pre_pause_volume * PAUSE_VOLUME_FACTOR)
+            self._scene.music_manager.stop()
+        if hasattr(self._scene, 'sfx_manager'):
+            self._scene.sfx_manager.play("snd_sys_pause")
+        # fonction labma pour check si on est toujours en pause avant de jouer (empeche spam)
+        QTimer.singleShot(200, lambda: self._play_music_if_state("mus_pause", self.STATE_PAUSED))
+            
         self.show_screen("pause")
         self.state = self.STATE_PAUSED
 
     def resume_game(self):
-        """
-        Reprend le jeu depuis la pause :
-          - restaure le volume musique,
-          - retire le menu pause,
-          - degele la boucle de jeu.
-        """
+        """Reprend le jeu et relance la musique de la room avec fade-in."""
         self.hide_current_screen()
         if self._scene is not None:
-            if hasattr(self._scene, 'music_manager'):
-                self._scene.music_manager.set_volume(self._pre_pause_volume)
+            if hasattr(self._scene, 'sfx_manager'):
+                self._scene.sfx_manager.play("snd_sys_resume")
+
+            self._scene.start_room_music()
             self._scene.game_paused = False
+            
         self.state = self.STATE_GAME
 
     # ------------------------------------------------------------------
     # inventaire
     # ------------------------------------------------------------------
-
     def open_inventory(self):
-        """Gele le jeu et affiche l'ecran d'inventaire."""
+        """Gele le jeu et joue la musique d'inventaire."""
         if self._scene is None:
             return
+        
+        # supprime les touches fantome!!!
+        if hasattr(self._scene, 'player'):
+            self._scene.player.stop_movement()
+            
         self._scene.game_paused = True
+        if hasattr(self._scene, 'music_manager'):
+            self._scene.music_manager.stop()
+        if hasattr(self._scene, 'sfx_manager'):
+            self._scene.sfx_manager.play("snd_sys_item")
+        QTimer.singleShot(200, lambda: self._play_music_if_state("mus_inventory", self.STATE_INVENTORY))
+            
         self.show_screen("inventory")
         self.state = self.STATE_INVENTORY
 
     def close_inventory(self):
-        """Ferme l'inventaire et reprend le jeu."""
+        """Ferme l'inventaire et reprend la musique du jeu."""
         self.hide_current_screen()
         if self._scene is not None:
+            if hasattr(self._scene, 'sfx_manager'):
+                self._scene.sfx_manager.play("snd_sys_resume")
+            # Relance la musique de la salle (avec fade_in configuré dans le JSON)
+            self._scene.start_room_music()
             self._scene.game_paused = False
+            
         self.state = self.STATE_GAME
 
     def toggle_inventory(self):
@@ -289,3 +302,8 @@ class ScreenManager:
             self.close_inventory()
         elif self.state == self.STATE_GAME:
             self.open_inventory()
+            
+    def _play_music_if_state(self, music_name, target_state):
+        """Joue la musique uniquement si le manager est encore dans l'etat voulu."""
+        if self.state == target_state and self._scene and hasattr(self._scene, 'music_manager'):
+            self._scene.music_manager.play(music_name)

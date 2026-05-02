@@ -96,21 +96,45 @@ class MusicManager:
         # chargement après la frame actuelle
         QTimer.singleShot(0, self._load_pending)
 
-    def _load_pending(self):
+    # def _load_pending(self):
 
+    #     if not self.pending_music:
+    #         return
+
+    #     music_name = self.pending_music
+    #     music_path = f"mus/{music_name}.wav"
+    #     self.pending_music = None
+
+    #     if DEBUG:
+    #         print(f"[MUSIC] Loading async {music_path}")
+
+    #     url = QUrl.fromLocalFile(os.path.abspath(music_path))
+    #     self.player.setSource(url)
+    #     self.player.setVolume(self.target_volume)
+
+    #     self.current_music = music_name
+    
+    def _load_pending(self):
         if not self.pending_music:
             return
 
         music_name = self.pending_music
-        music_path = f"mus/{music_name}.wav"
+        music_path = os.path.join(self.base_path, f"{music_name}.wav")
         self.pending_music = None
 
         if DEBUG:
             print(f"[MUSIC] Loading async {music_path}")
 
         url = QUrl.fromLocalFile(os.path.abspath(music_path))
+        
+
         self.player.setSource(url)
-        self.player.setVolume(self.target_volume)
+        
+        if self.state == "fade_in":
+            initial_vol = 0.1 * self.target_volume 
+            self.player.setVolume(initial_vol)
+        else:
+            self.player.setVolume(self.target_volume)
 
         self.current_music = music_name
 

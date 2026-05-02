@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from abc import abstractmethod
 
 from game.config import BASE_TILE_SIZE, DEBUG, BASE_SPEED, GRID_WIDTH, GRID_HEIGHT, TILE_SIZE, HUD_HEIGHT
+from game.animspr import load_animation_sequence
 import random
 
 class Entity(QGraphicsPixmapItem):
@@ -70,7 +71,8 @@ class Entity(QGraphicsPixmapItem):
         self.hitbox_width = self.tile_size
         self.hitbox_height = self.tile_size
         
-        
+        self.stun_perp_x = 0
+        self.stun_perp_y = 0
 
         # --- SPRITES ---
         base_sprite = QPixmap("assets/entity.png").scaled(
@@ -94,6 +96,21 @@ class Entity(QGraphicsPixmapItem):
         self.death_cry = "snd_placeholderdeath"
 
         self.can_go_on_water = False
+        
+        
+        # --- STUN ANIMATION'---
+        self.stun_frames = load_animation_sequence(
+            "assets/effects/stunanim",
+            size=(1, 2)
+        )
+        
+        self.stun_frame_index = 0
+        self.stun_anim_speed = 10
+        self.stun_anim_timer = 0
+        
+        self.stun_item = QGraphicsPixmapItem(self)
+        self.stun_item.setZValue(200)
+        self.stun_item.setVisible(False)
 
         # --- DEBUG ---
         if DEBUG:
@@ -206,6 +223,7 @@ class Entity(QGraphicsPixmapItem):
         if DEBUG:
             class_name = self.__class__.__name__
             print(f"[{class_name.upper()} HP] : {self.pv_main}/{self.pv_max}")
+
         
         # gestion des degats
         # attaques a 0 degats (ex boomerang) ne font pas flash rouge et ne rendent pas invulnerable
@@ -221,6 +239,7 @@ class Entity(QGraphicsPixmapItem):
         
         # knockback
         self.get_knockback(scene,source)
+        
 
         # la mort huhuhuhuuuu
         if self.pv_main <= 0:
@@ -266,6 +285,31 @@ class Entity(QGraphicsPixmapItem):
             painter.end()
     
             self.sprites[key] = tinted
+            
+    def apply_white_flash(self):
+        """
+        Effet visuel de clignotement blanc (invulnérabilité)
+        """
+        if not self._base_sprites:
+            self._base_sprites = self.sprites.copy()
+    
+        for key in self.sprites:
+            original = self._base_sprites[key]
+    
+            tinted = original.copy()
+    
+            painter = QPainter(tinted)
+    
+            painter.setCompositionMode(QPainter.CompositionMode_SourceAtop)
+            painter.fillRect(
+                tinted.rect(),
+                QColor(255, 255, 255, 45)
+            )
+    
+            painter.end()
+    
+            self.sprites[key] = tinted
+        
     
     def get_knockback(self, scene, source=None):
         """
@@ -447,12 +491,24 @@ class Entity(QGraphicsPixmapItem):
                 if self._base_sprites:
                     self.sprites = self._base_sprites.copy()
         
-        # invulnerabilite
+        # --- INVULNERABILITE ---
         if self.is_invulnerable:
             self.invuln_timer += dt
-    
+        
+            blink_delay = 0.7   # delai avant clignotement blanc
+            blink_speed = 0.3 
+        
+            if self.invuln_timer >= blink_delay:
+                if int((self.invuln_timer - blink_delay) / blink_speed) % 2 == 0:
+                    self.apply_white_flash()
+                else:
+                    if self._base_sprites:
+                        self.sprites = self._base_sprites.copy()
+        
             if self.invuln_timer >= self.invuln_duration:
                 self.is_invulnerable = False
+                if self._base_sprites:
+                    self.sprites = self._base_sprites.copy()
         
         # -- immunite aux effets
         if self.is_effect_immune:
@@ -503,6 +559,26 @@ class Entity(QGraphicsPixmapItem):
         # pour pas aller dans murs
         self._move_with_collision_limit("x", dx)
         self._move_with_collision_limit("y", dy)
+    
+    def update_stun_animation(self, dt):
+        if not self.is_stunned:
+            self.stun_item.setVisible(False)
+            return
+    
+        self.stun_item.setVisible(True)
+    
+        self.stun_anim_timer += dt
+        if self.stun_anim_timer >= 1 / self.stun_anim_speed:
+            self.stun_anim_timer = 0
+            self.stun_frame_index = (self.stun_frame_index + 1) % len(self.stun_frames)
+    
+        self.stun_item.setPixmap(self.stun_frames[self.stun_frame_index])
+    
+        # offset du a taille du spr d'anim
+        offset_y = -self.tile_size + self.tile_size* self.hitbox_offset_y
+        offset_x = (self.hitbox_width- self.tile_size + 2*self.tile_size* self.hitbox_offset_x)/2
+    
+        self.stun_item.setPos(offset_x, offset_y)
 
 
     @abstractmethod
@@ -520,11 +596,6 @@ class Entity(QGraphicsPixmapItem):
         # empeche l'application de stun a ennemi invulnerable aux effets
         if self.is_effect_immune:
             return 
-        
-        # # si ennemi deja stun, on garde le stun le plus long (pour enchainer coups)
-        # if self.is_stunned:
-        #     self.stun_duration = max(self.stun_duration, duration)
-        #     return
     
         self.is_stunned = True
         self.stun_timer = 0
@@ -541,7 +612,12 @@ class Entity(QGraphicsPixmapItem):
     
         self.stun_wiggle_timer = 0
         self.stun_wiggle_duration = min(0.1, duration)
+        
+        
     
-        # direction du vecteur perpendiculaire
-        self.stun_perp_x = -self.kb_dir_y
-        self.stun_perp_y = self.kb_dir_x
+        # direction du vecteur perpendiculaire (si n'existe pas, alors nul)
+        kbx = getattr(self, "kb_dir_x", 0)
+        kby = getattr(self, "kb_dir_y", 0)
+        
+        self.stun_perp_x = -kby
+        self.stun_perp_y = kbx

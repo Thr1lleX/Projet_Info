@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem
+from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem, QApplication, QGraphicsTextItem
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 #from PyQt5.QtWidgets import QGraphicsRectItem, QApplication
 from PyQt5.QtGui import QPen, QColor, QFont, QFontDatabase
 
-from game.config import BASE_TILE_SIZE, BASE_SPEED, DEBUG, TILE_SIZE
-from game.config import KEYS
+from game.config import BASE_TILE_SIZE, BASE_SPEED, DEBUG, TILE_SIZE, EXIT_HOLD_TIME, KEYS, SCALE
+from game.fonts import get_font0
 
 from game.entity import Entity
 from game.enemies.enemy import Enemy
@@ -17,11 +17,17 @@ from game.attacks.sword_slash import SwordSlash
 from game.attacks.spear import Spear
 from game.attacks.test_fireball import Fireball
 from game.attacks.boomerang import Boomerang
+from game.animspr import load_animation_sequence
 import random
 
 class Player(Entity):
     def __init__(self, scale):
         super().__init__(scale)
+        
+        self.stun_frames = load_animation_sequence(
+            "assets/effects/stunanim",
+            size=(1, 2)
+        )
 
         self.setZValue(100)
 
@@ -32,7 +38,7 @@ class Player(Entity):
 
         self.speed = BASE_SPEED
 
-        self.pv_max = 5
+        self.pv_max = 6
         self.pv_main = self.pv_max
         
         # --Attaques--
@@ -41,14 +47,14 @@ class Player(Entity):
         self.attack_delay = 0.2   # s entre attaques, doit etre supp a anim
         self.attack_pressed = False
 
-        self.damage = 10 # degats qu'inflinge le joueur
+        self.damage = 1 # degats qu'inflinge le joueur
         
         # -- Dammaged--
         self.invuln_duration = 0.60 #en s
         
         # --- HITBOX ---
         self.hitbox_offset_x = 2/BASE_TILE_SIZE
-        self.hitbox_offset_y = 2/BASE_TILE_SIZE
+        self.hitbox_offset_y = 1/BASE_TILE_SIZE
 
         self.hitbox_width = self.tile_size * (1-4/BASE_TILE_SIZE)
         self.hitbox_height = self.tile_size * (1-1/BASE_TILE_SIZE) 
@@ -79,6 +85,8 @@ class Player(Entity):
             ),
         }
         
+        self._base_sprites = self.sprites.copy()
+        
 
         self.direction = "down"
         self.setPixmap(self.sprites[self.direction])
@@ -87,6 +95,30 @@ class Player(Entity):
         self.cries = ["snd_playerhit1","snd_playerhit2"]
         self.death_cry = "snd_deathchara"
 
+        # Forcer sortie du jeu
+        self.echap = 0
+        
+        # Layout de exit
+        font = get_font0(size=int(0.65 * TILE_SIZE))
+        offset_exit = 1 * SCALE
+        
+        self.exit_label_shadow = QGraphicsTextItem()
+        self.exit_label_main = QGraphicsTextItem()
+        self.exit_label_shadow = QGraphicsTextItem()
+        self.exit_label_shadow.setZValue(2999)
+        self.exit_label_main.setZValue(3000)
+        
+        self.exit_label_shadow.setPos(0.25 * TILE_SIZE + offset_exit,0.25 * TILE_SIZE + offset_exit)
+        self.exit_label_main.setPos(0.25 * TILE_SIZE,0.25 * TILE_SIZE)
+        
+        self.exit_label_added = False 
+        self.exit_label_shadow.setFont(font)
+        self.exit_label_main.setFont(font)
+        self.exit_label_shadow.hide()
+        self.exit_label_main.hide()
+            
+        
+        # etats d'attaque
         self.is_attacking = False
         self.is_usingspear = False
         self.current_sword = None
@@ -119,6 +151,7 @@ class Player(Entity):
             - follow logic, en l'occurence les armes suivent le joueur lors de knockback
         """
         self.update_damage_state(dt) # invuln, clignot etc.
+        self.update_stun_animation(dt)
         
         if self.attack_cooldown > 0:
             self.attack_cooldown = max(0, self.attack_cooldown - dt)
@@ -139,7 +172,7 @@ class Player(Entity):
         # bloque le joueur si knockback, mais autorise wiggle de stun
         if self.kb_active:
             self.apply_knockback(dt, scene)
-        elif self.is_stunned:
+        if self.is_stunned:
             self.apply_stun_wiggle(dt, scene)
         elif self.is_attacking or self.is_usingspear:
             # bloque le joeur durant animation d'attaque
@@ -149,8 +182,26 @@ class Player(Entity):
             
         # mise a jour des armes ! necessairement apres mouvement!
         self.update_held_weapons(dt, scene)
-
+        self.handle_exit_logic(dt, scene)
         self.update_graphics()
+        self.update_stun_animation(dt)
+        
+        
+        # --- SPGHETTI CODE!!!!! ---
+        if getattr(self, 'is_stunned', False) and hasattr(self, 'stun_item') and self.stun_item:
+            self.stun_item.setVisible(True)
+            self.stun_item.setOpacity(1.0)
+            
+            from PyQt5.QtWidgets import QGraphicsItem
+            self.stun_item.setFlag(QGraphicsItem.ItemIgnoresParentOpacity, True)
+            
+            self.stun_item.setZValue(200)
+            
+            if self.stun_item.scene() is None:
+                scene.addItem(self.stun_item)
+
+            self.stun_item.setPos(self.x, self.y-self.tile_size)
+        # --- FIN DU HACK ---
 
     def update_held_weapons(self, dt, scene):
         """
@@ -167,10 +218,11 @@ class Player(Entity):
         Gestion des touches
         """
         dx, dy = 0, 0
-        if KEYS["UP"] in self.keys:    dy -= 1; self.direction = "up"
-        if KEYS["DOWN"] in self.keys:  dy += 1; self.direction = "down"
-        if KEYS["LEFT"] in self.keys:  dx -= 1; self.direction = "left"
-        if KEYS["RIGHT"] in self.keys: dx += 1; self.direction = "right"
+        if not self.kb_active:
+            if KEYS["UP"] in self.keys:    dy -= 1; self.direction = "up"
+            if KEYS["DOWN"] in self.keys:  dy += 1; self.direction = "down"
+            if KEYS["LEFT"] in self.keys:  dx -= 1; self.direction = "left"
+            if KEYS["RIGHT"] in self.keys: dx += 1; self.direction = "right"
 
          # normalisation diagonale
         if dx != 0 and dy != 0:
@@ -214,6 +266,11 @@ class Player(Entity):
             self.hitbox_height
         )
 
+    # def take_damage(self, scene, damage, source=None):
+    #     scene.sfx_manager.play("snd_deathchara")
+    #     self.stun(20)
+    #     super().take_damage(scene, damage, source)
+
 
     def die(self):
         scene = self.scene()
@@ -224,6 +281,80 @@ class Player(Entity):
             else:
                 scene.game_over()   # retro-compatibilite si pas de ScreenManager
 
+    """
+    Fonctions pour quitter le jeu
+    """
+    
+    def handle_exit_logic(self, dt, scene):
+        """
+        gere maintien de l'echap et affichage du texte EXIT
+        utilise dans update
+        """
+        # -- gestion de la sortie (echap)---
+        if KEYS["LEAVE"] not in self.keys:
+            if self.echap > 0:
+                self.exit_label_main.hide()
+                self.exit_label_shadow.hide()
+            self.echap = 0
+            return
+
+        # -- gestion de la sortie (echap)---
+        if not self.exit_label_added:
+            scene.addItem(self.exit_label_main)
+            scene.addItem(self.exit_label_shadow)
+            self.exit_label_added = True
+
+        self.echap += dt
+        self.exit_label_main.show()
+        self.exit_label_shadow.show()
+        
+        if DEBUG:
+            print(f"Échap maintenu : {self.echap:.2f}s / {EXIT_HOLD_TIME}s") 
+
+        # calcul de progression pour affichage
+        progress = min(self.echap / EXIT_HOLD_TIME, 1.0)
+        
+        alpha = int(progress * 255)
+        self.exit_label_main.setDefaultTextColor(QColor(255, 255, 255, alpha))
+        self.exit_label_shadow.setDefaultTextColor(QColor(23, 33, 136, alpha))
+
+        # points de sus tous les 0.25 EXIT_HOLD_TIME
+        dots = "." * int(progress / 0.25) 
+        text = f"EXIT{dots}"
+        self.exit_label_main.setPlainText(text)
+        self.exit_label_shadow.setPlainText(text)
+        
+        # delai atteint
+        if self.echap >= EXIT_HOLD_TIME:
+            # on bloque le compteur pour ne pas qu'il continue apres (securite)
+            self.echap = -999999 
+            # declenche fermeture
+            self.trigger_quit(scene)
+
+    def trigger_quit(self, scene):
+        """
+        trigger de fermeture de fenetre
+        """
+        # on arrête le Timer de la scene
+        if hasattr(scene, 'timer'):
+            scene.timer.stop()
+            
+        views = scene.views()
+        if views:
+            window = views[0].window()
+            # ferme fenetre
+            if hasattr(window, 'quitter_jeu'):
+                window.quitter_jeu()
+            else:
+                window.close()
+
+    def stop_movement(self):
+        """
+        vide les touches actives pour eviter mvts faantomes 
+        """
+        self.keys.clear()
+        self.attack_pressed = False
+        
     ##### ATTAQUES ####
 
     # def attack(self, scene):
@@ -292,7 +423,10 @@ class Player(Entity):
             if DEBUG:
                 print("Ne peut pas lancer plus d'un boomerang à la fois")
             return 
+        scene.sfx_manager.play("snd_throw")
             
         new_boom = Boomerang(self, self.direction)
         self.projectiles.append(new_boom)
         scene.addItem(new_boom)
+    
+    

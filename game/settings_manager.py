@@ -9,14 +9,13 @@ Valeurs par defaut :
   music_volume    = 0.6   (0.0 - 1.0)
   sfx_volume      = 1.0   (0.0 - 1.0)
   crt_overlay     = True
-  fullscreen      = False
   debug_hitboxes  = False
   tile_anim_speed = 0.5   (duree en secondes d'une frame d'animation tile)
 
 Pour ajouter un nouveau parametre :
   1. Ajouter la cle et sa valeur par defaut dans _DEFAULTS.
   2. Ajouter l'attribut correspondant dans __init__ et les methodes load/save.
-  3. Ajouter la logique d'application dans apply_to_scene() ou apply_to_window().
+  3. Ajouter la logique d'application dans apply_to_scene()
 """
 
 import json
@@ -25,10 +24,9 @@ import os
 _SETTINGS_PATH = "settings.json"
 
 _DEFAULTS = {
-    "music_volume":    0.6,
-    "sfx_volume":      1.0,
+    "music_volume":    1,
+    "sfx_volume":      0.95,
     "crt_overlay":     True,
-    "fullscreen":      False,
     "debug_hitboxes":  False,
     "tile_anim_speed": 0.5,
 }
@@ -41,7 +39,6 @@ class SettingsManager:
         self.music_volume    = _DEFAULTS["music_volume"]
         self.sfx_volume      = _DEFAULTS["sfx_volume"]
         self.crt_overlay     = _DEFAULTS["crt_overlay"]
-        self.fullscreen      = _DEFAULTS["fullscreen"]
         self.debug_hitboxes  = _DEFAULTS["debug_hitboxes"]
         self.tile_anim_speed = _DEFAULTS["tile_anim_speed"]
 
@@ -78,7 +75,6 @@ class SettingsManager:
             "music_volume":    self.music_volume,
             "sfx_volume":      self.sfx_volume,
             "crt_overlay":     self.crt_overlay,
-            "fullscreen":      self.fullscreen,
             "debug_hitboxes":  self.debug_hitboxes,
             "tile_anim_speed": self.tile_anim_speed,
         }
@@ -103,9 +99,4 @@ class SettingsManager:
         if hasattr(scene, 'crt_overlay'):
             scene.crt_overlay.setVisible(self.crt_overlay)
 
-    def apply_to_window(self, window):
-        """Applique les parametres de fenetre (plein ecran)."""
-        if self.fullscreen:
-            window.showFullScreen()
-        else:
-            window.showNormal()
+

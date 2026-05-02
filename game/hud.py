@@ -12,12 +12,13 @@ Pour ajouter un element au HUD a l'avenir :
 from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsPixmapItem
 from PyQt5.QtGui import QBrush, QColor, QPen, QPixmap
 from PyQt5.QtCore import Qt
+from game.player import Player
 
 from game.config import (
     TILE_SIZE, GRID_WIDTH, HUD_HEIGHT,
     HUD_ITEM_SLOTS,
-    HUD_HEART_FULL_PATH, HUD_HEART_EMPTY_PATH, HUD_ITEM_SLOT_PATH,
-    Z_HUD,
+    HUD_HEART_FULL_PATH, HUD_HEART_HALF_FULL_PATH, HUD_HEART_EMPTY_PATH, HUD_ITEM_SLOT_PATH,
+    Z_HUD, SCALE
 )
 
 # --- constantes visuelles du HUD (ajustables sans toucher a la logique) ---
@@ -39,15 +40,16 @@ class HUD:
     """
 
     def __init__(self, scene):
+        player = Player(SCALE)
         self._items = []          # tous les QGraphicsItems geres par ce HUD
-        self._heart_pairs = []    # liste de (full_item, empty_item) par slot de coeur
+        self._heart_triples = []  # (full, half, empty) = [] 
         self._slot_data   = []    # liste de dict {bg, icon, x, y} par slot d'item
 
-        self._current_pv     = -1
+        self._current_pv = -1
         self._current_pv_max = -1
 
         self._build_background(scene)
-        self._build_hearts(scene, pv_max=5)
+        self._build_hearts(scene, player.pv_max)
         self._build_slots(scene)
 
     # ------------------------------------------------------------------
@@ -69,36 +71,49 @@ class HUD:
         for i in range(pv_max):
             x = HEART_MARGIN_LEFT + i * (HEART_SIZE + SPACING)
 
-            full_item  = self._make_heart_item(x, cy, full=True)
-            empty_item = self._make_heart_item(x, cy, full=False)
+            full_item  = self._make_heart_item(x, cy, state="full")
+            half_item  = self._make_heart_item(x, cy, state="half")
+            empty_item = self._make_heart_item(x, cy, state="empty")
 
-            for item in (full_item, empty_item):
+            for item in (full_item, half_item, empty_item):
                 item.setZValue(Z_HUD + 1)
                 scene.addItem(item)
                 self._items.append(item)
 
-            self._heart_pairs.append((full_item, empty_item))
+            self._heart_triples.append((full_item, half_item, empty_item))
 
         self._apply_heart_display(pv_max, pv_max)
         self._current_pv     = pv_max
         self._current_pv_max = pv_max
 
-    def _make_heart_item(self, x, y, full):
+    def _make_heart_item(self, x, y, state):
         """
         Retourne un QGraphicsItem representant un coeur.
         Utilise le sprite si disponible, sinon un rectangle de couleur en placeholder.
         Sprites attendus : assets/hud/heart_full.png et assets/hud/heart_empty.png
         """
-        path = HUD_HEART_FULL_PATH if full else HUD_HEART_EMPTY_PATH
+        if state == "full":
+            path = HUD_HEART_FULL_PATH
+        elif state == "half":
+            path = HUD_HEART_HALF_FULL_PATH
+        else:
+            path = HUD_HEART_EMPTY_PATH
+
         pix  = QPixmap(path)
 
         if not pix.isNull():
             item = QGraphicsPixmapItem(
                 pix.scaled(HEART_SIZE, HEART_SIZE, Qt.KeepAspectRatio, Qt.FastTransformation)
             )
+        # backup si pas d'assets
         else:
             item = QGraphicsRectItem(0, 0, HEART_SIZE, HEART_SIZE)
-            item.setBrush(QBrush(QColor(210, 30, 30) if full else QColor(55, 10, 10)))
+            color = {
+            "full": QColor(210, 30, 30),
+            "half": QColor(210, 120, 120),
+            "empty": QColor(55, 10, 10)
+            } [state]
+            item.setBrush(QBrush(color))
             item.setPen(QPen(Qt.NoPen))
 
         item.setPos(x, y)
@@ -153,13 +168,20 @@ class HUD:
         self._apply_heart_display(pv, pv_max)
 
     def _apply_heart_display(self, pv, pv_max):
-        for i, (full_item, empty_item) in enumerate(self._heart_pairs):
-            if i < pv:
-                full_item.show()
-                empty_item.hide()
+        for i, (full, half, empty) in enumerate(self._heart_triples):
+            heart_value = pv-i
+            if heart_value >= 1:
+                full.show()
+                half.hide()
+                empty.hide()
+            elif heart_value == 0.5:
+                full.hide()
+                half.show()
+                empty.hide()
             else:
-                full_item.hide()
-                empty_item.show()
+                full.hide()
+                half.hide()
+                empty.show()
 
     def update_item(self, slot_index, pixmap):
         """
