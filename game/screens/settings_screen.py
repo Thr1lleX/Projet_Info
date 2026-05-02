@@ -17,8 +17,6 @@ Options disponibles :
   - Volume musique    (QSlider 0-100)
   - Volume effets SFX (QSlider 0-100)
   - Effet CRT         (QCheckBox)
-  - Plein ecran       (QCheckBox)
-  - Debug hitboxes    (QCheckBox)
   - Vitesse anim.     (QComboBox : Lente / Normale / Rapide)
 
 Pour ajouter une option :
@@ -32,9 +30,10 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtGui import QBrush, QColor, QPen
 from PyQt5.QtCore import Qt
-
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QGraphicsPixmapItem
 from game.screens.base_screen import BaseScreen
-from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, TILE_SIZE, Z_SCREEN
+from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, TILE_SIZE, Z_SCREEN, KEYS
 from game.fonts import get_font0
 
 _SCENE_W = GRID_WIDTH * TILE_SIZE
@@ -55,8 +54,6 @@ _ROW_TITLE   = _PANEL_Y + 18
 _ROW_MUS     = _PANEL_Y + 90
 _ROW_SFX     = _PANEL_Y + 138
 _ROW_CRT     = _PANEL_Y + 196
-_ROW_FULL    = _PANEL_Y + 238
-_ROW_DEBUG   = _PANEL_Y + 280
 _ROW_ANIM    = _PANEL_Y + 332
 _ROW_BTNS    = _PANEL_Y + 396
 
@@ -99,8 +96,6 @@ class SettingsScreen(BaseScreen):
         self._sl_music = None
         self._sl_sfx   = None
         self._cb_crt   = None
-        self._cb_full  = None
-        self._cb_debug = None
         self._cmb_anim = None
 
     # ------------------------------------------------------------------
@@ -117,6 +112,7 @@ class SettingsScreen(BaseScreen):
     # ------------------------------------------------------------------
 
     def _build(self):
+        self._build_background()
         self._build_overlay()
         self._build_panel()
         self._build_title()
@@ -125,6 +121,15 @@ class SettingsScreen(BaseScreen):
         self._build_anim_row()
         self._build_buttons()
 
+        
+    def _build_background(self):
+        pixmap = QPixmap("assets/hud/settings_background.png")
+        pixmap = pixmap.scaled(_SCENE_W, _SCENE_H, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+    
+        bg = QGraphicsPixmapItem(pixmap)
+        bg.setZValue(Z_SCREEN - 1)
+        self._items.append(bg)
+    
     def _build_overlay(self):
         overlay = QGraphicsRectItem(0, 0, _SCENE_W, _SCENE_H)
         overlay.setBrush(QBrush(QColor(8, 8, 20, 200)))
@@ -140,7 +145,7 @@ class SettingsScreen(BaseScreen):
         self._items.append(panel)
 
     def _build_title(self):
-        title = QGraphicsTextItem("Parametres")
+        title = QGraphicsTextItem("Paramètres")
         title.setFont(get_font0(size=46))
         title.setDefaultTextColor(_C_TITLE)
         title.setZValue(Z_SCREEN + 2)
@@ -189,11 +194,6 @@ class SettingsScreen(BaseScreen):
         self._cb_crt = QCheckBox("Effet CRT")
         self._add_proxy(self._cb_crt, _LABEL_X, _ROW_CRT, h=28)
 
-        self._cb_full = QCheckBox("Plein ecran")
-        self._add_proxy(self._cb_full, _LABEL_X, _ROW_FULL, h=28)
-
-        self._cb_debug = QCheckBox("Debug hitboxes")
-        self._add_proxy(self._cb_debug, _LABEL_X, _ROW_DEBUG, h=28)
 
     def _build_anim_row(self):
         self._add_label("Anim. tuiles :", _ROW_ANIM + 2)
@@ -223,8 +223,6 @@ class SettingsScreen(BaseScreen):
         self._sl_music.setValue(int(settings.music_volume * 100))
         self._sl_sfx.setValue(int(settings.sfx_volume * 100))
         self._cb_crt.setChecked(settings.crt_overlay)
-        self._cb_full.setChecked(settings.fullscreen)
-        self._cb_debug.setChecked(settings.debug_hitboxes)
         speed = settings.tile_anim_speed
         for i, (_, val) in enumerate(_ANIM_SPEEDS):
             if abs(val - speed) < 0.01:
@@ -245,8 +243,6 @@ class SettingsScreen(BaseScreen):
         settings.music_volume    = self._sl_music.value() / 100.0
         settings.sfx_volume      = self._sl_sfx.value()   / 100.0
         settings.crt_overlay     = self._cb_crt.isChecked()
-        settings.fullscreen      = self._cb_full.isChecked()
-        settings.debug_hitboxes  = self._cb_debug.isChecked()
         settings.tile_anim_speed = _ANIM_SPEEDS[self._cmb_anim.currentIndex()][1]
 
         settings.save()
@@ -266,5 +262,5 @@ class SettingsScreen(BaseScreen):
     # ------------------------------------------------------------------
 
     def key_press(self, key):
-        if key == Qt.Key_Escape:
+        if key == KEYS["PAUSE"]:
             self._cancel()

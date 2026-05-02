@@ -19,6 +19,7 @@ from game.screens.base_screen import BaseScreen
 from game.config import (
     GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, TILE_SIZE,
     Z_SCREEN, TITLE_BG_PATH, GAME_TITLE,
+    KEYS
 )
 from game.fonts import get_font0
 
@@ -131,11 +132,11 @@ class TitleScreen(BaseScreen):
     # ------------------------------------------------------------------
 
     def key_press(self, key):
-        if key in (Qt.Key_Down, Qt.Key_Right):
+        if key in (KEYS["DOWN"], KEYS["RIGHT"]):
             self._move(+1)
-        elif key in (Qt.Key_Up, Qt.Key_Left):
+        elif key in (KEYS["UP"], KEYS["LEFT"]):
             self._move(-1)
-        elif key in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+        elif key in (KEYS["ATTACK"], KEYS["INTERACT"], KEYS["CONFIRM"]):
             self._activate()
 
     def _move(self, direction):

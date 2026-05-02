@@ -20,7 +20,7 @@ from PyQt5.QtGui import QBrush, QColor, QPen
 from PyQt5.QtCore import Qt, QRectF
 
 from game.screens.base_screen import BaseScreen
-from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, TILE_SIZE, Z_SCREEN
+from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, TILE_SIZE, Z_SCREEN, KEYS
 from game.fonts import get_font0
 
 _SCENE_W = GRID_WIDTH * TILE_SIZE
@@ -48,7 +48,7 @@ class PauseScreen(BaseScreen):
         super().__init__(screen_manager)
         self._menu = [
             {"label": "Reprendre",           "action": "resume",   "enabled": True},
-            {"label": "Parametres",           "action": "settings", "enabled": True},
+            {"label": "Paramètres",           "action": "settings", "enabled": True},
             {"label": "Menu principal",       "action": "title",    "enabled": True},
             {"label": "Point de sauvegarde",  "action": "save",     "enabled": False},
             {"label": "Quitter",              "action": "quit",     "enabled": True},
@@ -121,27 +121,41 @@ class PauseScreen(BaseScreen):
     # ------------------------------------------------------------------
 
     def key_press(self, key):
-        if key == Qt.Key_Escape:
+        if key in (KEYS["PAUSE"], KEYS["LEAVE"]):
             self.screen_manager.resume_game()
-        elif key in (Qt.Key_Down, Qt.Key_Right):
+        elif key in (KEYS["DOWN"], KEYS["RIGHT"]):
             self._move(+1)
-        elif key in (Qt.Key_Up, Qt.Key_Left):
+        elif key in (KEYS["UP"], KEYS["LEFT"]):
             self._move(-1)
-        elif key in (Qt.Key_Return, Qt.Key_Enter, Qt.Key_Space):
+        elif key in (KEYS["INTERACT"],KEYS["ATTACK"],KEYS["CONFIRM"]):
             self._activate()
 
+
     def _move(self, direction):
-        n     = len(self._menu)
+        n = len(self._menu)
+        old_selected = self._selected
         index = self._selected
+        
         for _ in range(n):
             index = (index + direction) % n
             if self._menu[index]["enabled"]:
                 break
-        self._selected = index
-        self._refresh_highlight()
+        
+        if index != old_selected:
+            self._selected = index
+            self._refresh_highlight()
+            
+            if self.screen_manager._scene and hasattr(self.screen_manager._scene, 'sfx_manager'):
+                self.screen_manager._scene.sfx_manager.play("snd_choice")
 
     def _activate(self):
-        self._dispatch(self._menu[self._selected]["action"])
+        action = self._menu[self._selected]["action"]
+        
+        if action not in ["resume", "quit"]:
+            if self.screen_manager._scene and hasattr(self.screen_manager._scene, 'sfx_manager'):
+                self.screen_manager._scene.sfx_manager.play("snd_accept")
+        
+        self._dispatch(action)
 
     # ------------------------------------------------------------------
     # navigation souris
