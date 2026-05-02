@@ -7,8 +7,9 @@ from game.config import TILE_SIZE
 class Boomerang(PersistentAttack):
     def __init__(self, source, direction):
         speed = 8
+        self.player = source
         super().__init__(
-            source=source,
+            source=self.player,
             direction=direction,
             damage=0,
             spr_path="player/attack/boomerang", 
@@ -95,6 +96,3 @@ class Boomerang(PersistentAttack):
 
         self.setPos(self.x + self.anim_offset[0], self.y + self.anim_offset[1]) 
 
-    # def die(self):
-    #     if self.scene():
-    #         self.scene().removeItem(self)

@@ -168,6 +168,7 @@ class AttackEntity(QGraphicsPixmapItem):
                     self.knockback = old_kb
                     self.duree_knockback = old_duration
             
+            
 
 # Differenciation des classes selon si l'attaque dure ou non
 
