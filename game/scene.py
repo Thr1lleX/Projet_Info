@@ -284,13 +284,13 @@ class GameScene(QGraphicsScene):
                 
                 if not pix.isNull():
                     self.tileset[tile_id] = pix.scaled(
-                        TILE_SIZE, TILE_SIZE, 
+                        int(pix.width() * SCALE), int(pix.height() * SCALE), 
                         transformMode=Qt.FastTransformation
                     )
 
         self.current_loaded_biome = biome_name
 
-
+    
     def draw_room(self, room):
         """
         invoquee par _change_room_internal et prend en parametre la room
@@ -300,59 +300,66 @@ class GameScene(QGraphicsScene):
         on place par dessus les autres assets en fonction du biome
         On a pas securite biome default
         """
+    
         biome_actuel = room.get("biome", "default")
         self.load_biome_tileset(biome_actuel)
-        
+    
         ground_pixmap = self.tileset.get(0)
-
-        for y, row in enumerate(room["tiles"]):
-            for x, tile_id in enumerate(row):
-                
-                # dessins du sol d'abord - pas d'animation
-                if ground_pixmap:
+        
+        # dessins du sol d'abord - pas d'animation
+        if ground_pixmap:
+            for y, row in enumerate(room["tiles"]):
+                for x, _ in enumerate(row):
                     ground_item = QGraphicsPixmapItem(ground_pixmap)
                     ground_item.setPos(
                         x * TILE_SIZE,
                         (y + HUD_HEIGHT) * TILE_SIZE
                     )
+                    ground_item.setZValue(TILE_TYPES[0].get("z", 0))
                     self.addItem(ground_item)
-                    ground_item.setZValue(0)
-
-                if tile_id != 0:
-                    data = self.tileset.get(tile_id)
-                    
-                    # check si liste -> anime tile
-                    if isinstance(data, list):
-                        pixmap = data[0]
-                        item = QGraphicsPixmapItem(pixmap)
-                        self.animated_tile_items.append((item, tile_id))
-                        # on l'ajoute a la liste des objets a animer
-                    
-                    # cas normal
-                    else:
-                        pixmap = data
-                        
-                        # check si non vide
-                        if pixmap:
-                            item = QGraphicsPixmapItem(pixmap)
-                            
-                    item.setPos(
+    
+        # dessins des autres tiles
+        for y, row in enumerate(room["tiles"]):
+            for x, tile_id in enumerate(row):
+    
+                if tile_id == 0:
+                    continue
+    
+                data = self.tileset.get(tile_id)
+                if not data:
+                    continue
+    
+                # tile animee
+                if isinstance(data, list):
+                    pixmap = data[0]
+                    item = QGraphicsPixmapItem(pixmap)
+                    self.animated_tile_items.append((item, tile_id))
+                    # on l'ajoute a la liste des objets a animer
+    
+                # tile statique
+                else:
+                    item = QGraphicsPixmapItem(data)
+    
+                item.setPos(
+                    x * TILE_SIZE,
+                    (y + HUD_HEIGHT) * TILE_SIZE
+                )
+    
+                z_value = TILE_TYPES[tile_id].get("z", 1)
+                item.setZValue(z_value)
+    
+                self.addItem(item)
+    
+                if DEBUG and TILE_TYPES[tile_id]["collision"] == 1:
+                    rect = QGraphicsRectItem(
                         x * TILE_SIZE,
-                        (y + HUD_HEIGHT) * TILE_SIZE
+                        (y + HUD_HEIGHT) * TILE_SIZE,
+                        TILE_SIZE, TILE_SIZE
                     )
-                    self.addItem(item)
-                    item.setZValue(1)
-
-                    if DEBUG and TILE_TYPES[tile_id]["collision"] == 1:
-                        rect = QGraphicsRectItem(
-                            x * TILE_SIZE,
-                            (y + HUD_HEIGHT) * TILE_SIZE,
-                            TILE_SIZE, TILE_SIZE
-                        )
-                        rect.setPen(QPen(QColor("blue"), 1))
-                        rect.setZValue(500)
-                        self.addItem(rect)
-            
+                    rect.setPen(QPen(QColor("blue"), 1))
+                    rect.setZValue(500)
+                    self.addItem(rect)
+    
         self.spawn_enemies(room)
 
     def update_animations(self, dt):
