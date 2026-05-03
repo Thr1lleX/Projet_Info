@@ -27,7 +27,7 @@ class Boomerang(PersistentAttack):
         # variables de logique de boomerang
         self.start_x = self.x
         self.start_y = self.y
-        self.max_travel_dist = 7
+        self.max_travel_dist = 6
         self.returning = False
         self.base_speed = speed
         # -------------------------------------------------------
