@@ -4,25 +4,35 @@
 TILE_TYPES = {
     0: {
         "name": "ground",
-        "collision": 0
+        "collision": 0,
+        "z": 0
     },
     1: {
         "name": "tree",
         "collision": 1,
-        "animated": True
+        "animated": True,
+        "z": 3
     },
     2: {
         "name": "wall",
-        "collision": 1
+        "collision": 1,
+        "z": 2
     },
     3: {
         "name": "black",
-        "collision": 0
+        "collision": 0,
+        "z": 0
     },
     4: {
         "name": "water",
         "collision": 1,
-        "animated": True
+        "animated": True,
+        "z": 1
+    },
+    5: {
+        "name": "grass",
+        "collision": 0,
+        "z": 2
     }
 }
 
