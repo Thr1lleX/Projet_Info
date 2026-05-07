@@ -121,9 +121,9 @@ class GameOverScreen(BaseScreen):
     # ------------------------------------------------------------------
 
     def key_press(self, key):
-        if key in (KEYS["DOWN"], KEYS["RIGHT"]):
+        if key == KEYS["DOWN"]:
             self._move(+1)
-        elif key in (KEYS["UP"], KEYS["LEFT"]):
+        elif key == KEYS["UP"]:
             self._move(-1)
         elif key in (KEYS["ATTACK"],KEYS["INTERACT"],KEYS["CONFIRM"]):
             self._activate()
@@ -148,6 +148,10 @@ class GameOverScreen(BaseScreen):
 
     def _activate(self):
         action = self._menu[self._selected]["action"]
+        
+        if action == "restart":
+            if self.screen_manager._scene and hasattr(self.screen_manager._scene, 'sfx_manager'):
+                self.screen_manager._scene.sfx_manager.play("snd_start")
         
         if action not in ["restart", "quit"]:
             if self.screen_manager._scene and hasattr(self.screen_manager._scene, 'sfx_manager'):

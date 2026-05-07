@@ -123,9 +123,9 @@ class PauseScreen(BaseScreen):
     def key_press(self, key):
         if key in (KEYS["PAUSE"], KEYS["LEAVE"]):
             self.screen_manager.resume_game()
-        elif key in (KEYS["DOWN"], KEYS["RIGHT"]):
+        elif key == KEYS["DOWN"]:
             self._move(+1)
-        elif key in (KEYS["UP"], KEYS["LEFT"]):
+        elif key == KEYS["UP"]:
             self._move(-1)
         elif key in (KEYS["INTERACT"],KEYS["ATTACK"],KEYS["CONFIRM"]):
             self._activate()
@@ -183,5 +183,8 @@ class PauseScreen(BaseScreen):
             sm.go_to_settings()
         elif action == "title":
             sm.go_to_title()
+            # on relance la musique dpeuis ici, car ecran de pause deja instancie
+            if hasattr(sm, 'music_manager'):
+                sm.music_manager.play("mus_title")
         elif action == "quit":
             sm.quit_game()

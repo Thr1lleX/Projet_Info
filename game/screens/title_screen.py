@@ -22,6 +22,7 @@ from game.config import (
     KEYS
 )
 from game.fonts import get_font0
+from game.save_manager import SaveManager
 
 _SCENE_W = GRID_WIDTH * TILE_SIZE                    # 1024
 _SCENE_H = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE   # 832
@@ -50,7 +51,13 @@ class TitleScreen(BaseScreen):
         # definition du menu (ordre = ordre d'affichage)
         self._menu = [
             {"label": "Nouvelle Partie", "action": "new_game",  "enabled": True},
-            {"label": "Continuer",       "action": "continue",  "enabled": False},   # grise
+            # on grise si pas de save
+            {
+                "label": "Continuer",
+                "action": "continue",
+                "enabled": SaveManager.any_save_exists()
+            },            
+            #{"label": "Continuer",       "action": "continue",  "enabled": False},   # grise
             {"label": "Paramètres",      "action": "settings",  "enabled": True},
             {"label": "Quitter",         "action": "quit",      "enabled": True},
         ]
@@ -66,6 +73,7 @@ class TitleScreen(BaseScreen):
         self._build_title()
         self._build_menu()
         self._refresh_highlight()
+        self._play_title_music()
 
     def _build_background(self):
         pix = QPixmap(TITLE_BG_PATH)
@@ -132,26 +140,42 @@ class TitleScreen(BaseScreen):
     # ------------------------------------------------------------------
 
     def key_press(self, key):
-        if key in (KEYS["DOWN"], KEYS["RIGHT"]):
+        if key == KEYS["DOWN"]:
             self._move(+1)
-        elif key in (KEYS["UP"], KEYS["LEFT"]):
+        elif key == KEYS["UP"]:
             self._move(-1)
         elif key in (KEYS["ATTACK"], KEYS["INTERACT"], KEYS["CONFIRM"]):
             self._activate()
 
     def _move(self, direction):
         """Deplace la selection en sautant les entrees desactivees."""
-        n     = len(self._menu)
+        n = len(self._menu)
+        old_selected = self._selected
         index = self._selected
+        
         for _ in range(n):
             index = (index + direction) % n
             if self._menu[index]["enabled"]:
                 break
-        self._selected = index
-        self._refresh_highlight()
-
+            
+        if index != old_selected:
+            self._selected = index
+            self._refresh_highlight()
+            if self.screen_manager._scene and hasattr(self.screen_manager._scene, 'sfx_manager'):
+                self.screen_manager._scene.sfx_manager.play("snd_choice")
+                
     def _activate(self):
-        self._dispatch(self._menu[self._selected]["action"])
+        action = self._menu[self._selected]["action"]
+        
+        if self.screen_manager._scene and hasattr(self.screen_manager._scene, 'sfx_manager'):
+            sfx = self.screen_manager._scene.sfx_manager
+            
+            if action == "new_game":
+                sfx.play("snd_start")
+            elif action in ["continue", "settings"]:
+                sfx.play("snd_accept")
+        
+        self._dispatch(action)
 
     # ------------------------------------------------------------------
     # navigation souris
@@ -176,8 +200,14 @@ class TitleScreen(BaseScreen):
         if action == "new_game":
             sm.start_new_game()
         elif action == "continue":
-            pass   # non implante : la sauvegarde sera ajoutee ulterieurement
+            sm.show_screen("save_select")
         elif action == "settings":
             sm.go_to_settings()
         elif action == "quit":
             sm.quit_game()
+
+    def _play_title_music(self):
+        """Lance la musique du menu principal."""
+        sm = self.screen_manager
+        if hasattr(sm, 'music_manager'):
+            sm.music_manager.play("mus_title", fade_in=0)
