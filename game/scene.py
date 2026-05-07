@@ -10,7 +10,6 @@ import random
 
 from game.room_loader import load_room
 from game.transition import TransitionManager
-from game.music import MusicManager
 from game.sfx import SFXManager
 
 from game.tileset import TILE_TYPES
@@ -21,6 +20,9 @@ from game.player import Player
 #from game.enemies.placeholder1 import Placeholder1
 from game.enemies.enemy_registry import ENEMY_TYPES
 from game.animspr import load_animation_sequence
+
+from game.save_manager import SaveManager
+from game.interactables.interactable_registry import INTERACTABLE_TYPES
 
 # offset de placement lorsque transition ecran
 OFFSET = 2 # pixels
@@ -51,6 +53,7 @@ class GameScene(QGraphicsScene):
         self.addItem(self.player)
         
         self.enemies = []
+        self.interactables = []
         
         self.transition = TransitionManager(self)
 
@@ -86,7 +89,7 @@ class GameScene(QGraphicsScene):
         self.timer.start(interval)
         
         # music 
-        self.music_manager = MusicManager()
+        self.music_manager = self.screen_manager.music_manager
         self.pending_music = None
         self.sfx_manager = SFXManager()
         
@@ -94,15 +97,16 @@ class GameScene(QGraphicsScene):
         self.animated_tile_items = [] 
         self.animation_timer = 0
         self.frame_duree = 0.5 #duree de frame d'animation tile avant changement
+
+        # save courante
+        self.current_save = None
         
         # etats des rooms
         self.room_states = {}
-        room = load_room("rooms/room3.json") #room initiale
-        self.current_room = "room3"
-        self.room_data = room
-        self.draw_room(room)
-        self.room_states = {}
-
+        
+        # variables room
+        self.current_room = None
+        self.room_data = None
         
         # IMPORTANT ! items persistant, a ajouter pour conservation lors de chgmt de salle
         self.persistent_items = {
@@ -142,23 +146,18 @@ class GameScene(QGraphicsScene):
             self.player.update(dt, self)
             self.check_room_transition()
             self.update_animations(dt)
-
-            if hasattr(self, "enemies"):
-                for enemy in self.enemies:
-                    enemy.update(dt, self)
-        # if not self.is_transitioning:
-        #     self.player.update(dt, self)
-        #     self.check_room_transition()
             
-        #     for enemy in self.enemies:
-        #         enemy.update(dt, self) 
+            for enemy in self.enemies:
+                enemy.update(dt, self)
+            for interactable in self.interactables:
+                interactable.update(dt)
            
         self.transition.update(dt)
         self.music_manager.update(dt)
         if CRT_OVERLAY:
             self.update_crt()
 
-        self.hud.update_hearts(self.player.pv_main, self.player.pv_max)
+        self.hud.update_hearts(self.player.pv_main, self.player._pv_max)
     
 
 
@@ -361,6 +360,7 @@ class GameScene(QGraphicsScene):
                     self.addItem(rect)
     
         self.spawn_enemies(room)
+        self.spawn_interactables(room)
 
     def update_animations(self, dt):
         self.animation_timer += dt
@@ -370,6 +370,9 @@ class GameScene(QGraphicsScene):
             frames = self.tileset[tile_id]
             current_frame = frame_index % len(frames)
             item.setPixmap(frames[current_frame])
+            
+            
+    # --- CHARGEMENT DES SALLES ---
         
     def _change_room_internal(self, room_name, direction):
         """
@@ -388,6 +391,7 @@ class GameScene(QGraphicsScene):
 
         """
         room = load_room(f"rooms/{room_name}.json")
+        room = self.apply_conditional_transitions(room)
         self.current_room = room_name
         self.is_transitioning = True
         self.room_data = room
@@ -435,6 +439,28 @@ class GameScene(QGraphicsScene):
             target = transitions.get("down")
             if target:
                 self.transition.start(target, "down")
+
+    def apply_conditional_transitions(self, room):
+        """
+        modifie les transitions selon les flags
+        """
+        
+        transitions = room.get("transitions", {}).copy()
+    
+        for rule in room.get("conditional_transitions", []):
+    
+            flag = rule["flag"]
+    
+            if self.current_save.get_flag(flag):
+    
+                direction = rule["direction"]
+                target = rule["target"]
+    
+                transitions[direction] = target
+    
+        room["transitions"] = transitions
+    
+        return room
         
     
     """
@@ -579,3 +605,103 @@ class GameScene(QGraphicsScene):
         self.enemies.clear()
         # l'ecran de game over est gere par ScreenManager.on_game_over()
                 
+            
+    # def load_save(self, slot=1):
+    #     # charge la save
+    #     self.current_save = SaveManager(slot)
+    
+    #     # room
+    #     room_name = self.current_save.get_current_room()
+    #     room = load_room(f"rooms/{room_name}.json")
+    #     room = self.apply_conditional_transitions(room)
+    
+    #     self.current_room = room_name
+    #     self.room_data = room
+    
+    #     # nettoyage scene
+    #     self.enemies = []
+    #     self.animated_tile_items.clear()
+    
+    #     for item in list(self.items()):
+    #         if item not in self.persistent_items:
+    #             self.removeItem(item)
+    
+    #     # redraw
+    #     self.draw_room(room)
+    
+    #     # player pos
+    #     px, py = self.current_save.get_player_position()
+    
+    #     self.player.x = px * TILE_SIZE
+    #     self.player.y = (py + HUD_HEIGHT) * TILE_SIZE
+    
+    #     self.player.update_graphics()
+        
+
+    def load_current_save(self):
+    
+        room_name = self.current_save.get_current_room()
+    
+        room = load_room(f"rooms/{room_name}.json")
+        room = self.apply_conditional_transitions(room)
+    
+        self.current_room = room_name
+        self.room_data = room
+    
+        self.enemies = []
+        self.animated_tile_items.clear()
+    
+        for item in list(self.items()):
+            if item not in self.persistent_items:
+                self.removeItem(item)
+    
+        self.draw_room(room)
+    
+        px, py = self.current_save.get_player_position()
+        
+        current_health = self.current_save.get_current_health()
+        self.player.pv_main = current_health
+    
+        self.player.x = px * TILE_SIZE
+        self.player.y = (py + HUD_HEIGHT) * TILE_SIZE
+    
+        self.player.update_graphics()
+        
+    def load_save(self, slot=1):
+        self.current_save = SaveManager(slot)
+        self.load_current_save()
+        
+    def spawn_interactables(self, room):
+        """
+        spawn des objets interactifs de la salle
+        """
+    
+        self.interactables = []
+        for data in room.get("interactables", []):
+            interactable_type = data.get("type")
+            interactable_class = INTERACTABLE_TYPES.get(
+                interactable_type
+            )
+    
+            if interactable_class is None:
+                if DEBUG:
+                    print(
+                        f"Interactable inconnu : "
+                        f"{interactable_type}"
+                    )
+    
+                continue
+            x = data["x"] * TILE_SIZE
+            y = (data["y"] + HUD_HEIGHT) * TILE_SIZE
+            interactable = interactable_class(
+                SCALE,
+                x,
+                y
+            )
+    
+            interactable.interactable_id = data.get("id")
+            self.interactables.append(interactable)
+            self.addItem(interactable)
+            interactable.update_graphics()
+            if DEBUG and hasattr(interactable, "debug_rect"):
+                interactable.debug_rect.show()

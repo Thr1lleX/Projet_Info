@@ -31,15 +31,15 @@ class Player(Entity):
 
         self.setZValue(100)
 
-        self.x = 5 * self.tile_size
-        self.y = 5 * self.tile_size
-        
+        self.x = 0
+        self.y = 0
+
         # -- STATS --
 
         self.speed = BASE_SPEED
 
-        self.pv_max = 6
-        self.pv_main = self.pv_max
+        self._pv_max = 6
+        self.pv_main = self._pv_max
         
         # --Attaques--
         

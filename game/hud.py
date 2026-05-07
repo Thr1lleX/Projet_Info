@@ -49,7 +49,7 @@ class HUD:
         self._current_pv_max = -1
 
         self._build_background(scene)
-        self._build_hearts(scene, player.pv_max)
+        self._build_hearts(scene, player._pv_max)
         self._build_slots(scene)
 
     # ------------------------------------------------------------------

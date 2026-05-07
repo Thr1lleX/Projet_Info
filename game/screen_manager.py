@@ -34,6 +34,8 @@ Pour ajouter un nouvel ecran :
 
 from PyQt5.QtCore import Qt, QTimer
 from game.config import KEYS
+from game.save_manager import SaveManager
+from game.music import MusicManager
 
 
 class ScreenManager:
@@ -57,6 +59,8 @@ class ScreenManager:
         # injectes depuis main.py
         self.settings  = None   # SettingsManager
         self.inventory = None   # Inventory
+        
+        self.music_manager = MusicManager()
 
     # ------------------------------------------------------------------
     # gestion de la scene
@@ -82,8 +86,8 @@ class ScreenManager:
         if old is not None:
             if hasattr(old, 'timer'):
                 old.timer.stop()
-            if hasattr(old, 'music_manager'):
-                old.music_manager.stop()
+            # if hasattr(old, 'music_manager'):
+            #     old.music_manager.stop()
 
         new_scene = GameScene(screen_manager=self)
         self.set_scene(new_scene)
@@ -156,24 +160,7 @@ class ScreenManager:
     # ------------------------------------------------------------------
     # transitions entre etats principaux
     # ------------------------------------------------------------------
-
-    def start_new_game(self):
-        """
-        Demarre une nouvelle partie depuis zero.
-        Retire l'ecran actif, cree une scene fraiche et lance le jeu.
-        Applique les parametres (settings) et reinitialise l'inventaire.
-        """
-        self.hide_current_screen()
-        scene = self._create_fresh_scene()
-        scene.game_paused = False
-        scene.start_room_music()
-        self.state = self.STATE_GAME
-
-        if self.settings is not None:
-            self.settings.apply_to_scene(scene)
-        if self.inventory is not None:
-            self.inventory.reset()
-
+    
     def go_to_title(self):
         """
         Retourne a l'ecran titre.
@@ -181,6 +168,10 @@ class ScreenManager:
         """
         self.hide_current_screen()
         self._create_fresh_scene()       # game_paused = True par defaut dans GameScene
+        
+        if self.music_manager.current_music != "mus_title":
+            self.music_manager.play("mus_title")
+        
         self.show_screen("title")
         self.state = self.STATE_TITLE
 
@@ -241,7 +232,7 @@ class ScreenManager:
         
         self._scene.game_paused = True
         if hasattr(self._scene, 'music_manager'):
-            self._scene.music_manager.stop()
+            self.music_manager.stop()
         if hasattr(self._scene, 'sfx_manager'):
             self._scene.sfx_manager.play("snd_sys_pause")
         # fonction labma pour check si on est toujours en pause avant de jouer (empeche spam)
@@ -276,7 +267,7 @@ class ScreenManager:
             
         self._scene.game_paused = True
         if hasattr(self._scene, 'music_manager'):
-            self._scene.music_manager.stop()
+            self.music_manager.stop()
         if hasattr(self._scene, 'sfx_manager'):
             self._scene.sfx_manager.play("snd_sys_item")
         QTimer.singleShot(200, lambda: self._play_music_if_state("mus_inventory", self.STATE_INVENTORY))
@@ -306,4 +297,70 @@ class ScreenManager:
     def _play_music_if_state(self, music_name, target_state):
         """Joue la musique uniquement si le manager est encore dans l'etat voulu."""
         if self.state == target_state and self._scene and hasattr(self._scene, 'music_manager'):
-            self._scene.music_manager.play(music_name)
+            self.music_manager.play(music_name)
+
+    def load_game(self, slot=1):
+    
+        self.hide_current_screen()
+    
+        scene = self._create_fresh_scene()
+    
+        scene.load_save(slot)
+    
+        scene.game_paused = False
+        scene.start_room_music()
+    
+        self.state = self.STATE_GAME
+    
+        if self.settings is not None:
+            self.settings.apply_to_scene(scene)
+        
+    # def start_new_game(self):
+    
+    #     # crée file1 depuis file0
+    #     shutil.copy(
+    #         "savefiles/file0.json",
+    #         "savefiles/file1.json"
+    #     )
+    
+    #     self.hide_current_screen()
+    
+    #     # nouvelle scene propre
+    #     scene = self._create_fresh_scene()
+    
+    #     scene.load_save(slot=1)
+    
+    #     scene.game_paused = False
+    #     scene.start_room_music()
+    
+    #     self.state = self.STATE_GAME
+    
+    #     # appliquer settings
+    #     if self.settings is not None:
+    #         self.settings.apply_to_scene(scene)
+    
+    #     # reset inventaire
+    #     if self.inventory is not None:
+    #         self.inventory.reset()
+    
+    def start_new_game(self):
+    
+        self.hide_current_screen()
+    
+        scene = self._create_fresh_scene()
+    
+        # save temporaire non liée à un slot
+        scene.current_save = SaveManager(slot=None)
+    
+        scene.load_current_save()
+    
+        scene.game_paused = False
+        scene.start_room_music()
+    
+        self.state = self.STATE_GAME
+    
+        if self.settings is not None:
+            self.settings.apply_to_scene(scene)
+    
+        if self.inventory is not None:
+            self.inventory.reset()

@@ -22,7 +22,7 @@ class Entity(QGraphicsPixmapItem):
         self.y = 0
 
         # --- STATS --- (on peut avoir des pv non entiers)
-        self.pv_max = 1
+        self._pv_max = 1
         self.pv_main = 1
         self.speed = 0
         self.is_damaged = False
@@ -222,7 +222,7 @@ class Entity(QGraphicsPixmapItem):
 
         if DEBUG:
             class_name = self.__class__.__name__
-            print(f"[{class_name.upper()} HP] : {self.pv_main}/{self.pv_max}")
+            print(f"[{class_name.upper()} HP] : {self.pv_main}/{self._pv_max}")
 
         
         # gestion des degats
