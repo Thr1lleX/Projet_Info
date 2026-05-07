@@ -1,0 +1,8 @@
+{
+  "current_room": "room3",
+  "current_health" : 6,
+  "player_x": 5,
+  "player_y":5,
+  "flags": {
+  }
+}
