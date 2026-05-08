@@ -19,7 +19,7 @@ class PauseScreen(BaseScreen):
             {"label": "Reprendre",          "action": "resume",   "enabled": True},
             {"label": "Paramètres",          "action": "settings", "enabled": True},
             {"label": "Menu principal",      "action": "title",    "enabled": True},
-            {"label": "Point de sauvegarde", "action": "save",     "enabled": False},
+            {"label": "Dernière Save", "action": "save",     "enabled": False},
             {"label": "Quitter",             "action": "quit",     "enabled": True},
         ]
 
@@ -72,5 +72,29 @@ class PauseScreen(BaseScreen):
             sm.go_to_title()
             if hasattr(sm, 'music_manager'):
                 sm.music_manager.play("mus_title")
+        elif action == "save":
+            current_slot = sm._scene.current_save.slot
+            if current_slot:
+                sm.load_game(current_slot)
         elif action == "quit":
             sm.quit_game()
+
+    def show(self, scene):
+        """
+        cette fonction permet de recharger ecran lorsqu'on l'ouvre
+        """
+        has_slot = scene.current_save is not None and scene.current_save.slot is not None
+        
+        # mise a jour du slot
+        for item in self._menu:
+            if item["action"] == "save":
+                item["enabled"] = has_slot
+        
+        if self._items:
+            for item in self._items:
+                if item.scene():
+                    item.scene().removeItem(item)
+            self._items.clear()
+            
+        self._build()
+        super().show(scene)

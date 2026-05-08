@@ -3,7 +3,7 @@
 import sys
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem, QApplication, QGraphicsTextItem
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 #from PyQt5.QtWidgets import QGraphicsRectItem, QApplication
 from PyQt5.QtGui import QPen, QColor, QFont, QFontDatabase
 
@@ -99,7 +99,7 @@ class Player(Entity):
         self.echap = 0
         
         # Layout de exit
-        font = get_font0(size=int(0.65 * TILE_SIZE))
+        font = get_font0(size=int(10))
         offset_exit = 1 * SCALE
         
         self.exit_label_shadow = QGraphicsTextItem()
@@ -130,6 +130,14 @@ class Player(Entity):
         self.shout_pressed = False
 
         self.can_go_on_water = True
+        
+        # INTERACTION
+        self.interact_pressed = False
+        if DEBUG:
+            self.interact_debug_rect = QGraphicsRectItem()
+            self.interact_debug_rect.setPen(QPen(QColor("yellow"), 2))
+            self.interact_debug_rect.setZValue(9999)
+            self.interact_debug_rect.hide()
         
         # update graphics
         self.update_graphics()
@@ -243,6 +251,13 @@ class Player(Entity):
                 self.projectiles_cooldown = self.projectiles_delay
         else:
             self.attack_pressed = False
+            
+        if KEYS["INTERACT"] in self.keys:
+            if not self.interact_pressed:
+                self.try_interact(scene)
+                self.interact_pressed = True
+        else:
+            self.interact_pressed = False
         
         if DEBUG:
             if KEYS["CROUCH"] in self.keys:
@@ -428,5 +443,102 @@ class Player(Entity):
         new_boom = Boomerang(self, self.direction)
         self.projectiles.append(new_boom)
         scene.addItem(new_boom)
+        
+        
+    def get_interaction_hitbox(self):
+        """
+        renvoie la hitbox d'interaction devant le joueur
+        """
+        px, py, pw, ph = self.get_hitbox()
     
+        center_x = px + pw / 2
+        center_y = py + ph / 2
+        size = TILE_SIZE
     
+        if self.direction == "up":
+            return (
+                center_x - size / 2,
+                py - size,
+                size,
+                size * 2
+            )
+        elif self.direction == "down":
+            return (
+                center_x - size / 2,
+                py,
+                size,
+                size * 2
+            )
+        elif self.direction == "left":
+            return (
+                px - size-(self.hitbox_offset_x*TILE_SIZE),
+                center_y - size / 2,
+                size * 2,
+                size
+            )
+        elif self.direction == "right":
+            return (
+                px,
+                center_y - size / 2,
+                size * 2,
+                size
+            )
+        
+    
+    def rects_overlap(self, a, b): 
+        ax, ay, aw, ah = a
+        bx, by, bw, bh = b
+    
+        return (
+            ax < bx + bw
+            and ax + aw > bx
+            and ay < by + bh
+            and ay + ah > by
+        )
+        
+    
+    def try_interact(self, scene):
+        """
+        tente interaction avec objet (uniquement avec plus proche si plusieurs)
+        """
+    
+        interact_rect = self.get_interaction_hitbox()
+    
+        # --- DEBUG HITBOX ---
+    
+        if DEBUG:
+            x, y, w, h = interact_rect
+            self.interact_debug_rect.setRect(x, y, w, h)
+            if self.interact_debug_rect.scene() is None:
+                scene.addItem(self.interact_debug_rect)
+    
+            self.interact_debug_rect.show()
+            # disparition auto apres 0.1s
+            temps_hitbox = 0.1 #en s
+            QTimer.singleShot(
+                temps_hitbox*1000,
+                self.interact_debug_rect.hide
+            )
+    
+        # recherche interactable
+    
+        closest = None
+        closest_dist = float("inf")
+    
+        for interactable in scene.interactables:
+            hitbox = interactable.get_hitbox()
+            if self.rects_overlap(interact_rect, hitbox):
+                dist = self.distance_to(interactable)
+                if dist < closest_dist:
+                    closest = interactable
+                    closest_dist = dist
+    
+        if closest is not None:
+    
+            if DEBUG:
+                self.interact_debug_rect.hide()
+            closest.interact(scene, self)
+
+
+    def distance_to(self, other):
+        return abs(self.x - other.x) + abs(self.y - other.y)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsTextItem, QGraphicsPixmapItem
-from PyQt5.QtGui import QBrush, QColor, QPen, QPixmap
+from PyQt5.QtGui import QBrush, QColor, QPen, QPixmap, QKeySequence
 from PyQt5.QtCore import Qt
 
 from game.screens.base_screen import BaseScreen, _SCENE_W, _SCENE_H
@@ -138,7 +138,9 @@ class SettingsScreen(BaseScreen):
     # --- texte d'indication ---
 
     def _build_hint(self):
-        hint = QGraphicsTextItem("Échap pour annuler")
+        key1 = QKeySequence(KEYS["LEAVE"]).toString()
+        key2 = QKeySequence(KEYS["PAUSE"]).toString()
+        hint = QGraphicsTextItem(f"{key1} / {key2} pour annuler")
         hint.setFont(get_font0(size=3))
         hint.setDefaultTextColor(QColor(120, 120, 140))
         hint.setZValue(Z_SCREEN + 2)

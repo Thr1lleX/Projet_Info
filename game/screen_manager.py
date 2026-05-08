@@ -47,6 +47,7 @@ class ScreenManager:
     STATE_INVENTORY = "inventory"
     STATE_GAME_OVER = "game_over"
     STATE_SETTINGS  = "settings"
+    STATE_SAVE_MENU = "save_menu"
 
     def __init__(self, window):
         self.window         = window
@@ -318,33 +319,6 @@ class ScreenManager:
         if self.settings is not None:
             self.settings.apply_to_scene(scene)
         
-    # def start_new_game(self):
-    
-    #     # crée file1 depuis file0
-    #     shutil.copy(
-    #         "savefiles/file0.json",
-    #         "savefiles/file1.json"
-    #     )
-    
-    #     self.hide_current_screen()
-    
-    #     # nouvelle scene propre
-    #     scene = self._create_fresh_scene()
-    
-    #     scene.load_save(slot=1)
-    
-    #     scene.game_paused = False
-    #     scene.start_room_music()
-    
-    #     self.state = self.STATE_GAME
-    
-    #     # appliquer settings
-    #     if self.settings is not None:
-    #         self.settings.apply_to_scene(scene)
-    
-    #     # reset inventaire
-    #     if self.inventory is not None:
-    #         self.inventory.reset()
     
     def start_new_game(self):
     
@@ -367,3 +341,32 @@ class ScreenManager:
     
         if self.inventory is not None:
             self.inventory.reset()
+            
+    # sauvegardes
+    
+    def open_save_menu(self):
+        if self._scene is None:
+            return
+    
+        if hasattr(self._scene, "player"):
+            self._scene.player.stop_movement()
+        self._scene.game_paused = True
+        if hasattr(self._scene, 'sfx_manager'):
+            self._scene.sfx_manager.play("snd_sys_save")
+        # on joue un peu apres sfx
+        QTimer.singleShot(200,lambda: self._play_music_if_state("mus_save",self.STATE_SAVE_MENU))
+        
+        self.show_screen("save_menu")
+        self.state = self.STATE_SAVE_MENU
+        
+        
+    def close_save_menu(self):
+    
+        self.hide_current_screen()
+    
+        if self._scene is not None:
+
+            self._scene.start_room_music()
+            self._scene.game_paused = False
+    
+        self.state = self.STATE_GAME

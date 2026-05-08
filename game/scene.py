@@ -606,36 +606,6 @@ class GameScene(QGraphicsScene):
         # l'ecran de game over est gere par ScreenManager.on_game_over()
                 
             
-    # def load_save(self, slot=1):
-    #     # charge la save
-    #     self.current_save = SaveManager(slot)
-    
-    #     # room
-    #     room_name = self.current_save.get_current_room()
-    #     room = load_room(f"rooms/{room_name}.json")
-    #     room = self.apply_conditional_transitions(room)
-    
-    #     self.current_room = room_name
-    #     self.room_data = room
-    
-    #     # nettoyage scene
-    #     self.enemies = []
-    #     self.animated_tile_items.clear()
-    
-    #     for item in list(self.items()):
-    #         if item not in self.persistent_items:
-    #             self.removeItem(item)
-    
-    #     # redraw
-    #     self.draw_room(room)
-    
-    #     # player pos
-    #     px, py = self.current_save.get_player_position()
-    
-    #     self.player.x = px * TILE_SIZE
-    #     self.player.y = (py + HUD_HEIGHT) * TILE_SIZE
-    
-    #     self.player.update_graphics()
         
 
     def load_current_save(self):
@@ -705,3 +675,35 @@ class GameScene(QGraphicsScene):
             interactable.update_graphics()
             if DEBUG and hasattr(interactable, "debug_rect"):
                 interactable.debug_rect.show()
+                
+    def save_game(self, slot):
+        """
+        sauvegarde la partie dans un slot
+        """
+    
+        data = {
+            "current_room": self.current_room,
+            "current_health": self.player.pv_main,
+            "player_x": round(
+                self.player.x / TILE_SIZE,
+                2
+            ),
+            "player_y": round(
+                (
+                    self.player.y
+                    - HUD_HEIGHT * TILE_SIZE
+                ) / TILE_SIZE,
+                2
+            ),
+            "flags": self.current_save.data.get(
+                "flags",
+                {}
+            )
+        }
+        SaveManager.write_save(slot, data)
+        
+        # on lie la sessions actuelle a ce slot
+        self.current_save = SaveManager(slot)
+    
+        if DEBUG:
+            print(f"Sauvegarde écrite : slot {slot}")

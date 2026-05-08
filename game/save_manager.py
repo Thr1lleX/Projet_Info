@@ -6,14 +6,14 @@ import shutil
 
 
 class SaveManager:
-
+    SAVE_DIR = "savefiles"
+    
     def __init__(self, slot=None):
         self.slot = slot
-        
-        self.template_path = "savefiles/file0.json"
+        self.template_path = f"{self.SAVE_DIR}/file0.json"
         
         if slot is not None:
-            self.save_path = f"savefiles/file{slot}.json"
+            self.save_path = f"{self.SAVE_DIR}/file{slot}.json"
         else:
             self.save_path = None
 
@@ -44,11 +44,33 @@ class SaveManager:
     # SAVE
     # ---------------------------------------------------------
 
+    @classmethod
+    def write_save(cls, slot, data):
+        """
+        Ecrit une sauvegarde dans un slot.
+        """
+    
+        os.makedirs(cls.SAVE_DIR, exist_ok=True)
+    
+        path = os.path.join(
+            cls.SAVE_DIR,
+            f"file{slot}.json"
+        )
+    
+        with open(path, "w", encoding="utf-8") as file:
+    
+            json.dump(
+                data,
+                file,
+                indent=2,
+                ensure_ascii=False
+            )
     def save(self):
-        if self.save_path is None:
-            return
-        with open(self.save_path, "w", encoding="utf-8") as f:
-            json.dump(self.data, f, indent=4)
+        """
+        sauvegarde les donnees dans le slot defini, utilise pr load derniere save
+        """
+        if self.slot is not None:
+            SaveManager.write_save(self.slot, self.data)
 
     # ---------------------------------------------------------
     # FLAGS
