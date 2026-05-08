@@ -16,7 +16,9 @@ from game.screens.game_over_screen import GameOverScreen
 from game.screens.settings_screen import SettingsScreen
 from game.screens.pause_screen import PauseScreen
 from game.screens.inventory_screen import InventoryScreen
-from game.settings_manager import SettingsManager
+from game.screens.save_select_screen import SaveSelectScreen
+from game.screens.save_menu_screen import SaveMenuScreen
+
 from game.item import Inventory
 from game.config import GAME_TITLE, LOGO
 
@@ -31,7 +33,6 @@ def main():
     sm = ScreenManager(window)
 
     # parametres persistants et inventaire
-    sm.settings  = SettingsManager()
     sm.inventory = Inventory(total_slots=6)
 
     # enregistrement des ecrans
@@ -40,6 +41,8 @@ def main():
     sm.register_screen("settings",  SettingsScreen(sm))
     sm.register_screen("pause",     PauseScreen(sm))
     sm.register_screen("inventory", InventoryScreen(sm))
+    sm.register_screen("save_select",SaveSelectScreen(sm))
+    sm.register_screen("save_menu",SaveMenuScreen(sm))
 
     # injection du screen_manager dans la fenetre
     window.screen_manager = sm
