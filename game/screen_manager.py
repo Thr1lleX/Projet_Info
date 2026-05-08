@@ -143,9 +143,12 @@ class ScreenManager:
 
         return False
 
-    def route_key_release(self, key):   # noqa: ARG002
-        """Absorbe les key_release quand un ecran est actif."""
-        return self._active_screen is not None
+    def route_key_release(self, key):
+        """Transmet le key_release a l'ecran actif (pour l'etat 'pressed' des boutons)."""
+        if self._active_screen is not None:
+            self._active_screen.key_release(key)
+            return True
+        return False
 
     def route_mouse_press(self, scene_pos):
         """

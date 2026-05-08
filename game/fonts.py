@@ -29,8 +29,11 @@ def get_font(path, size=10, bold=False):
     return font
 
 # exemple de fonts
+
+from game.config import SCALE
+
 def get_font0(size=10):
-    return get_font("fonts/8bitoperator.ttf", size)
+    return get_font("fonts/8bitoperator.ttf", int(size*SCALE)) # Pour que le changement de scale permette de modif la police
 
 def get_font1(size=10):
-    return get_font("fonts/undertale-wingdings.ttf", size)
+    return get_font("fonts/undertale-wingdings.ttf", int(size*SCALE))

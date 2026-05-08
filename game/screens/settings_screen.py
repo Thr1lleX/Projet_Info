@@ -1,111 +1,56 @@
 # -*- coding: utf-8 -*-
-"""
-Ecran des parametres (complet).
-
-Utilise QGraphicsProxyWidget pour integrer les controles Qt (sliders,
-cases a cocher, liste deroulante, boutons) directement dans la QGraphicsScene.
-
-Flux :
-  show()       → construit une fois (_build), puis actualise les widgets
-                  depuis SettingsManager (_refresh_widget_values).
-  [Appliquer]  → lit les widgets, met a jour SettingsManager, sauvegarde,
-                  applique a la scene et a la fenetre, puis retourne.
-  [Annuler]    → retourne sans appliquer.
-  Echap        → equivalent a Annuler.
-
-Options disponibles :
-  - Volume musique    (QSlider 0-100)
-  - Volume effets SFX (QSlider 0-100)
-  - Effet CRT         (QCheckBox)
-  - Vitesse anim.     (QComboBox : Lente / Normale / Rapide)
-
-Pour ajouter une option :
-  1. Ajouter le widget dans la methode _build_xxx() correspondante.
-  2. Lire/ecrire la valeur dans _refresh_widget_values() et _apply().
-"""
-
-from PyQt5.QtWidgets import (
-    QGraphicsRectItem, QGraphicsTextItem, QGraphicsProxyWidget,
-    QSlider, QCheckBox, QComboBox, QPushButton,
-)
-from PyQt5.QtGui import QBrush, QColor, QPen
+from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsTextItem, QGraphicsPixmapItem
+from PyQt5.QtGui import QBrush, QColor, QPen, QPixmap
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QGraphicsPixmapItem
-from game.screens.base_screen import BaseScreen
-from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, TILE_SIZE, Z_SCREEN, KEYS
+
+from game.screens.base_screen import BaseScreen, _SCENE_W, _SCENE_H
+from game.config import TILE_SIZE, Z_SCREEN, KEYS
 from game.fonts import get_font0
+from game.ui.option_row import OptionRow
+from game.ui.sprite_button import SpriteButton
 
-_SCENE_W = GRID_WIDTH * TILE_SIZE
-_SCENE_H = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE
+# --- Options disponibles pour chaque parametre ---
+_VOLUME_OPTIONS = [
+    ("Muet",  0.0),
+    ("Bas",   0.25),
+    ("Moyen", 0.50),
+    ("Élevé", 0.75),
+    ("Max",   1.0),
+]
 
-# --- geometrie du panneau ---
-_PANEL_W = 560
-_PANEL_H = 460
-_PANEL_X = (_SCENE_W - _PANEL_W) // 2
-_PANEL_Y = (_SCENE_H - _PANEL_H) // 2
+_CRT_OPTIONS = [
+    ("Non", False),
+    ("Oui", True),
+]
 
-_LABEL_X  = _PANEL_X + 24
-_WIDGET_X = _PANEL_X + 230
-_WIDGET_W = _PANEL_W - 230 - 28   # ~302px
+_ANIM_OPTIONS = [
+    ("Lente",   0.8),
+    ("Normale", 0.5),
+    ("Rapide",  0.2),
+]
 
-# lignes Y successives (relatives a la scene, pas au panneau)
-_ROW_TITLE   = _PANEL_Y + 18
-_ROW_MUS     = _PANEL_Y + 90
-_ROW_SFX     = _PANEL_Y + 138
-_ROW_CRT     = _PANEL_Y + 196
-_ROW_ANIM    = _PANEL_Y + 332
-_ROW_BTNS    = _PANEL_Y + 396
-
-_BTN_W = 130
-_BTN_H = 42
-
-# correspondances vitesse <-> index combo
-_ANIM_SPEEDS = [("Lente", 0.8), ("Normale", 0.5), ("Rapide", 0.2)]
-
-# feuille de style commune a tous les widgets de cet ecran
-_STYLE = (
-    "QSlider::groove:horizontal { height:6px; background:#404060; border-radius:3px; }"
-    "QSlider::handle:horizontal  { width:14px; height:14px; margin:-4px 0;"
-    "                               background:#8888dd; border-radius:7px; }"
-    "QSlider::sub-page:horizontal { background:#6666bb; border-radius:3px; }"
-    "QCheckBox { color:#c8c8e0; spacing:8px; }"
-    "QCheckBox::indicator         { width:16px; height:16px; background:#303050;"
-    "                               border:1px solid #7070b0; border-radius:3px; }"
-    "QCheckBox::indicator:checked { background:#6666bb; }"
-    "QComboBox { background:#303050; border:1px solid #7070b0; border-radius:4px;"
-    "            padding:3px 8px; color:#c8c8e0; min-width:120px; }"
-    "QComboBox QAbstractItemView  { background:#303050; color:#c8c8e0;"
-    "                               selection-background-color:#6666bb; }"
-    "QPushButton { background:#303050; border:1px solid #7070b0; border-radius:6px;"
-    "              color:#c8c8e0; padding:6px 16px; }"
-    "QPushButton:hover   { background:#444470; }"
-    "QPushButton:pressed { background:#6666bb; }"
-)
-
-_C_TITLE = QColor(180, 180, 255)
-_C_LABEL = QColor(190, 190, 210)
+# --- Geometrie du panneau (en tiles) ---
+_PANEL_W_TILES = 12
+_PANEL_H_TILES = 9
 
 
 class SettingsScreen(BaseScreen):
-    """Ecran parametres avec controles Qt integres via QGraphicsProxyWidget."""
 
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
-        # references aux widgets (remplies dans _build)
-        self._sl_music = None
-        self._sl_sfx   = None
-        self._cb_crt   = None
-        self._cmb_anim = None
+        self._rows       = []   # liste d'OptionRow
+        self._apply_btn  = None # SpriteButton
+        self._selected   = 0    # index dans _rows + [_apply_btn]
+        self._nav_count  = 0    # nombre total d'elements navigables
 
     # ------------------------------------------------------------------
     # cycle de vie
     # ------------------------------------------------------------------
 
     def show(self, scene):
-        """Construit (si necessaire) puis actualise les valeurs des widgets."""
         super().show(scene)
-        self._refresh_widget_values()
+        self._load_current_values()
+        self._refresh_all()
 
     # ------------------------------------------------------------------
     # construction
@@ -116,20 +61,20 @@ class SettingsScreen(BaseScreen):
         self._build_overlay()
         self._build_panel()
         self._build_title()
-        self._build_volume_rows()
-        self._build_checkbox_rows()
-        self._build_anim_row()
-        self._build_buttons()
+        self._build_options()
+        self._build_apply_button()
+        self._build_hint()
+        self._nav_count = len(self._rows) + 1   # +1 pour le bouton Appliquer
 
-        
+    # --- fond et panneau ---
+
     def _build_background(self):
         pixmap = QPixmap("assets/hud/settings_background.png")
         pixmap = pixmap.scaled(_SCENE_W, _SCENE_H, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
-    
         bg = QGraphicsPixmapItem(pixmap)
         bg.setZValue(Z_SCREEN - 1)
         self._items.append(bg)
-    
+
     def _build_overlay(self):
         overlay = QGraphicsRectItem(0, 0, _SCENE_W, _SCENE_H)
         overlay.setBrush(QBrush(QColor(8, 8, 20, 200)))
@@ -138,7 +83,11 @@ class SettingsScreen(BaseScreen):
         self._items.append(overlay)
 
     def _build_panel(self):
-        panel = QGraphicsRectItem(_PANEL_X, _PANEL_Y, _PANEL_W, _PANEL_H)
+        pw = _PANEL_W_TILES * TILE_SIZE
+        ph = _PANEL_H_TILES * TILE_SIZE
+        px = (_SCENE_W - pw) // 2
+        py = (_SCENE_H - ph) // 2
+        panel = QGraphicsRectItem(px, py, pw, ph)
         panel.setBrush(QBrush(QColor(20, 20, 40, 250)))
         panel.setPen(QPen(QColor(80, 80, 130), 2))
         panel.setZValue(Z_SCREEN + 1)
@@ -146,121 +95,177 @@ class SettingsScreen(BaseScreen):
 
     def _build_title(self):
         title = QGraphicsTextItem("Paramètres")
-        title.setFont(get_font0(size=46))
-        title.setDefaultTextColor(_C_TITLE)
+        title.setFont(get_font0(size=12))
+        title.setDefaultTextColor(QColor(180, 180, 255))
         title.setZValue(Z_SCREEN + 2)
         tw = title.boundingRect().width()
-        title.setPos((_SCENE_W - tw) / 2, _ROW_TITLE)
+        title.setPos((_SCENE_W - tw) / 2, self._panel_y() + TILE_SIZE * 0.3)
         self._items.append(title)
 
-    # --- helpers internes ---
+    # --- lignes d'options ---
 
-    def _add_label(self, text, y):
-        lbl = QGraphicsTextItem(text)
-        lbl.setFont(get_font0(size=18))
-        lbl.setDefaultTextColor(_C_LABEL)
-        lbl.setZValue(Z_SCREEN + 2)
-        lbl.setPos(_LABEL_X, y)
-        self._items.append(lbl)
+    def _build_options(self):
+        px       = self._panel_x()
+        x_label  = px + TILE_SIZE          # 1 tile de marge a gauche
+        x_value  = px + 6 * TILE_SIZE      # valeur dans la moitie droite
+        val_w    = 5 * TILE_SIZE           # largeur zone valeur
+        start_y  = self._panel_y() + int(TILE_SIZE * 2)
+        row_gap  = int(TILE_SIZE * 1.2)
 
-    def _add_proxy(self, widget, x, y, w=None, h=None):
-        """Enveloppe un widget Qt dans un QGraphicsProxyWidget et l'ajoute a self._items."""
-        widget.setStyleSheet(_STYLE)
-        if w is not None:
-            widget.setFixedWidth(w)
-        if h is not None:
-            widget.setFixedHeight(h)
-        proxy = QGraphicsProxyWidget()
-        proxy.setWidget(widget)
-        proxy.setPos(x, y)
-        proxy.setZValue(Z_SCREEN + 3)
-        self._items.append(proxy)
-        return proxy
+        definitions = [
+            ("Volume musique :", _VOLUME_OPTIONS),
+            ("Volume effets :",  _VOLUME_OPTIONS),
+            ("Effet CRT :",      _CRT_OPTIONS),
+            ("Anim. tuiles :",   _ANIM_OPTIONS),
+        ]
 
-    # --- lignes de controles ---
+        self._rows = []
+        for i, (label, options) in enumerate(definitions):
+            y = start_y + i * row_gap
+            row = OptionRow(label, options, x_label, x_value, y, val_w)
+            self._rows.append(row)
+            self._items.extend(row.get_items())
 
-    def _build_volume_rows(self):
-        self._add_label("Volume musique :", _ROW_MUS + 2)
-        self._sl_music = QSlider(Qt.Horizontal)
-        self._sl_music.setRange(0, 100)
-        self._add_proxy(self._sl_music, _WIDGET_X, _ROW_MUS, _WIDGET_W, 28)
+    # --- bouton Appliquer ---
 
-        self._add_label("Volume effets :", _ROW_SFX + 2)
-        self._sl_sfx = QSlider(Qt.Horizontal)
-        self._sl_sfx.setRange(0, 100)
-        self._add_proxy(self._sl_sfx, _WIDGET_X, _ROW_SFX, _WIDGET_W, 28)
+    def _build_apply_button(self):
+        btn_w = 7 * TILE_SIZE
+        btn_x = (_SCENE_W - btn_w) // 2
+        btn_y = self._panel_y() + int(TILE_SIZE * 7)
+        self._apply_btn = SpriteButton("Appliquer", btn_x, btn_y)
+        self._items.extend(self._apply_btn.get_items())
 
-    def _build_checkbox_rows(self):
-        self._cb_crt = QCheckBox("Effet CRT")
-        self._add_proxy(self._cb_crt, _LABEL_X, _ROW_CRT, h=28)
+    # --- texte d'indication ---
 
+    def _build_hint(self):
+        hint = QGraphicsTextItem("Échap pour annuler")
+        hint.setFont(get_font0(size=3))
+        hint.setDefaultTextColor(QColor(120, 120, 140))
+        hint.setZValue(Z_SCREEN + 2)
+        tw = hint.boundingRect().width()
+        hint.setPos((_SCENE_W - tw) / 2, self._panel_y() + int(TILE_SIZE * 8.2))
+        self._items.append(hint)
 
-    def _build_anim_row(self):
-        self._add_label("Anim. tuiles :", _ROW_ANIM + 2)
-        self._cmb_anim = QComboBox()
-        for label, _ in _ANIM_SPEEDS:
-            self._cmb_anim.addItem(label)
-        self._add_proxy(self._cmb_anim, _WIDGET_X, _ROW_ANIM, 140, 28)
+    # --- helpers de position ---
 
-    def _build_buttons(self):
-        btn_cancel = QPushButton("Annuler")
-        btn_cancel.clicked.connect(self._cancel)
-        self._add_proxy(btn_cancel, _PANEL_X + 60, _ROW_BTNS, _BTN_W, _BTN_H)
+    def _panel_x(self):
+        return (_SCENE_W - _PANEL_W_TILES * TILE_SIZE) // 2
 
-        btn_apply = QPushButton("Appliquer")
-        btn_apply.clicked.connect(self._apply)
-        self._add_proxy(btn_apply, _PANEL_X + _PANEL_W - 60 - _BTN_W, _ROW_BTNS, _BTN_W, _BTN_H)
+    def _panel_y(self):
+        return (_SCENE_H - _PANEL_H_TILES * TILE_SIZE) // 2
 
     # ------------------------------------------------------------------
-    # actualisation des valeurs depuis SettingsManager
+    # chargement des valeurs depuis SettingsManager
     # ------------------------------------------------------------------
 
-    def _refresh_widget_values(self):
-        """Charge les valeurs courantes du SettingsManager dans les widgets."""
+    def _load_current_values(self):
         settings = getattr(self.screen_manager, 'settings', None)
-        if settings is None or self._sl_music is None:
+        if settings is None or not self._rows:
             return
-        self._sl_music.setValue(int(settings.music_volume * 100))
-        self._sl_sfx.setValue(int(settings.sfx_volume * 100))
-        self._cb_crt.setChecked(settings.crt_overlay)
-        speed = settings.tile_anim_speed
-        for i, (_, val) in enumerate(_ANIM_SPEEDS):
-            if abs(val - speed) < 0.01:
-                self._cmb_anim.setCurrentIndex(i)
-                break
+        self._rows[0].set_value(settings.music_volume)
+        self._rows[1].set_value(settings.sfx_volume)
+        self._rows[2].set_value(settings.crt_overlay)
+        self._rows[3].set_value(settings.tile_anim_speed)
 
     # ------------------------------------------------------------------
-    # actions des boutons
+    # rafraichissement visuel
+    # ------------------------------------------------------------------
+
+    def _refresh_all(self):
+        for i, row in enumerate(self._rows):
+            row.set_selected(i == self._selected)
+        is_on_btn = (self._selected == len(self._rows))
+        self._apply_btn.set_state("selected" if is_on_btn else "normal")
+
+    # ------------------------------------------------------------------
+    # navigation clavier
+    # ------------------------------------------------------------------
+
+    def key_press(self, key):
+        if key in (KEYS["PAUSE"], KEYS["LEAVE"]):
+            self._cancel()
+        elif key == KEYS["UP"]:
+            self._nav(-1)
+        elif key == KEYS["DOWN"]:
+            self._nav(+1)
+        elif key == KEYS["LEFT"]:
+            self._cycle(-1)
+        elif key == KEYS["RIGHT"]:
+            self._cycle(+1)
+        elif key in (KEYS["ATTACK"], KEYS["INTERACT"], KEYS["CONFIRM"]):
+            self._press_current()
+
+    def key_release(self, key):
+        if key in (KEYS["ATTACK"], KEYS["INTERACT"], KEYS["CONFIRM"]):
+            self._release_current()
+
+    def _nav(self, direction):
+        old = self._selected
+        self._selected = (self._selected + direction) % self._nav_count
+        if self._selected != old:
+            self._refresh_all()
+            self._play_sfx("snd_choice")
+
+    def _cycle(self, direction):
+        if self._selected < len(self._rows):
+            self._rows[self._selected].cycle(direction)
+            self._play_sfx("snd_choice")
+
+    def _press_current(self):
+        if self._selected == len(self._rows):
+            self._apply_btn.set_state("pressed")
+            self._is_pressed = True
+
+    def _release_current(self):
+        if self._is_pressed:
+            self._is_pressed = False
+            self._apply_btn.set_state("selected")
+            self._apply()
+
+    # ------------------------------------------------------------------
+    # navigation souris
+    # ------------------------------------------------------------------
+
+    def mouse_press(self, scene_pos):
+        from PyQt5.QtCore import QRectF
+        # clic sur une ligne d'option
+        for i, row in enumerate(self._rows):
+            px = self._panel_x()
+            rect = QRectF(px, row.y, _PANEL_W_TILES * TILE_SIZE, row.height)
+            if rect.contains(scene_pos):
+                self._selected = i
+                self._refresh_all()
+                return
+        # clic sur Appliquer
+        if self._apply_btn.contains(scene_pos):
+            self._selected = len(self._rows)
+            self._refresh_all()
+            self._apply_btn.set_state("pressed")
+            self._apply()
+
+    # ------------------------------------------------------------------
+    # actions
     # ------------------------------------------------------------------
 
     def _apply(self):
-        """Lit les widgets, sauvegarde et applique les changements."""
         settings = getattr(self.screen_manager, 'settings', None)
         if settings is None:
             self.screen_manager.back_from_settings()
             return
 
-        settings.music_volume    = self._sl_music.value() / 100.0
-        settings.sfx_volume      = self._sl_sfx.value()   / 100.0
-        settings.crt_overlay     = self._cb_crt.isChecked()
-        settings.tile_anim_speed = _ANIM_SPEEDS[self._cmb_anim.currentIndex()][1]
+        settings.music_volume    = self._rows[0].get_value()
+        settings.sfx_volume      = self._rows[1].get_value()
+        settings.crt_overlay     = self._rows[2].get_value()
+        settings.tile_anim_speed = self._rows[3].get_value()
 
         settings.save()
 
         scene = self.screen_manager.scene
         if scene is not None:
             settings.apply_to_scene(scene)
-        settings.apply_to_window(self.screen_manager.window)
+    
 
         self.screen_manager.back_from_settings()
 
     def _cancel(self):
         self.screen_manager.back_from_settings()
-
-    # ------------------------------------------------------------------
-    # evenements clavier
-    # ------------------------------------------------------------------
-
-    def key_press(self, key):
-        if key == KEYS["PAUSE"]:
-            self._cancel()

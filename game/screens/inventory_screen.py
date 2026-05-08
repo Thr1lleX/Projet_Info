@@ -18,7 +18,7 @@ from PyQt5.QtGui import QBrush, QColor, QPen, QPixmap, QKeySequence
 from PyQt5.QtCore import Qt, QRectF
 
 from game.screens.base_screen import BaseScreen
-from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, TILE_SIZE, Z_SCREEN, KEYS
+from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, TILE_SIZE, Z_SCREEN, KEYS, SCALE
 from game.fonts import get_font0
 
 _SCENE_W = GRID_WIDTH * TILE_SIZE
@@ -118,7 +118,7 @@ class InventoryScreen(BaseScreen):
 
     def _build_title(self):
         title = QGraphicsTextItem("Inventaire")
-        title.setFont(get_font0(size=38))
+        title.setFont(get_font0(size=10))
         title.setDefaultTextColor(_C_TITLE)
         title.setZValue(Z_SCREEN + 2)
         tw = title.boundingRect().width()
@@ -151,7 +151,7 @@ class InventoryScreen(BaseScreen):
         key2 = QKeySequence(KEYS["INVENTORY"]).toString()
         key3 = QKeySequence(KEYS["PAUSE"]).toString()
         hint = QGraphicsTextItem(f"{key1} / {key2} / {key3} pour fermer")
-        hint.setFont(get_font0(size=14))
+        hint.setFont(get_font0(size=4))
         hint.setDefaultTextColor(_C_HINT)
         hint.setZValue(Z_SCREEN + 2)
         hw = hint.boundingRect().width()

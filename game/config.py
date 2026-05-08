@@ -3,7 +3,7 @@
 from PyQt5.QtCore import Qt
 
 # --- CONFIG 
-SCALE = 4  # x1 -> 1 tile = 16x16 pixels
+SCALE =   4# x1 -> 1 tile = 16x16 pixels
 BASE_TILE_SIZE = 16
 
 TILE_SIZE = BASE_TILE_SIZE * SCALE
