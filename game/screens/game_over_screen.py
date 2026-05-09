@@ -18,7 +18,7 @@ class GameOverScreen(BaseScreen):
         self._menu = [
             {"label": "Recommencer",        "action": "restart",   "enabled": True},
             {"label": "Retour au menu",      "action": "menu",      "enabled": True},
-            {"label": "Point de sauvegarde", "action": "load_save", "enabled": False},
+            {"label": "Dernière Save", "action": "load_save", "enabled": False},
             {"label": "Quitter",             "action": "quit",      "enabled": True},
         ]
 
@@ -54,11 +54,38 @@ class GameOverScreen(BaseScreen):
 
     def _dispatch(self, action):
         sm = self.screen_manager
+        
+        # remettre la boucle de musique
+        if action in ("restart","menu","load_save"):
+            sm.music_manager.player.setLoopCount(-2)
         if action == "restart":
             sm.start_new_game()
         elif action == "menu":
             sm.go_to_title()
         elif action == "load_save":
-            pass
+            if sm._scene and sm._scene.current_save:
+                current_slot = sm._scene.current_save.slot
+                if current_slot:
+                    sm.load_game(current_slot)
         elif action == "quit":
             sm.quit_game()
+
+    def show(self, scene):
+        """
+        cette fonction permet de recharger ecran lorsqu'on l'ouvre
+        """
+        has_slot = scene.current_save is not None and scene.current_save.slot is not None
+        
+        # mise a jour du slot
+        for item in self._menu:
+            if item["action"] == "load_save":
+                item["enabled"] = has_slot
+        
+        if self._items:
+            for item in self._items:
+                if item.scene():
+                    item.scene().removeItem(item)
+            self._items.clear()
+            
+        self._build()
+        super().show(scene)
