@@ -3,7 +3,7 @@
     "font": "font1",
     "lines": [
       "* Bonjour voyageur.",
-      "* Le désert est dangereux."
+      "* Le desert est dangereux."
     ],
 
     "set_flag": "met_oldman_test"
