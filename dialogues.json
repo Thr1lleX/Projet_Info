@@ -6,7 +6,12 @@
       "* Le désert est dangereux."
     ],
 
-    "set_flag": "met_oldman"
+    "set_flag": "met_oldman_test"
+  },
+  "oldman_intro2":{
+	  "lines":[
+	  "* Nan je rigole je parle français."
+	  ]
   },
   "farmer_intro": {
     "lines": [
@@ -15,7 +20,25 @@
 	  "* heheheha."
     ]
   },
-  "panneau_test": {
+  "farmer_test2": {
+    "lines": [
+      "* T'es un malade mec.",
+      "* Vraiment un homme mort."
+    ]
+  },
+    "farmer_test3": {
+    "lines": [
+      "* chockbar de bz en fait"
+    ]
+  },
+    "farmer_test4": {
+	"font": "font2",
+    "lines": [
+      "* ARRETE DE ME PARLER"
+    ],
+	"set_flag": "parlation"
+  },
+  "panneau_histoire": {
 	"font" : "font2",
     "lines": [
       "* Cette salle est remplie d'histoire."
@@ -24,6 +47,36 @@
   "farmer_intro2": {
     "lines": [
       "* Bonjour voyageur des mers et de la Terre."
+    ]
+  },
+  "minou": {
+    "lines": [
+      "* le pipi du caca, le pipi du là là.",
+	  "* quoi, mais où mais le pipi du caca",
+	  "* quoi, mais feur feur.",
+	  "je sais plus..."
+    ]
+  },
+  "minou2": {
+    "lines": [
+      "mais nan, tu lui as parlé",
+	  "tu sais pas de quoi il est capable"
+    ]
+  },
+  "minou_parlation": {
+    "lines": [
+      "tu fais peur en fait"
+    ]
+  },
+  "panneau_test": {
+    "lines": [
+      "ceci n'est pas un panneau"
+    ]
+  },
+  "panneau_test_parlation": {
+	"font" : "font2",
+    "lines": [
+      "En tant que panneau, je suis profondément choqué."
     ]
   }
 }
