@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsRectItem
 from PyQt5.QtGui import QPixmap, QBrush, QColor, QPen
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QTimer
+from PyQt5.QtCore import Qt, QRectF, QTimer
 from game.player import Player
 from game.hud import HUD
 import time
@@ -17,12 +16,14 @@ from game.config import SCALE, BASE_TILE_SIZE, TILE_SIZE, GRID_WIDTH, GRID_HEIGH
 from game.config import FPS, interval, DEBUG, CRT_OVERLAY
 
 from game.player import Player
-#from game.enemies.placeholder1 import Placeholder1
 from game.enemies.enemy_registry import ENEMY_TYPES
 from game.animspr import load_animation_sequence
 
 from game.save_manager import SaveManager
 from game.interactables.interactable_registry import INTERACTABLE_TYPES
+from game.dialogue_manager import DialogueManager
+from game.interactables.npc import NPC
+from game.interactables.sign import Sign
 
 # offset de placement lorsque transition ecran
 OFFSET = 2 # pixels
@@ -47,6 +48,7 @@ class GameScene(QGraphicsScene):
         self.current_biome = None
 
         self.hud = HUD(self)
+        self.dialogue_manager = DialogueManager(self)
         
         # --- PLAYER 
         self.player = Player(SCALE)
@@ -139,6 +141,10 @@ class GameScene(QGraphicsScene):
 
         if getattr(self, "game_over_triggered", False):
             return
+        
+        # dialogue continue meme si jeu bloque
+        self.dialogue_manager.update(dt)
+        
         if self.game_paused:
             return
 
@@ -170,8 +176,6 @@ class GameScene(QGraphicsScene):
 
     def is_blocking_rect(self, x, y, w, h, entity=None):
         """
-        
-
         Parameters
         ----------
         x,y : coordonées sur personnage(en haut a gauche)
@@ -226,9 +230,12 @@ class GameScene(QGraphicsScene):
             
             if tile["collision"] == 1:
                 return True
-                
-            # if TILE_TYPES[tile_id]["collision"] == 1:
-            #     return True
+        
+        target_rect = QRectF(x, y, w, h)
+        for obj in self.interactables:
+            if isinstance(obj, Sign):
+                if target_rect.intersects(obj.sceneBoundingRect()):
+                    return True
     
         return False
 
@@ -641,38 +648,38 @@ class GameScene(QGraphicsScene):
         self.current_save = SaveManager(slot)
         self.load_current_save()
         
-    def spawn_interactables(self, room):
-        """
-        spawn des objets interactifs de la salle
-        """
     
+    def spawn_interactables(self, room):
         self.interactables = []
         for data in room.get("interactables", []):
             interactable_type = data.get("type")
-            interactable_class = INTERACTABLE_TYPES.get(
-                interactable_type
-            )
-    
+            interactable_class = INTERACTABLE_TYPES.get(interactable_type)
+
             if interactable_class is None:
-                if DEBUG:
-                    print(
-                        f"Interactable inconnu : "
-                        f"{interactable_type}"
-                    )
-    
+                if DEBUG: print(f"Interactable inconnu : {interactable_type}")
                 continue
+
             x = data["x"] * TILE_SIZE
             y = (data["y"] + HUD_HEIGHT) * TILE_SIZE
-            interactable = interactable_class(
-                SCALE,
-                x,
-                y
-            )
-    
+
+            if interactable_type == "npc":
+                interactable = interactable_class(
+                    SCALE, 
+                    x, 
+                    y, 
+                    data.get("npc_type"), 
+                    data.get("dialogue")
+                )
+            elif interactable_type == "sign":
+                interactable = interactable_class(SCALE, x, y, data.get("dialogue"))
+            else:
+                interactable = interactable_class(SCALE, x, y)
+
             interactable.interactable_id = data.get("id")
             self.interactables.append(interactable)
             self.addItem(interactable)
             interactable.update_graphics()
+            
             if DEBUG and hasattr(interactable, "debug_rect"):
                 interactable.debug_rect.show()
                 

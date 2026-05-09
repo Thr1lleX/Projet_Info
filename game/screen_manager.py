@@ -135,6 +135,10 @@ class ScreenManager:
             return True
 
         if self.state == self.STATE_GAME:
+            if self._scene and self._scene.dialogue_manager.active:
+                # on ne fait rien, on laisse la touche passer au jeu mais empeche ouverture
+                if key == KEYS["PAUSE"] or key == KEYS["INVENTORY"]:
+                    return True
             if key == KEYS["PAUSE"]:
                 self.open_pause()
                 return True

@@ -37,3 +37,12 @@ def get_font0(size=10):
 
 def get_font1(size=10):
     return get_font("fonts/undertale-wingdings.ttf", int(size*SCALE))
+
+def get_font2(size=10):
+    return get_font("fonts/earthbound-beginnings.ttf", int(size*SCALE))
+
+FONT_MAPPING = {
+    "font0": get_font0,
+    "font1": get_font1,
+    "font2": get_font2
+}

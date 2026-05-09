@@ -144,6 +144,17 @@ class Player(Entity):
 
     def key_press(self, key):
         self.keys.add(key)
+        
+        scene = self.scene()
+        if scene is None:
+            return
+            
+        # gestion exclusive de l'interaction
+        if key == KEYS["INTERACT"]:
+            if scene.dialogue_manager.active:
+                scene.dialogue_manager.advance()
+            else:
+                self.try_interact(scene)
 
     def key_release(self, key):
         self.keys.discard(key)
@@ -225,6 +236,11 @@ class Player(Entity):
         """
         Gestion des touches
         """
+        
+        #bloque mouvements du joueur si dialogue
+        if scene.dialogue_manager.active:
+            return
+        
         dx, dy = 0, 0
         if not self.kb_active:
             if KEYS["UP"] in self.keys:    dy -= 1; self.direction = "up"
@@ -251,13 +267,7 @@ class Player(Entity):
                 self.projectiles_cooldown = self.projectiles_delay
         else:
             self.attack_pressed = False
-            
-        if KEYS["INTERACT"] in self.keys:
-            if not self.interact_pressed:
-                self.try_interact(scene)
-                self.interact_pressed = True
-        else:
-            self.interact_pressed = False
+        
         
         if DEBUG:
             if KEYS["CROUCH"] in self.keys:
@@ -280,12 +290,6 @@ class Player(Entity):
             self.hitbox_width,
             self.hitbox_height
         )
-
-    # def take_damage(self, scene, damage, source=None):
-    #     scene.sfx_manager.play("snd_deathchara")
-    #     self.stun(20)
-    #     super().take_damage(scene, damage, source)
-
 
     def die(self):
         scene = self.scene()
@@ -371,12 +375,6 @@ class Player(Entity):
         self.attack_pressed = False
         
     ##### ATTAQUES ####
-
-    # def attack(self, scene):
-    #     for item in scene.items():    
-    #         if isinstance(item, Enemy):
-    #             item.take_damage(self.damage, self)
-    #             item.stun(0, wiggle=True)
 
     def attack(self, scene):
         if self.is_attacking:

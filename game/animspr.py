@@ -53,56 +53,6 @@ def load_animation_sequence(folder_path, size, frame_count=None):
         raise FileNotFoundError(f"La sequence d'image de {folder_path} n'existe pas.")
     return frames
 
-# def load_animation_sequence(folder_path, size, frame_count=None):
-#     """
-#     charge une suite d'images et scale a TILE_SIZE
-#     Si frame_count=None, on prend toutes les images
-    
-#     Parameters
-#     -----
-#     folder_path : str
-#         "assets/player/attack/sword" et le code cherchera pour les sword1.png, sword2.png
-#     frame_count : int
-#     size : int*int
-#         taille en tiles
-#     """
-#     width = size[0] * TILE_SIZE
-#     height = size[1] * TILE_SIZE
-#     frames = []
-    
-#     i = 1
-#     while True:
-#         # Condition d'arrêt si frame_count est défini
-#         if frame_count is not None and i > frame_count:
-#             break
-            
-#         file_path = f"{folder_path}{i}.png"
-#         pixmap = QPixmap(file_path)
-        
-#         if pixmap.isNull():
-#             # Si on est en mode auto (None), on s'arrête normalement
-#             if frame_count is None:
-#                 break
-#             # Si on attendait un nombre précis mais que ça manque, on prévient
-#             else:
-#                 if DEBUG:
-#                     print(f" Alerte : Frame {i} manquante dans {folder_path}")
-#                 i += 1
-#                 continue
-
-#         scaled_frame = pixmap.scaled(
-#             int(width), int(height), 
-#             transformMode=Qt.FastTransformation
-#         )
-#         frames.append(scaled_frame)
-#         i += 1
-
-#     if not frames:
-#         # On peut mettre un fallback ici ou lever une erreur selon ta préférence
-#         if DEBUG: print(f"Erreur : Aucune frame trouvée pour {folder_path}")
-        
-#     return frames
-
 
 def generate_directional_animations(base_frames, pos, size):
     """
