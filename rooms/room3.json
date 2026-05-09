@@ -18,6 +18,20 @@
       "type": "save_point",
 	  "x": 9,
       "y": 7
+    },    
+	{
+      "type": "npc",
+	  "npc_type": "old_man",
+	  "x": 4,
+      "y": 8,
+	  "dialogue": "oldman_intro"
+    },    
+	{
+      "type": "npc",
+	  "npc_type": "farmer",
+	  "x": 4,
+      "y": 2,
+	  "dialogue": "farmer_intro"
     }
   ],
   "biome" : "desert",
