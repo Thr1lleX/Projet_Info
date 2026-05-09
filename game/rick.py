@@ -34,7 +34,7 @@ class RickWindow(QWidget):
 
         # lancer la musique
         self.music_manager.stop()
-        self.music_manager.play_mp3("mus_rick")
+        self.music_manager.play("mus_rick")
 
     def closeEvent(self, event):
         # stop musique quand on ferme

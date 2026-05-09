@@ -66,60 +66,54 @@ class MusicManager:
         # chargement après la frame actuelle
         QTimer.singleShot(0, self._load_pending)
 
-    def play_mp3(self, music_name, fade_in = 0):
-        """
-        certains fichiers musicaux sont trop lourds en wav (>25mb), donc mp3
-        """
-        music_path = os.path.join(self.base_path, f"{music_name}.mp3")
+    # def play_mp3(self, music_name, fade_in = 0):
+    #     """
+    #     certains fichiers musicaux sont trop lourds en wav (>25mb), donc mp3
+    #     """
+    #     music_path = os.path.join(self.base_path, f"{music_name}.mp3")
 
-        if not os.path.exists(music_path):
-            return
-
-        if self.current_music == music_name:
-            return
-
-        # priorite fluidite :
-        # on stop immédiatement
-        self.player.stop()
-        self.current_music = None
-
-        # on memorise la prochaine musique
-        self.pending_music = music_name
-        
-        if fade_in > 0:
-            self.fade_in_duration = fade_in
-            self.state = "fade_in"
-            self.timer = 0
-        else: 
-            self.state = "idle"
-
-        # chargement après la frame actuelle
-        QTimer.singleShot(0, self._load_pending)
-
-    # def _load_pending(self):
-
-    #     if not self.pending_music:
+    #     if not os.path.exists(music_path):
     #         return
 
-    #     music_name = self.pending_music
-    #     music_path = f"mus/{music_name}.wav"
-    #     self.pending_music = None
+    #     if self.current_music == music_name:
+    #         return
 
-    #     if DEBUG:
-    #         print(f"[MUSIC] Loading async {music_path}")
+    #     # priorite fluidite :
+    #     # on stop immédiatement
+    #     self.player.stop()
+    #     self.current_music = None
 
-    #     url = QUrl.fromLocalFile(os.path.abspath(music_path))
-    #     self.player.setSource(url)
-    #     self.player.setVolume(self.target_volume)
+    #     # on memorise la prochaine musique
+    #     self.pending_music = music_name
+        
+    #     if fade_in > 0:
+    #         self.fade_in_duration = fade_in
+    #         self.state = "fade_in"
+    #         self.timer = 0
+    #     else: 
+    #         self.state = "idle"
 
-    #     self.current_music = music_name
+    #     # chargement après la frame actuelle
+    #     QTimer.singleShot(0, self._load_pending)
+
     
     def _load_pending(self):
         if not self.pending_music:
             return
 
         music_name = self.pending_music
-        music_path = os.path.join(self.base_path, f"{music_name}.wav")
+        
+        path_wav = os.path.join(self.base_path, f"{music_name}.wav")
+        #path_mp3 = os.path.join(self.base_path, f"{music_name}.mp3")
+        
+        if os.path.exists(path_wav):
+            music_path = path_wav
+        # elif os.path.exists(path_mp3):
+        #     music_path = path_mp3
+        elif DEBUG:
+            print(f"[MUSIC] Error: {music_name} introuvable en .wav")
+        
+        
         self.pending_music = None
 
         if DEBUG:
