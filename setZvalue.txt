@@ -9,6 +9,7 @@ player = 100
 collisions = 500
 hitboxes = 999
 hud = 1000
+boite de dialogue: 1010
 transition = 2000
 exit = 3000
 Z_CRT    = 9999

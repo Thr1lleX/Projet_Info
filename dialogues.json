@@ -1,0 +1,29 @@
+{
+  "oldman_intro": {
+    "font": "font1",
+    "lines": [
+      "* Bonjour voyageur.",
+      "* Le désert est dangereux."
+    ],
+
+    "set_flag": "met_oldman"
+  },
+  "farmer_intro": {
+    "lines": [
+      "* Bonjour voyageur des mers et de la Terre.",
+      "* Je suis le pnj test des très longs dialogues qui sont interminables hehehehe. Là je dis juste des mots au hasard pour tester.",
+	  "* heheheha."
+    ]
+  },
+  "panneau_test": {
+	"font" : "font2",
+    "lines": [
+      "* Cette salle est remplie d'histoire."
+    ]
+  },
+  "farmer_intro2": {
+    "lines": [
+      "* Bonjour voyageur des mers et de la Terre."
+    ]
+  }
+}
