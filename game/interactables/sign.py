@@ -8,8 +8,8 @@ from PyQt5.QtCore import Qt
 from game.config import SCALE, TILE_SIZE
 
 class Sign(NPC):
-    def __init__(self, scale, x, y, dialogue_id=None):
-        super().__init__(scale, x, y, npc_type=None, dialogue_id=dialogue_id)
+    def __init__(self, scale, x, y, dialogue_id=None,conditional_rules=None):
+        super().__init__(scale, x, y, npc_type=None, dialogue_id=dialogue_id,conditional_rules=conditional_rules)
         
         self.type = "sign"
         
