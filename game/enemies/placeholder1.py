@@ -12,12 +12,12 @@ class Placeholder1(Enemy):
 
         # --- STATS ---
         self.speed = self.speed/3
-        self.pv_max = 2
-        self.pv_main = 2
+        self._pv_max = 2
+        self.pv_main = self._pv_max
         
         self.aggro_range = self.tile_size * 10
         
-        self.damage = 1
+        self.damage = 1/2
         self.give_stun = 0
 
         # --- SPRITE UNIQUE (même pour toutes directions) ---
