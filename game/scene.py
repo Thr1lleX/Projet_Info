@@ -668,10 +668,11 @@ class GameScene(QGraphicsScene):
                     x, 
                     y, 
                     data.get("npc_type"), 
-                    data.get("dialogue")
+                    data.get("dialogue"),
+                    data.get("conditional_dialogue")
                 )
             elif interactable_type == "sign":
-                interactable = interactable_class(SCALE, x, y, data.get("dialogue"))
+                interactable = interactable_class(SCALE, x, y, data.get("dialogue"),data.get("conditional_dialogue"))
             else:
                 interactable = interactable_class(SCALE, x, y)
 
