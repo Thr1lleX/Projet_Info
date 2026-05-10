@@ -1,3 +1,11 @@
+Résolution:
+1920x1080
+
+Mise à l'échelle:
+100%
+
+
+
 # Fait:
 - scene générale avec déplacements
 - systeme d’entités - ennemis + joueur + pnj (en cours)
