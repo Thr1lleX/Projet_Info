@@ -7,19 +7,39 @@ from game.config import SCALE
 # dictionnaire qui sotcke les polices une fois chargees, on ne les charge pas avant sinon Access Violation
 _fonts = {}
 
-SYSTEM_SCALE = 1.0
-app = QApplication.instance()
-if app:
+SYSTEM_SCALE = None
+
+
+def get_system_scale():
+    """
+    on recupere directement ici car sinon q application pas encore cree
+    (sous spyder, conserve les variables apres fermeture du programme, mais pas autres ide)
+    """
+    global SYSTEM_SCALE
+
+    if SYSTEM_SCALE is not None:
+        return SYSTEM_SCALE
+
+    SYSTEM_SCALE = 1.0
+
+    app = QApplication.instance()
+
+    if not app:
+        return SYSTEM_SCALE
+
     try:
         screen = app.primaryScreen()
+
         if screen:
             dpi = screen.logicalDotsPerInch()
-            # 96 DPI = 100%
+
             if dpi and dpi > 0:
                 SYSTEM_SCALE = dpi / 96.0
 
     except Exception:
         SYSTEM_SCALE = 1.0
+
+    return SYSTEM_SCALE
 
 
 def get_font(path, size=10, bold=False):
@@ -39,7 +59,8 @@ def get_font(path, size=10, bold=False):
             # securite, on charge arial si le fichier n'est pas detecte
             print(f"Erreur : Impossible de charger {path}")
             _fonts[path] = "Arial"
-            
+    
+    SYSTEM_SCALE = get_system_scale()
     final_size = int(size*SCALE/ SYSTEM_SCALE)
 
     font = QFont(_fonts[path], final_size)
