@@ -13,6 +13,12 @@ TILE_TYPES = {
         "animated": True,
         "z": 3
     },
+    1.5: {
+        "name": "tree",
+        "collision": 0,
+        "animated": True,
+        "z": 3
+    },
     2: {
         "name": "wall",
         "collision": 1,

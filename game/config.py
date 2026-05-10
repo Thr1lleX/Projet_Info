@@ -18,7 +18,7 @@ BASE_SPEED = BASE_SPEED_pxl * SCALE
 FPS = 60
 interval = int(1000 / FPS)
 
-DEBUG = True
+DEBUG = False
 
 
 DURATION_FADE_OUT_ROOM = 0.3
