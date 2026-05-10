@@ -345,6 +345,11 @@ class ScreenManager:
     
         if self.inventory is not None:
             self.inventory.reset()
+            self.inventory.reset()
+            # items de depart (hors debug)
+            self.inventory.add_item("bombe", 5)
+            self.inventory.add_item("pomme", 5)
+            self.inventory.equip_consumable("bombe")
             
     # sauvegardes
     

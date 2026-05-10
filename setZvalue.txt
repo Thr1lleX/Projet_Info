@@ -1,6 +1,7 @@
 ground = 0
 tile = 1
 save_point = 20
+dropped_item = 50
 debug_path = 84
 entity = 90
 attaques = 98

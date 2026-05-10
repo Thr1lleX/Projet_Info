@@ -74,7 +74,9 @@ class InventoryScreen(BaseScreen):
         self._slot_bg_rects = []    # QGraphicsRectItem de fond pour chaque slot
         self._icon_items    = [None] * 30   # QGraphicsPixmapItem d'icone par slot
         self._slot_positions = []   # (x, y) de chaque slot (calcule en _build)
-
+        self._cursor = 0              # index du slot selectionne
+        self._equip_marker = None     # QGraphicsItem pour le marqueur "equipe"
+        self._info_text = None        # QGraphicsTextItem pour nom + quantite
     # ------------------------------------------------------------------
     # cycle de vie (surcharge pour gerer les icones hors self._items)
     # ------------------------------------------------------------------
@@ -82,6 +84,8 @@ class InventoryScreen(BaseScreen):
     def show(self, scene):
         super().show(scene)
         self._refresh_icons(scene)
+        self._refresh_cursor()            # ← surbrillance du slot actuel
+        self._refresh_equip_marker(scene) # ← marqueur vert sur item equipe
 
     def hide(self):
         for icon in self._icon_items:
@@ -100,7 +104,9 @@ class InventoryScreen(BaseScreen):
         self._build_panel()
         self._build_title()
         self._build_slots()
+        self._build_info_text()    # ← NOUVEAU
         self._build_hint()
+        self._refresh_cursor()     # ← NOUVEAU (met la surbrillance initiale)
 
     def _build_overlay(self):
         overlay = QGraphicsRectItem(0, 0, _SCENE_W, _SCENE_H)
@@ -157,6 +163,23 @@ class InventoryScreen(BaseScreen):
         hw = hint.boundingRect().width()
         hint.setPos((_SCENE_W - hw) / 2, _PANEL_Y + _PANEL_H - _PANEL_PAD - _HINT_H + 6)
         self._items.append(hint)
+    
+    def _build_info_text(self):
+        """
+        Texte sous la grille qui affiche le nom et la quantite 
+        de l'item sous le curseur.
+        """
+        self._info_text = QGraphicsTextItem("")
+        self._info_text.setFont(get_font0(size=5))
+        self._info_text.setDefaultTextColor(QColor(200, 200, 230))
+        self._info_text.setZValue(Z_SCREEN + 2)
+
+        # position : centre horizontal, juste sous le dernier rang de slots
+        last_row_y = _slot_row_y(_ROWS - 1)
+        text_y = last_row_y + _SLOT_SIZE + 10
+
+        self._info_text.setPos(_GRID_X, text_y)
+        self._items.append(self._info_text)
 
     # ------------------------------------------------------------------
     # mise a jour des icones
@@ -199,13 +222,107 @@ class InventoryScreen(BaseScreen):
     def key_press(self, key):
         if key in (KEYS["LEAVE"], KEYS["INVENTORY"]):
             self.screen_manager.close_inventory()
+        elif key == KEYS["UP"]:
+            self._move_cursor(0, -1)
+        elif key == KEYS["DOWN"]:
+            self._move_cursor(0, +1)
+        elif key == KEYS["LEFT"]:
+            self._move_cursor(-1, 0)
+        elif key == KEYS["RIGHT"]:
+            self._move_cursor(+1, 0)
+        elif key in (KEYS["INTERACT"], KEYS["CONFIRM"]):
+            self._equip_selected()
 
-    def mouse_press(self, scene_pos):
-        for i, (x, y) in enumerate(self._slot_positions):
-            if QRectF(x, y, _SLOT_SIZE, _SLOT_SIZE).contains(scene_pos):
-                self._on_slot_click(i, scene_pos)
-                return
+    def _move_cursor(self, dx, dy):
+        col = self._cursor % _COLS
+        row = self._cursor // _COLS
+        col = (col + dx) % _COLS
+        row = (row + dy) % _ROWS
+        self._cursor = row * _COLS + col
+        self._refresh_cursor()
+        self._play_sfx("snd_choice")
 
+    def _refresh_cursor(self):
+        for i, rect in enumerate(self._slot_bg_rects):
+            row = i // _COLS
+            is_hud = (row == 0)
+            rect.setPen(QPen(_C_SLOT_BRD_H if is_hud else _C_SLOT_BRD_S, 1))
+        # curseur = bordure jaune epaisse
+        self._slot_bg_rects[self._cursor].setPen(QPen(QColor(255, 220, 50), 3))
+        # mettre a jour le texte d'info
+        self._update_info_text()
+
+    def _equip_selected(self):
+        inventory = self.screen_manager.inventory
+        slot = inventory.get_slot(self._cursor)
+        if slot is None:
+            self._play_sfx("snd_reject")
+            return
+        if slot.category not in ("consumable", "permanent"):
+            self._play_sfx("snd_reject")
+            return
+        inventory.equip_consumable(slot.item_id)
+        self._play_sfx("snd_accept")
+        self._refresh_equip_marker()
+        
+    def _update_info_text(self):
+        if self._info_text is None:
+            return
+        inventory = self.screen_manager.inventory
+        slot = inventory.get_slot(self._cursor)
+        if slot is None:
+            self._info_text.setPlainText("")
+        else:
+            self._info_text.setPlainText(f"{slot.name}  x{slot.count}")
+
+    def _refresh_equip_marker(self, scene=None):
+        """
+        Place (ou deplace) le marqueur vert sur le slot 
+        qui contient l'item actuellement equipe en consommable.
+        """
+        inventory = self.screen_manager.inventory
+        equipped_id = inventory._equipped_consumable_id
+
+        # --- Cas 1 : rien d'equipe → cacher le marqueur ---
+        if equipped_id is None:
+            if self._equip_marker is not None:
+                self._equip_marker.setVisible(False)
+            return
+
+        # --- Trouver le premier slot qui contient cet item ---
+        target_index = None
+        for i in range(inventory.total_slots):
+            slot = inventory.get_slot(i)
+            if slot is not None and slot.item_id == equipped_id:
+                target_index = i
+                break
+
+        if target_index is None:
+            # l'item equipe n'est plus en stock
+            if self._equip_marker is not None:
+                self._equip_marker.setVisible(False)
+            return
+
+        # --- Positionner le marqueur ---
+        x, y = self._slot_positions[target_index]
+
+        if self._equip_marker is None:
+            # creation du marqueur (un petit carre vert en haut a droite du slot)
+            marker_size = 12
+            self._equip_marker = QGraphicsRectItem(0, 0, marker_size, marker_size)
+            self._equip_marker.setBrush(QBrush(QColor(50, 220, 80)))
+            self._equip_marker.setPen(QPen(Qt.NoPen))
+            self._equip_marker.setZValue(Z_SCREEN + 4)
+            # on l'ajoute a self._items pour que show/hide le gere
+            self._items.append(self._equip_marker)
+            # si on est deja dans une scene, l'ajouter aussi
+            if scene is not None:
+                scene.addItem(self._equip_marker)
+
+        # placer en haut a droite du slot
+        marker_size = 12
+        self._equip_marker.setPos(x + _SLOT_SIZE - marker_size - 2, y + 2)
+        self._equip_marker.setVisible(True)
     # ------------------------------------------------------------------
     # hooks drag-and-drop (a implementer ulterieurement)
     # ------------------------------------------------------------------

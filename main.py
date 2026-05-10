@@ -33,7 +33,9 @@ def main():
     sm = ScreenManager(window)
 
     # parametres persistants et inventaire
-    sm.inventory = Inventory(total_slots=6)
+    sm.inventory = Inventory(total_slots=24)
+
+
 
     # enregistrement des ecrans
     sm.register_screen("title",     TitleScreen(sm))

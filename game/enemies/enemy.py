@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from config import TILE_SIZE
 from PyQt5.QtGui import QPen, QColor, QBrush
 from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsLineItem
 from PyQt5.QtCore import Qt
@@ -8,6 +9,9 @@ from game.entity import Entity
 from game.config import BASE_SPEED, DEBUG, HUD_HEIGHT
 from game.pathfinder import astar, get_walkable_grid
 import math
+import random
+from game.dropped_item import DroppedItem
+from game.item_registry import LOOT_TABLE
 
 class Enemy(Entity):
     def __init__(self, scale, x, y):
@@ -178,8 +182,20 @@ class Enemy(Entity):
                 }
     
             scene.room_states[room]["killed_enemies"].add(self.enemy_id)
-    
+        self._drop_loot(scene)
+
         super().die()
+
+# drop loot        
+    def _drop_loot(self,scene):
+        offset = int(0.3 * TILE_SIZE)
+        for item_id, chance in LOOT_TABLE:
+            if random.random() < chance:
+                dx = random.randint(-offset, offset)
+                dy = random.randint(-offset, offset)
+                drop = DroppedItem(item_id, self.x + dx , self.y + dy)
+                scene.addItem(drop)
+                scene.dropped_items.append(drop)
         
     def try_hit_player(self,scene):
         #n'attque que cible et peut pas attquer si stun

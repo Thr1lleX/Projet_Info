@@ -109,6 +109,8 @@ class GameScene(QGraphicsScene):
         # variables room
         self.current_room = None
         self.room_data = None
+        # items droppes
+        self.dropped_items = []
         
         # IMPORTANT ! items persistant, a ajouter pour conservation lors de chgmt de salle
         self.persistent_items = {
@@ -155,9 +157,10 @@ class GameScene(QGraphicsScene):
             
             for enemy in self.enemies:
                 enemy.update(dt, self)
+            self._check_pickups()      
             for interactable in self.interactables:
                 interactable.update(dt)
-           
+         
         self.transition.update(dt)
         self.music_manager.update(dt)
         if CRT_OVERLAY:
@@ -165,7 +168,20 @@ class GameScene(QGraphicsScene):
 
         self.hud.update_hearts(self.player.pv_main, self.player._pv_max)
     
+    def _check_pickups(self):
+        """Ramasse les items au sol si le joueur les touche."""
+        px, py, pw, ph = self.player.get_hitbox()
+        inventory = self.screen_manager.inventory
 
+        for drop in self.dropped_items[:]:   # copie pour iterer en supprimant
+            dx, dy, dw, dh = drop.get_rect()
+            # collision AABB
+            if (px < dx + dw and px + pw > dx and
+                    py < dy + dh and py + ph > dy):
+                if inventory.add_item(drop.item_id):
+                    self.removeItem(drop)
+                    self.sfx_manager.play("snd_item")
+                    self.dropped_items.remove(drop)
 
     def update_crt(self):
         self.crt_overlay.setOpacity(random.uniform(0.1, 0.15))
@@ -643,6 +659,11 @@ class GameScene(QGraphicsScene):
         self.player.y = (py + HUD_HEIGHT) * TILE_SIZE
     
         self.player.update_graphics()
+# chargement inventaire
+        inv_data = self.current_save.data.get("inventory")
+        if inv_data is not None:
+            self.screen_manager.inventory.from_save_data(inv_data)
+
         
     def load_save(self, slot=1):
         self.current_save = SaveManager(slot)
@@ -706,7 +727,8 @@ class GameScene(QGraphicsScene):
             "flags": self.current_save.data.get(
                 "flags",
                 {}
-            )
+            ),
+            "inventory": self.screen_manager.inventory.to_save_data()
         }
         SaveManager.write_save(slot, data)
         

@@ -63,6 +63,13 @@ class Player(Entity):
         
         self.collision = 1
 
+        # --- buffs ---
+        
+        self._buff_timer = 0.0
+        self._base_damage = 1
+        self._base_speed = BASE_SPEED
+    
+
         # DEBUG couleur
         if DEBUG:
             self.debug_rect.setPen(QPen(QColor("green"), 1))
@@ -175,6 +182,14 @@ class Player(Entity):
         if self.attack_cooldown > 0:
             self.attack_cooldown = max(0, self.attack_cooldown - dt)
         
+        # buff potion expiration
+        if self._buff_timer > 0:
+            self._buff_timer -= dt
+            if self._buff_timer <= 0:
+                self._buff_timer = 0
+                self.damage = self._base_damage
+                self.speed  = self._base_speed
+
         if self.projectiles_cooldown > 0:
             self.projectiles_cooldown = max(0, self.projectiles_cooldown - dt)
         
@@ -220,6 +235,8 @@ class Player(Entity):
                 scene.addItem(self.stun_item)
 
             self.stun_item.setPos(self.x, self.y-self.tile_size)
+
+        
         # --- FIN DU HACK ---
 
     def update_held_weapons(self, dt, scene):
@@ -262,9 +279,13 @@ class Player(Entity):
                 self.attack_cooldown = self.attack_delay
         elif KEYS["ITEM"] in self.keys:
             if not self.attack_pressed and self.projectiles_cooldown == 0:
-                self.throw_boomerang(scene)
-                self.attack_pressed = True
-                self.projectiles_cooldown = self.projectiles_delay
+            
+                from game.item_effects import use_item
+                if use_item(self, scene):
+                    self.attack_pressed = True
+                    self.projectiles_cooldown = self.projectiles_delay
+                else:
+                    self.attack_pressed = False
         else:
             self.attack_pressed = False
         
@@ -540,3 +561,11 @@ class Player(Entity):
 
     def distance_to(self, other):
         return abs(self.x - other.x) + abs(self.y - other.y)
+
+# Buffs
+
+    def apply_buff(self, duration=30.0):
+        """Active le buff de force et vitesse."""
+        self._buff_timer = duration
+        self.damage = int(self._base_damage * 1.2) + 1   # 1 * 1.2 arrondi = 2
+        self.speed = self._base_speed * 3
