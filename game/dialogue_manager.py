@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt
 from game.config import SCALE, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
 from game.fonts import *
 
-from game.config import DEBUG
+from game.config import DEBUG, KEYS
 
 
 class DialogueManager:
@@ -176,11 +176,20 @@ class DialogueManager:
     
         if not self.active or self.current_char_index >= len(self.full_text):
             return
+        
+        markiplier = 1.0
+        if hasattr(self.scene, 'player') and KEYS["ITEM"] in self.scene.player.keys:
+            markiplier = 10.0
+            
+        current_delay = self.text_speed_delay / markiplier
+        
+        # variable pour empecher spam de bip lorsque accelere le texte
+        sound_played_this_frame = False
     
         self.char_timer += dt
     
-        while self.char_timer >= self.text_speed_delay:
-            self.char_timer -= self.text_speed_delay
+        while self.char_timer >= current_delay:
+            self.char_timer -= current_delay
             self.current_char_index += 1
     
             self.displayed_text = self.full_text[:self.current_char_index]
@@ -189,7 +198,9 @@ class DialogueManager:
             # on ne joue le son que si on n'est pas sur un espace vide
             char = self.full_text[self.current_char_index - 1]
             if char.strip() and hasattr(self.scene, "sfx_manager"):
-                self.scene.sfx_manager.play("snd_text_blip")
+                if not sound_played_this_frame:
+                    self.scene.sfx_manager.play("snd_text_blip")
+                    sound_played_this_frame = True
     
             if self.current_char_index >= len(self.full_text):
                 break
@@ -226,7 +237,7 @@ class DialogueManager:
 
         if self.current_line_index >= len(lines):
 
-            # flag éventuel
+            # flag eventuel
             flag = self.current_dialogue.get("set_flag")
 
             if flag:
