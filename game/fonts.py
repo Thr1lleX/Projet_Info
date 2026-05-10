@@ -21,7 +21,6 @@ def get_system_scale():
         return SYSTEM_SCALE
 
     SYSTEM_SCALE = 1.0
-
     app = QApplication.instance()
 
     if not app:
@@ -29,10 +28,9 @@ def get_system_scale():
 
     try:
         screen = app.primaryScreen()
-
         if screen:
             dpi = screen.logicalDotsPerInch()
-
+            # 96 DPI = 100%
             if dpi and dpi > 0:
                 SYSTEM_SCALE = dpi / 96.0
 
