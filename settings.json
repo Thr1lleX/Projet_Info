@@ -1,7 +1,6 @@
 {
-  "music_volume": 0.0,
-  "sfx_volume": 0.25,
-  "crt_overlay": false,
-  "debug_hitboxes": false,
+  "music_volume": 1,
+  "sfx_volume": 1,
+  "crt_overlay": true,
   "tile_anim_speed": 0.8
 }

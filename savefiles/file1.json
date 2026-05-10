@@ -1,7 +1,9 @@
 {
   "current_room": "room3",
   "current_health": 6,
-  "player_x": 7.11,
-  "player_y": 7.45,
-  "flags": {}
+  "player_x": 8.84,
+  "player_y": 5.73,
+  "flags": {
+    "met_oldman_test": true
+  }
 }
