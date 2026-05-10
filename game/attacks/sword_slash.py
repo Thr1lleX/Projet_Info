@@ -7,7 +7,7 @@ from game.sfx import SFXManager
 from game.attacks.attack_entity import MeleeAttack
 
 class SwordSlash(MeleeAttack):
-    def __init__(self, player, direction):
+    def __init__(self, player, direction, spr_path=None):
         
         # --- PARAMETRES DE DEFINITION POUR APPEL A CLASSES ANTERIEURES ---
         self.source = player
@@ -21,7 +21,8 @@ class SwordSlash(MeleeAttack):
         self.size = (3,2)
         
         self.nb_frames = 9
-        self.spr = "player/attack/sword" #on prend le chemin a partir du dossier assets
+        self.spr = spr_path if spr_path else "player/attack/sword"
+        #on prend le chemin a partir du dossier assets
 
         super().__init__(source = player, 
                          direction = direction, 
