@@ -1,11 +1,3 @@
-Résolution:
-1920x1080
-
-Mise à l'échelle:
-100%
-
-
-
 # Fait:
 - scene générale avec déplacements
 - systeme d’entités - ennemis + joueur + pnj (en cours)
@@ -25,6 +17,9 @@ Mise à l'échelle:
 - biomes pour mieux gérer sprites de tiles, un peu chiant mais ok
 - clignotement blanc si invulnérable, ca passe
 - animation de stun, un peu plus dur
+- pnj
+- boites de dialogues
+- sauvegarde
 
 # En cours:
 
@@ -35,8 +30,5 @@ Mise à l'échelle:
 # À faire:
 
 
-- pnj
-- boites de dialogues
-- sauvegarde
 - (.exe)
 - (autres transitions??)
