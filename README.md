@@ -12,7 +12,7 @@
 - armes/items
 - loi de move pour ennemis + pathfinding
 - ecran titre
-- ecran de game over (actuellement juste un écran noir)
+- ecran de game over
 - items et inventaire avec hud d’items, trql
 - biomes pour mieux gérer sprites de tiles, un peu chiant mais ok
 - clignotement blanc si invulnérable, ca passe
