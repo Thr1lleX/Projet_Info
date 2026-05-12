@@ -20,15 +20,15 @@
 - pnj
 - boites de dialogues
 - sauvegarde
+- systeme d'items
+- boomerang pickup items
 
 # En cours:
 
-
 - settings
-- systeme d'items
+- hud general
+
 
 # À faire:
 
-
 - (.exe)
-- (autres transitions??)
