@@ -4,6 +4,7 @@ save_point = 20
 dropped_item = 50
 debug_path = 84
 entity = 90
+bombes = 96
 attaques = 98
 projectiles = 99
 player = 100

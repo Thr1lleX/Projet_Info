@@ -13,6 +13,12 @@
 	  "* Nan je rigole je parle français."
 	  ]
   },
+    "oldman_intro3":{
+	  "font": "font3",
+	  "lines":[
+	  "* To gramma 'p' antiproswpeyei tun analogia metaxy tu~ perimetroy kai tu~ diametroy eno~ kykloy."
+	  ]
+  },
   "farmer_intro": {
     "lines": [
       "* Bonjour voyageur des mers et de la Terre.",
@@ -77,6 +83,7 @@
 	"font" : "font2",
     "lines": [
       "En tant que panneau, je suis profondément choqué."
-    ]
+    ],
+	"set_flag": ["sword_upgrade","jesus"]
   }
 }
