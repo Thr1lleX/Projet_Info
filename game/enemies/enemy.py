@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-
-from config import TILE_SIZE
 from PyQt5.QtGui import QPen, QColor, QBrush
 from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsLineItem
 from PyQt5.QtCore import Qt
@@ -11,7 +9,6 @@ from game.pathfinder import astar, get_walkable_grid
 import math
 import random
 from game.dropped_item import DroppedItem
-from game.item_registry import LOOT_TABLE
 
 class Enemy(Entity):
     def __init__(self, scale, x, y):
@@ -30,6 +27,14 @@ class Enemy(Entity):
         
         self.damage = 1 #degats de base
         self.give_stun = 0 # duree du stun infligé au joueur (0 = pas de stun)
+        
+        # loot
+        self.loot = [
+            ("pomme",  0.10),
+            ("potion", 0.10),
+            ("bombe",  0.10)
+        ]
+
 
         # Pathfinding
         self.use_pathfinding = True
@@ -162,6 +167,16 @@ class Enemy(Entity):
         scene = self.scene()
     
         if scene:
+            # On verifie si ennemi a flag a declencher (defini dans spawn enemy)
+            if hasattr(self, "set_flag_on_death") and self.set_flag_on_death:
+                if hasattr(scene, "current_save"):
+                    flag_data = self.set_flag_on_death
+                    # on transforme en liste si c'est un string pour boucler dessus (gestion de plusieurs flags)
+                    flags = [flag_data] if isinstance(flag_data, str) else flag_data
+                    
+                    for f in flags:
+                        scene.current_save.set_flag(f)
+                        if DEBUG: print(f"[ENEMY] Flag déclenché à la mort : {f}")                                                                          
             # Nettoyer les chemins de debug
             if self.path_rects:
                 for rect in self.path_rects:
@@ -188,8 +203,8 @@ class Enemy(Entity):
 
 # drop loot        
     def _drop_loot(self,scene):
-        offset = int(0.3 * TILE_SIZE)
-        for item_id, chance in LOOT_TABLE:
+        offset = int(0.3 * self.tile_size)
+        for item_id, chance in self.loot:
             if random.random() < chance:
                 dx = random.randint(-offset, offset)
                 dy = random.randint(-offset, offset)

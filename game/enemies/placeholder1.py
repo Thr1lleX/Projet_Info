@@ -17,8 +17,12 @@ class Placeholder1(Enemy):
         
         self.aggro_range = self.tile_size * 10
         
-        self.damage = 1/2
+        self.damage = 1
         self.give_stun = 0
+        
+        self.loot = [
+            ("pomme",0.5)
+        ]
 
         # --- SPRITE UNIQUE (même pour toutes directions) ---
         sprite = QPixmap("assets/placeholder1.png").scaled(

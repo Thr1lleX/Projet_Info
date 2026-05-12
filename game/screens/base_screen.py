@@ -117,11 +117,11 @@ class BaseScreen:
             self._move(+1)
         elif key == KEYS["UP"]:
             self._move(-1)
-        elif key in (KEYS["ATTACK"], KEYS["INTERACT"], KEYS["CONFIRM"]):
+        elif key in (KEYS["INTERACT"], KEYS["CONFIRM"]):
             self._press_selected()
 
     def key_release(self, key):
-        if key in (KEYS["ATTACK"], KEYS["INTERACT"], KEYS["CONFIRM"]):
+        if key in (KEYS["INTERACT"], KEYS["CONFIRM"]):
             self._release_selected()
 
     def _move(self, direction):

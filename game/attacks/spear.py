@@ -24,7 +24,7 @@ class Spear(MeleeAttack):
         super().__init__(source = player, 
                          direction = direction, 
                          damage=self.damage, 
-                         duration=0.6,
+                         duration=0.8,
                          spr_path = self.spr,
                          nb_frames = self.nb_frames,
                          size = self.size,

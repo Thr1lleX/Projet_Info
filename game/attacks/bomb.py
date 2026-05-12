@@ -1,70 +1,149 @@
-from game.sfx import SFXManager
+# -*- coding: utf-8 -*-
+
+from PyQt5.QtWidgets import QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
+from game.config import TILE_SIZE, BASE_TILE_SIZE
 from game.attacks.attack_entity import TemporaryAttack
-from game.config import TILE_SIZE
+from game.animspr import load_animation_sequence
+from game.config import TILE_SIZE, HUD_HEIGHT
 
-
-class Bomb(TemporaryAttack):
+class Bomb(QGraphicsPixmapItem):
+    """
+    gere uniquement la bombe posee au son, son timer et son clignetement
+    cette entite n'a ni hitbox ni degats
+    """
     def __init__(self, source, x, y):
-        super().__init__(source, direction="down", damage=2, duration=1.0)
-        sprite = QPixmap("assets/items/bombe.png")
-        self.setPixmap(
-            sprite.scaled(
-                int(TILE_SIZE * .75),
-                int(TILE_SIZE * .75),
-                Qt.IgnoreAspectRatio,
-                Qt.FastTransformation
-            )
-        )
+        super().__init__()
+        self.source = source
         self.x = x
         self.y = y
-        self.setPos(self.x, self.y)
-        self.fuse_timer = 1.0
-        self.exploded = False
-        self.blast_radius = TILE_SIZE
-        self.hurt_player = True
-        self.frames = []
-        self.anim_speed = 999
+        
+        self.setZValue(96)
+
+        self.total_fuse = 4.0
+        self.fuse_timer = self.total_fuse
+        
+        # on commence clignotement tous les 0.5s puis accelere
+        self.initial_blink_interval = 0.5
+        self.blink_timer = 0.0
+        self.blink_interval = self.initial_blink_interval
+        
+        self.is_white = False
+
+        # --- SPRITES ---
+        self.sprite_normal = QPixmap("assets/player/attack/bombe.png").scaled(
+            int(TILE_SIZE * 0.75),
+            int(TILE_SIZE * 0.75),
+            Qt.IgnoreAspectRatio,
+            Qt.FastTransformation
+        )
+        self.sprite_white = QPixmap("assets/player/attack/white_bombe.png").scaled(
+            int(TILE_SIZE * 0.75),
+            int(TILE_SIZE * 0.75),
+            Qt.IgnoreAspectRatio,
+            Qt.FastTransformation
+        )
+
+        self.setPixmap(self.sprite_normal)
+
+        offset_center = (TILE_SIZE - int(TILE_SIZE * 0.75)) / 2
+        self.setPos(self.x + offset_center, self.y + offset_center)
 
     def update(self, dt, scene):
         self.fuse_timer -= dt
-        if self.fuse_timer <= 0 and not self.exploded:
-            self._explode(scene)
+        self.blink_timer += dt
+        
+        elapsed_time = self.total_fuse - self.fuse_timer
+        
+        # coefficient pr accelerer plus ou moins vite
+        reduction_factor = 0.15
+        self.blink_interval = max(self.initial_blink_interval - (elapsed_time * reduction_factor), 0.075)
 
-    def update_position(self):
-        pass
+        # Logique de clignotement
+        if self.blink_timer >= self.blink_interval:
+            self.blink_timer = 0 # On reset le timer de clignotement
+            self.is_white = not self.is_white
+            self.setPixmap(self.sprite_white if self.is_white else self.sprite_normal)
 
-    def _explode(self, scene):
-        """Inflige des degats dans le rayon puis disparait."""
-        self.exploded = True
-        cx = self.x + TILE_SIZE / 2
-        cy = self.y + TILE_SIZE / 2
+        #` fin du timer on declenche explosion
+        if self.fuse_timer <= 0:
+            self.explode(scene)
 
-        # degats aux ennemis
-        for enemy in scene.enemies[:]:
-            ex, ey, ew, eh = enemy.get_hitbox()
-            ecx = ex + ew / 2
-            ecy = ey + eh / 2
-            dist = ((cx - ecx) ** 2 + (cy - ecy) ** 2) ** 0.5
-            if dist <= self.blast_radius:
-                enemy.take_damage(scene, self.damage, self.source)
+    def explode(self, scene):
+        """
+        invoque attaque explosion et clean la bombe
+        """
+        explosion = Explosion(self.source, self.x, self.y)
+        scene.addItem(explosion)
+        
+        # on ajoute l'explosion à la liste des projectiles pour que la scène fasse son update()
+        self.source.projectiles.append(explosion)
 
-        # degats au joueur (optionnel)
-        if self.hurt_player:
-            px, py, pw, ph = scene.player.get_hitbox()
-            pcx = px + pw / 2
-            pcy = py + ph / 2
-            dist = ((cx - pcx) ** 2 + (cy - pcy) ** 2) ** 0.5
-            if dist <= self.blast_radius:
-                scene.player.take_damage(scene, self.damage, self)
+        # Jouer le son d'explosion si besoin
+        scene.sfx_manager.play("snd_explosion")
 
-        # TODO: vfx explosion ici
-        # TODO: sfx explosion ici
         self.die()
 
     def die(self):
-        """Retire la bombe de la scene."""
+        if self.scene():
+            self.scene().removeItem(self)
+
+
+class Explosion(TemporaryAttack):
+    """
+    herite de temporary attack (voir def de classe)
+    3x3, centre en (1,1)
+    """
+    def __init__(self, source, x, y):
+        # on force down pour la direction meme si pas d'importance
+        super().__init__(source, direction="down", damage=2, duration=0.8)
+        self.setZValue(99)
+
+        self.x = x
+        self.y = y
+
+        self.spr = "player/attack/explosion"
+        self.size = (3, 3)
+        self.pos_origin = (1, 1)
+        self.nb_frames = 8
+
+        self.frames = load_animation_sequence(f"assets/{self.spr}", self.size, self.nb_frames)
+        self.anim_speed = self.duration / len(self.frames)
+        self.setPixmap(self.frames[0])
+
+        self.anim_offset = (
+            -self.pos_origin[0] * TILE_SIZE,
+            -self.pos_origin[1] * TILE_SIZE
+        )
+        self.raw_hitbox_data = {
+            1: ((19, 29), (30, 17)),
+            2: ((13, 34), (36, 12)),
+            3: ((13, 34), (36, 13)),
+            4: ((19, 29), (28, 24)),
+            5: ((0, 0), (0, 0)),
+            6: ((0, 0), (0, 0)),
+            7: ((0, 0), (0, 0)),
+            8: ((0, 0), (0, 0))
+        }
+        
+        self.can_hit_source = True
+        
+        center_tile_x = int(x // TILE_SIZE)
+        center_tile_y = int((y - HUD_HEIGHT * TILE_SIZE) // TILE_SIZE)
+
+        # On vérifie un carré de 3x3 autour du centre
+        if source.scene(): # Sécurité pour accéder à la scène
+            scene = source.scene()
+            for dx in [-1, 0, 1]:
+                for dy in [-1, 0, 1]:
+                    scene.try_break_tile(center_tile_x + dx, center_tile_y + dy)
+
+        self.update_hitbox()
+        self.update_position()
+
+
+    def die(self):
         if self.scene():
             self.scene().removeItem(self)

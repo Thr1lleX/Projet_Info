@@ -35,6 +35,7 @@ class AttackEntity(QGraphicsPixmapItem):
         self.give_player_knockback = False
         self.do_stun = 0  # 0 = aucun stun, x = duree
         self.can_go_on_water = False
+        self.can_hit_source = False
         
         # VISUELS
         self.setZValue(99) #voir doc setZvalue.txt
@@ -143,7 +144,7 @@ class AttackEntity(QGraphicsPixmapItem):
         for item in scene.items(hitbox_zone):
             if (
                 hasattr(item, "take_damage")
-                and item != self.source
+                and (item != self.source or self.can_hit_source)
                 and item not in self.targets_hit
             ):
                 # degats + knockback ennemi (source = epee)
@@ -152,8 +153,8 @@ class AttackEntity(QGraphicsPixmapItem):
                 self.targets_hit.add(item)
     
                 # knockback du joueur (recul)
-                # direction = épée -> joueur
-                # intensité + durée = ennemi
+                # direction = epee -> joueur
+                # intensite + duree = ennemi
                 if self.give_player_knockback:
     
                     old_kb = self.knockback
@@ -204,6 +205,12 @@ class TemporaryAttack(AttackEntity):
                 self.check_collisions(scene)
             else:
                 self.die()
+
+    def update_position(self):
+        """
+        Applique l'offset statique pour centrer l'explosion.
+        """
+        self.setPos(self.x + self.anim_offset[0], self.y + self.anim_offset[1])
                 
 
 class MeleeAttack(TemporaryAttack):

@@ -108,29 +108,17 @@ class SaveMenuScreen(BaseScreen):
 
 
     def _dispatch(self, action):
-
         sm = self.screen_manager
-
         if action == "slot1":
-
             sm.scene.save_game(1)
-
             sm.close_save_menu()
-
         elif action == "slot2":
-
             sm.scene.save_game(2)
-
             sm.close_save_menu()
-
         elif action == "slot3":
-
             sm.scene.save_game(3)
-
             sm.close_save_menu()
-
         elif action == "back":
-
             sm.close_save_menu()
             
 

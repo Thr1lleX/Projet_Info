@@ -24,6 +24,11 @@ class Placeholder2(Enemy):
         # -- Parametres d'attaque ---
         self.damage = 2
         self.give_stun = 10
+        
+        self.loot = [
+            ("potion",0.5),
+            ("bombe",0.1)
+        ]
 
         # --- HITBOX ---
         self.hitbox_offset_x = 0
