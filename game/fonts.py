@@ -21,11 +21,12 @@ def get_system_scale():
         return SYSTEM_SCALE
 
     SYSTEM_SCALE = 1.0
+
     app = QApplication.instance()
 
     if not app:
         return SYSTEM_SCALE
-
+    
     try:
         screen = app.primaryScreen()
         if screen:
@@ -75,9 +76,13 @@ def get_font1(size=10):
 
 def get_font2(size=10):
     return get_font("fonts/earthbound-beginnings.ttf", size)
+def get_font3(size=10):
+    return get_font("fonts/Greek Font.ttf", 1.1*size)
+
 
 FONT_MAPPING = {
     "font0": get_font0,
     "font1": get_font1,
-    "font2": get_font2
+    "font2": get_font2,
+    "font3": get_font3
 }

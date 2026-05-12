@@ -111,6 +111,23 @@ class Entity(QGraphicsPixmapItem):
         self.stun_item = QGraphicsPixmapItem(self)
         self.stun_item.setZValue(200)
         self.stun_item.setVisible(False)
+        
+        
+        # --- BUFF ANIMATION --- 
+        self.buff_frames = load_animation_sequence(
+            "assets/effects/buffanim",
+            size=(1, 2)
+        )
+        
+        self.buff_frame_index = 0
+        self.buff_anim_speed = 10
+        self.buff_anim_timer = 0
+        
+        self.buff_item = QGraphicsPixmapItem(self)
+        self.buff_item.setZValue(195)
+        self.buff_item.setVisible(False)
+        
+        self.is_buffed = False
 
         # --- DEBUG ---
         if DEBUG:
@@ -579,6 +596,26 @@ class Entity(QGraphicsPixmapItem):
         offset_x = (self.hitbox_width- self.tile_size + 2*self.tile_size* self.hitbox_offset_x)/2
     
         self.stun_item.setPos(offset_x, offset_y)
+        
+    def update_buff_animation(self, dt):
+        if not self.is_buffed:
+            self.buff_item.setVisible(False)
+            return
+    
+        self.buff_item.setVisible(True)
+    
+        self.buff_anim_timer += dt
+        if self.buff_anim_timer >= 1 / self.buff_anim_speed:
+            self.buff_anim_timer = 0
+            self.buff_frame_index = (self.buff_frame_index + 1) % len(self.buff_frames)
+    
+        self.buff_item.setPixmap(self.buff_frames[self.buff_frame_index])
+    
+        # offset du a taille du spr d'anim
+        offset_y = -self.tile_size + self.tile_size* self.hitbox_offset_y
+        offset_x = (self.hitbox_width- self.tile_size + 2*self.tile_size* self.hitbox_offset_x)/2
+    
+        self.buff_item.setPos(offset_x, offset_y)
 
 
     @abstractmethod

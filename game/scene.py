@@ -110,7 +110,7 @@ class GameScene(QGraphicsScene):
         self.current_room = None
         self.room_data = None
         # items droppes
-        self.dropped_items = []
+        self.dropped_items = []                
         
         # IMPORTANT ! items persistant, a ajouter pour conservation lors de chgmt de salle
         self.persistent_items = {
@@ -157,10 +157,10 @@ class GameScene(QGraphicsScene):
             
             for enemy in self.enemies:
                 enemy.update(dt, self)
-            self._check_pickups()      
+            self._check_pickups()                                     
             for interactable in self.interactables:
                 interactable.update(dt)
-         
+  
         self.transition.update(dt)
         self.music_manager.update(dt)
         if CRT_OVERLAY:
@@ -181,7 +181,8 @@ class GameScene(QGraphicsScene):
                 if inventory.add_item(drop.item_id):
                     self.removeItem(drop)
                     self.sfx_manager.play("snd_item")
-                    self.dropped_items.remove(drop)
+                    self.dropped_items.remove(drop)                                              
+
 
     def update_crt(self):
         self.crt_overlay.setOpacity(random.uniform(0.1, 0.15))
@@ -249,7 +250,7 @@ class GameScene(QGraphicsScene):
         
         target_rect = QRectF(x, y, w, h)
         for obj in self.interactables:
-            if isinstance(obj, Sign):
+            if obj.collision:
                 if target_rect.intersects(obj.sceneBoundingRect()):
                     return True
     
@@ -346,6 +347,13 @@ class GameScene(QGraphicsScene):
     
                 if tile_id == 0:
                     continue
+                # suppression des murs brises
+                if tile_id == 2.1:
+                    wall_flag = f"broken_{self.current_room}_{x}_{y}"
+                    
+                    if self.current_save.get_flag(wall_flag):
+                        tile_id = 2.2
+                        self.room_data["tiles"][y][x] = 2.2
     
                 data = self.tileset.get(tile_id)
                 if not data:
@@ -582,6 +590,17 @@ class GameScene(QGraphicsScene):
             if enemy_id in killed:
                 continue
             
+            spawn_if = data.get("spawn_if")
+            despawn_if = data.get("despawn_if")
+            
+            # s'il faut un flag et qu'on ne l'a pas, on ne spawn pas
+            if spawn_if and not self.current_save.get_flag(spawn_if):
+                continue
+            
+            # s'il y a un flag d'interaction et qu'on l'a, on ne spawn pas
+            if despawn_if and self.current_save.get_flag(despawn_if):
+                continue
+            
             enemy_type = data["type"]
             x = data["x"] * TILE_SIZE
             y = (data["y"] + HUD_HEIGHT) * TILE_SIZE
@@ -591,16 +610,13 @@ class GameScene(QGraphicsScene):
             if enemy_class is None:
                 continue
             enemy = enemy_class(SCALE,x,y)
-            # if enemy_type == "placeholder1":
-            #     enemy = Placeholder1(SCALE, x, y)
-    
-            # else:
-            #     continue  # inconnu
             
             enemy.enemy_id = data["id"]
             enemy.room_name = self.current_room
             
             enemy.set_target(self.player)
+            
+            enemy.set_flag_on_death = data.get("set_flag")
     
             self.enemies.append(enemy)
             self.addItem(enemy)
@@ -659,11 +675,52 @@ class GameScene(QGraphicsScene):
         self.player.y = (py + HUD_HEIGHT) * TILE_SIZE
     
         self.player.update_graphics()
-# chargement inventaire
+        
+        # chargement inventaire
         inv_data = self.current_save.data.get("inventory")
+        flags = self.current_save.data.get("flags", {})
+        
         if inv_data is not None:
             self.screen_manager.inventory.from_save_data(inv_data)
+        self.screen_manager.inventory.sync_permanent_items(flags)
+            
+    def try_break_tile(self, tile_x, tile_y):
+        """
+        detruit une tile aux coordonnes de la grille
+        """
+        if not (0 <= tile_x < GRID_WIDTH and 0 <= tile_y < GRID_HEIGHT):
+            return
 
+        tile_id = self.room_data["tiles"][tile_y][tile_x]
+        tile_info = TILE_TYPES.get(tile_id)
+
+        if tile_info and tile_info.get("breakable"):
+
+            self.room_data["tiles"][tile_y][tile_x] = 2.2
+            
+
+            wall_flag = f"broken_{self.current_room}_{tile_x}_{tile_y}"
+            self.current_save.set_flag(wall_flag, True)
+
+            self.refresh_single_tile(tile_x, tile_y, 2.2)
+
+    def refresh_single_tile(self, tx, ty, new_id):
+        """
+        supprime l'ancien sprite a (tx, ty) et place le nouveau
+        """
+        px = tx * TILE_SIZE
+        py = (ty + HUD_HEIGHT) * TILE_SIZE
+        
+        for item in self.items(QRectF(px, py, TILE_SIZE, TILE_SIZE)):
+            if isinstance(item, QGraphicsPixmapItem) and item not in self.persistent_items:
+                self.removeItem(item)
+        
+        pix = self.tileset.get(new_id)
+        if pix:
+            new_item = QGraphicsPixmapItem(pix)
+            new_item.setPos(px, py)
+            new_item.setZValue(TILE_TYPES[new_id].get("z", 0))
+            self.addItem(new_item)
         
     def load_save(self, slot=1):
         self.current_save = SaveManager(slot)
@@ -694,6 +751,13 @@ class GameScene(QGraphicsScene):
                 )
             elif interactable_type == "sign":
                 interactable = interactable_class(SCALE, x, y, data.get("dialogue"),data.get("conditional_dialogue"))
+            elif interactable_type == "chest":
+                interactable = interactable_class(SCALE, x, y, data.get("loot"), self.current_room)
+                
+                # chech etat initial
+                if self.current_save.get_flag(interactable.flag_name):
+                    interactable.is_open = True
+                interactable.update_graphics()
             else:
                 interactable = interactable_class(SCALE, x, y)
 

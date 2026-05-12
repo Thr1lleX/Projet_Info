@@ -175,6 +175,8 @@ class DialogueManager:
             return
     
         if not self.active or self.current_char_index >= len(self.full_text):
+            if hasattr(self.scene, 'player') and KEYS["ITEM"] in self.scene.player.keys:
+                self.advance()
             return
         
         markiplier = 1.0
@@ -232,19 +234,24 @@ class DialogueManager:
 
         # ligne suivante
         self.current_line_index += 1
-
         lines = self.current_dialogue["lines"]
 
         if self.current_line_index >= len(lines):
 
             # flag eventuel
-            flag = self.current_dialogue.get("set_flag")
-
-            if flag:
-
-                if hasattr(self.scene, "current_save"):
-
-                    self.scene.current_save.data["flags"][flag] = True
+            flags_data = self.current_dialogue.get("set_flag")
+            
+            if flags_data and hasattr(self.scene,"current_save"):
+                if isinstance(flags_data, str):
+                    flags_list = [flags_data]
+                elif isinstance(flags_data, list):
+                    flags_list = flags_data
+                else:
+                    flags_list = []
+                
+                for f in flags_list:
+                    self.scene.current_save.data["flags"][f] = True
+                    if DEBUG: print(f"[DIALOGUE] Flag activé : {f}")
 
             self.close()
             return
@@ -268,3 +275,47 @@ class DialogueManager:
 
         self.current_dialogue = None
         self.current_dialogue_id = None
+        
+
+    # ==========================================================
+    # Démarrage de texte dynamique (sans JSON)
+    # ==========================================================
+
+    def start_text(self, text, font="font0", speed=None):
+        """
+        Demarre un dialogue a partir d'une chaine de caracteres (ou liste de lignes)
+        sans avoir beosin de l'enregistrer dans dialogues.json
+        """
+        self.active = True
+        self.current_dialogue_id = "dynamic_text" # ID temporaire
+
+        if isinstance(text, str):
+            lines = [text]
+        else:
+            lines = text
+
+        # dictionnaire tmporaire
+        self.current_dialogue = {
+            "font": font,
+            "lines": lines
+        }
+        
+        if speed:
+            self.current_dialogue["speed"] = speed
+
+        self.current_line_index = 0
+        
+        font_func = FONT_MAPPING.get(font, FONT_MAPPING["font0"])
+        self.current_font = font_func(size=7.5)
+        self.text_item.setFont(self.current_font)
+
+        chars_per_second = self.current_dialogue.get("speed", self.base_text_speed)
+        self.text_speed_delay = 1.0 / chars_per_second
+
+        if self.box.scene() is None:
+            self.scene.addItem(self.box)
+
+        if self.text_item.scene() is None:
+            self.scene.addItem(self.text_item)
+
+        self._load_current_line()

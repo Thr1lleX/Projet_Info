@@ -7,51 +7,58 @@ d'un item a partir de son item_id.
 """
 
 ITEM_CATALOG = {
-
-"sword" : { 
-    "name" : "sword", 
-    "icon_path" : "assets/items/sword.png",
-    "category" : "weapon",
-    "stack_max" : 1,
-    "effect":    None} ,    
-"spear":{ 
-    "name" : "spear", 
-    "icon_path" : "assets/items/spear.png",
-    "category" : "weapon",
-    "stack_max" : 1,
-    "effect":    None},
-"boomerang":{ 
-    "name" : "boomerang", 
-    "icon_path" : "assets/items/boomerang.png",
-    "category" : "permanent",
-    "stack_max" : 1,
-    "effect" : "throw_boomerang"},
 "pomme":{ 
-    "name" : "pomme", 
+    "name" : "Pomme", 
     "icon_path" : "assets/items/pomme.png",
     "category" : "consumable",
     "stack_max" : 10,
-    "effect" : "heal"},
+    "effect" : "heal",
+    "slot":0
+    },
 "potion":{ 
-    "name" : "potion", 
+    "name" : "Potion de Vitesse", 
     "icon_path" : "assets/items/potion.png",
     "category" : "consumable",
     "stack_max" : 10,
-    "effect" : "buff_strength_speed"},
+    "effect" : "buff_strength_speed",
+    "slot":1
+    },
 "bombe":{ 
-    "name" : "bombe", 
+    "name" : "Bombe", 
     "icon_path" : "assets/items/bombe.png",
     "category" : "consumable",
     "stack_max" : 10,
-    "effect" : "explode"}
+    "effect" : "explode",
+    "slot":2
+    },
+"boomerang":{ 
+    "name" : "Boomerang", 
+    "icon_path" : "assets/items/boomerang.png",
+    "category" : "permanent",
+    "stack_max" : 1,
+    "effect" : "throw_boomerang",
+    "slot":3,
+    "required_flag": "has_boomerang"
+    },
+"fireball":{ 
+    "name" : "Magie de Feu", 
+    "icon_path" : "assets/items/spear.png",
+    "category" : "permanent",
+    "stack_max" : 1,
+    "effect":    None,
+    "slot":4,
+    "required_flag": "has_fireball"
+    },
+"spear":{ 
+    "name" : "Lance", 
+    "icon_path" : "assets/items/spear.png",
+    "category" : "permanent",
+    "stack_max" : 1,
+    "effect":    "spear",
+    "slot":5,
+    "required_flag": "has_spear"
+    }
 }
-
-LOOT_TABLE = [
-    ("pomme",  0.50),   # 50% de chance
-    ("potion", 0.50),
-    ("bombe",  0.50),
-]
-
 
 def get_item_data(item_id):
     return ITEM_CATALOG.get(item_id)

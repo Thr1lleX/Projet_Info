@@ -7,13 +7,15 @@ from PyQt5.QtCore import Qt, QTimer
 #from PyQt5.QtWidgets import QGraphicsRectItem, QApplication
 from PyQt5.QtGui import QPen, QColor, QFont, QFontDatabase
 
-from game.config import BASE_TILE_SIZE, BASE_SPEED, DEBUG, TILE_SIZE, EXIT_HOLD_TIME, KEYS, SCALE
+from game.config import BASE_TILE_SIZE, BASE_SPEED, DEBUG, TILE_SIZE, EXIT_HOLD_TIME, KEYS, SCALE, DUREE_BUFF
 from game.fonts import get_font0
 
 from game.entity import Entity
 from game.enemies.enemy import Enemy
 #from game.window import GameWindow
 from game.attacks.sword_slash import SwordSlash
+from game.attacks.sword_slash_upgrade import SwordSlashUpgrade
+from game.item_effects import use_item
 from game.attacks.spear import Spear
 from game.attacks.test_fireball import Fireball
 from game.attacks.boomerang import Boomerang
@@ -68,8 +70,9 @@ class Player(Entity):
         self._buff_timer = 0.0
         self._base_damage = 1
         self._base_speed = BASE_SPEED
-    
-
+        self.buff_speed_multiplier = 1.0
+        self.debug_speed_multiplier = 1.0
+        
         # DEBUG couleur
         if DEBUG:
             self.debug_rect.setPen(QPen(QColor("green"), 1))
@@ -135,8 +138,6 @@ class Player(Entity):
         self.projectiles_delay = 0.4 #0.5s min entre chaque
         
         self.shout_pressed = False
-
-        self.can_go_on_water = True
         
         # INTERACTION
         self.interact_pressed = False
@@ -176,8 +177,12 @@ class Player(Entity):
             - tout ce qui est lie au deplacement
             - follow logic, en l'occurence les armes suivent le joueur lors de knockback
         """
+        # ---
+        self.get_flags_state(scene)
+        # ---
         self.update_damage_state(dt) # invuln, clignot etc.
         self.update_stun_animation(dt)
+        self.update_buff_animation(dt)
         
         if self.attack_cooldown > 0:
             self.attack_cooldown = max(0, self.attack_cooldown - dt)
@@ -185,11 +190,12 @@ class Player(Entity):
         # buff potion expiration
         if self._buff_timer > 0:
             self._buff_timer -= dt
+            self.is_buffed = True
             if self._buff_timer <= 0:
                 self._buff_timer = 0
                 self.damage = self._base_damage
-                self.speed  = self._base_speed
-
+                self.buff_speed_multiplier = 1.0    
+                self.is_buffed = False                            
         if self.projectiles_cooldown > 0:
             self.projectiles_cooldown = max(0, self.projectiles_cooldown - dt)
         
@@ -235,9 +241,23 @@ class Player(Entity):
                 scene.addItem(self.stun_item)
 
             self.stun_item.setPos(self.x, self.y-self.tile_size)
-
-        
         # --- FIN DU HACK ---
+        
+        # --- SPAGHETTI CODE BUFF!!!!! ---
+        if getattr(self, 'is_buffed', False) and hasattr(self, 'buff_item') and self.buff_item:
+            self.buff_item.setVisible(True)
+            self.buff_item.setOpacity(1.0)
+        
+            from PyQt5.QtWidgets import QGraphicsItem
+            self.buff_item.setFlag(QGraphicsItem.ItemIgnoresParentOpacity, True)
+        
+            self.buff_item.setZValue(200)
+        
+            if self.buff_item.scene() is None:
+                scene.addItem(self.buff_item)
+        
+            self.buff_item.setPos(self.x, self.y - self.tile_size)
+        # --- FIN DU HACK BUFF ---
 
     def update_held_weapons(self, dt, scene):
         """
@@ -256,6 +276,7 @@ class Player(Entity):
         
         #bloque mouvements du joueur si dialogue
         if scene.dialogue_manager.active:
+            self.attack_pressed = True
             return
         
         dx, dy = 0, 0
@@ -279,8 +300,6 @@ class Player(Entity):
                 self.attack_cooldown = self.attack_delay
         elif KEYS["ITEM"] in self.keys:
             if not self.attack_pressed and self.projectiles_cooldown == 0:
-            
-                from game.item_effects import use_item
                 if use_item(self, scene):
                     self.attack_pressed = True
                     self.projectiles_cooldown = self.projectiles_delay
@@ -292,11 +311,12 @@ class Player(Entity):
         
         if DEBUG:
             if KEYS["CROUCH"] in self.keys:
-                self.speed = BASE_SPEED * 0.5
+                self.debug_speed_multiplier = 0.5
             elif KEYS["SPRINT"] in self.keys:
-                self.speed = BASE_SPEED * 5
+                self.debug_speed_multiplier = 5.0
             else:
-                self.speed = BASE_SPEED
+                self.debug_speed_multiplier = 1.0
+            self.update_speed()
 
     
     def get_hitbox(self, x=None, y=None):
@@ -320,7 +340,12 @@ class Player(Entity):
                 sm.on_game_over()
             else:
                 scene.game_over()   # retro-compatibilite si pas de ScreenManager
-
+                
+    def get_flags_state(self,scene):
+        if scene.current_save.get_flag("jesus"):
+            self.can_go_on_water = True
+        else:
+            self.can_go_on_water = False
     """
     Fonctions pour quitter le jeu
     """
@@ -410,8 +435,13 @@ class Player(Entity):
             voice = "snd_charavoice2"
         scene.sfx_manager.play(voice)
         
-        # Créer l'épée et l'ajouter à la scène
-        self.current_sword = SwordSlash(self, self.direction)
+        if scene.current_save.get_flag("sword_upgrade"):
+            SwordClass = SwordSlashUpgrade
+        # elif scene.current_save.get_flag("fire_sword"):
+        #     SwordClass = FireSword
+        else:
+            SwordClass = SwordSlash
+        self.current_sword = SwordClass(self, self.direction)
         scene.addItem(self.current_sword)
     
     def shout(self, scene):
@@ -428,12 +458,12 @@ class Player(Entity):
             
         self.is_usingspear = True
         
-        # # le 1er son de voix est joue plus souvent
-        # if random.random() < 0.66:
-        #     voice = "snd_charavoice1"
-        # else: 
-        #     voice = "snd_charavoice2"
-        # scene.sfx_manager.play(voice)
+        # le 1er son de voix est joue plus souvent
+        if random.random() < 0.66:
+            voice = "snd_charalongvoice1"
+        else: 
+            voice = "snd_charalongvoice2"
+        scene.sfx_manager.play(voice)
         
         # Créer l'épée et l'ajouter à la scène
         self.current_spear = Spear(self, self.direction)
@@ -564,8 +594,18 @@ class Player(Entity):
 
 # Buffs
 
-    def apply_buff(self, duration=30.0):
+    def apply_buff(self, duration=DUREE_BUFF):
         """Active le buff de force et vitesse."""
         self._buff_timer = duration
-        self.damage = int(self._base_damage * 1.2) + 1   # 1 * 1.2 arrondi = 2
-        self.speed = self._base_speed * 3
+        self.is_buffed = False
+        self.damage = int(self._base_damage * 1.5) + 1
+        self.buff_speed_multiplier = 1.5
+        self.update_speed()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+        
+    
+    def update_speed(self):
+        self.speed = (
+            self._base_speed
+            * self.buff_speed_multiplier
+            * self.debug_speed_multiplier
+        )

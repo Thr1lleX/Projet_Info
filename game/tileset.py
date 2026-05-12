@@ -24,6 +24,17 @@ TILE_TYPES = {
         "collision": 1,
         "z": 2
     },
+    2.1: {
+        "name": "breakable_wall",
+        "collision": 1,
+        "z": 2,
+        "breakable": True
+    },
+    2.2: {
+        "name": "broken_wall",
+        "collision": 0,
+        "z": 0
+    },
     3: {
         "name": "black",
         "collision": 0,

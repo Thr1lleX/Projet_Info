@@ -8,6 +8,7 @@ inventory : grille de 24 slots + 2 pointeurs d'equipement (arme W, consommable X
 """
 from PyQt5.QtGui import QPixmap
 from game.item_registry import get_item_data
+from game.config import DEBUG
 
 class Item:
 
@@ -45,6 +46,10 @@ class Item:
             self._icon_cache = {}
             self._icon_cache[self.icon_path] = QPixmap(self.icon_path) # lazy loading pour gagner en perf
         return self._icon_cache[self.icon_path]
+            
+    @property
+    def slot(self):
+        return self.data.get("slot")
 
 
 
@@ -56,8 +61,7 @@ class Inventory():
         self._slots = [None]*total_slots
         self._dirty = True
 
-        self._equipped_weapon_id = "sword"
-        self._equipped_consumable_id = None
+        self._equipped_item_id = None
 
 # acces au slots 
 
@@ -81,41 +85,50 @@ class Inventory():
 
 # ajout / recherche / consommation
 
+    
     def add_item(self, item_id, count=1):
         """
-        Ajoute un item a l'inventaire (stack existant ou nouveau slot).
+        Ajoute un item a l'inventaire dans son slot predefini.
         Retourne True si l'ajout a reussi, False si inventaire plein.
         """
         data = get_item_data(item_id)
         if data is None:
             return False
+            
         stack_max = data["stack_max"]
+        target_slot = data.get("slot")
 
-        remaining = count
+        # verifier que l'item est bien dans un solt
+        if target_slot is None or not (0 <= target_slot < self.total_slots):
+            if DEBUG:
+                print(f"Erreur : L'item {item_id} n'a pas de slot valide assigné.")
+            return False
 
-        # 1) chercher un stack existant non plein
-        for i in range(self.total_slots):
-            if remaining <= 0:
-                break
-            slot = self._slots[i]
-            if slot is not None and slot.item_id == item_id and slot.count < stack_max:
-                space = stack_max - slot.count
-                added = min(remaining, space)
-                slot.count += added
-                remaining -= added
+        current_item_in_slot = self._slots[target_slot]
+
+        # si slot vide on place objet
+        if current_item_in_slot is None:
+            added = min(count, stack_max)
+            self._slots[target_slot] = Item(item_id, added)
+            self._dirty = True
+            return True
+
+        # si slot continent deja objet on place la quantite
+        elif current_item_in_slot.item_id == item_id:
+            space_left = stack_max - current_item_in_slot.count
+            if space_left > 0:
+                added = min(count, space_left)
+                current_item_in_slot.count += added
                 self._dirty = True
+                return True
+            else:
+                return False
 
-        # 2) creer de nouveaux stacks dans les slots vides
-        for i in range(self.total_slots):
-            if remaining <= 0:
-                break
-            if self._slots[i] is None:
-                added = min(remaining, stack_max)
-                self._slots[i] = Item(item_id, added)
-                remaining -= added
-                self._dirty = True
-
-        return remaining <= 0
+        #si le slot est deja occupe par un autre objet (normalement pas de pb)
+        else:
+            if DEBUG:
+                print(f"Erreur : Conflit de slot. {item_id} tente d'écraser {current_item_in_slot.item_id}.")
+            return False
 
 
     def has_item(self, item_id):
@@ -143,29 +156,20 @@ class Inventory():
                 return True
         return False
  # equipement       
-    def equip_weapon(self, item_id):
-        self._equipped_weapon_id = item_id
-        self._dirty = True
-
-    def equip_consumable(self, item_id):
-        self._equipped_consumable_id = item_id
+    def equip_item(self, item_id):
+        self._equipped_item_id = item_id
         self._dirty = True
 
     @property
-    def equiped_weapon_id(self):
-        return self._equipped_weapon_id
-
-    @property 
-    def equiped_consumable_id(self):
-        return self._equipped_consumable_id
+    def equiped_item_id(self):
+        return self._equipped_item_id
 
 # reset inventory
     def reset(self):
         """Vide tous les slots (nouveau jeu ou mort)."""
         self._slots = [None] * self.total_slots
         self._dirty = True
-        self._equipped_weapon_id = "sword"
-        self._equipped_consumable_id = None
+        self._equipped_item_id = None
 
 # gestion save
 
@@ -181,8 +185,7 @@ class Inventory():
                 })
         return {
             "slots":              slots_data,
-            "equipped_weapon":    self._equipped_weapon_id,
-            "equipped_consumable": self._equipped_consumable_id,
+            "equipped_item": self._equipped_item_id,
         }
 
     def from_save_data(self, data):
@@ -195,6 +198,18 @@ class Inventory():
             count   = entry["count"]
             if 0 <= index < self.total_slots:
                 self._slots[index] = Item(item_id, count)
-        self._equipped_weapon_id     = data.get("equipped_weapon", "sword")
-        self._equipped_consumable_id = data.get("equipped_consumable")
+        self._equipped_item_id = data.get("equipped_item")
         self._dirty = True
+
+# gestion des items permanents, on les a si flag verifie
+
+
+    def sync_permanent_items(self, flags_dict):
+        # import local pour éviter les imports circulaires
+        from game.item_registry import ITEM_CATALOG 
+        
+        for item_id, data in ITEM_CATALOG.items():
+            required_flag = data.get("required_flag")
+            
+            if required_flag and flags_dict.get(required_flag) is True:
+                self.add_item(item_id, 1)

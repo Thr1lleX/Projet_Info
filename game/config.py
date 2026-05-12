@@ -63,3 +63,6 @@ HUD_ITEM_SLOT_PATH   = "assets/hud/item_slot.png"
 TITLE_BG_PATH = "assets/title_bg.png"
 GAME_TITLE    = "heheheha"
 LOGO = 'assets/logo.png'
+
+# ITEMS
+DUREE_BUFF = 15 #en s

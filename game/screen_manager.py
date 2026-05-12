@@ -349,7 +349,7 @@ class ScreenManager:
             # items de depart (hors debug)
             self.inventory.add_item("bombe", 5)
             self.inventory.add_item("pomme", 5)
-            self.inventory.equip_consumable("bombe")
+            self.inventory.equip_item("bombe")    
             
     # sauvegardes
     
