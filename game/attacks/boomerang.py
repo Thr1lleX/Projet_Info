@@ -3,6 +3,7 @@
 import math
 from game.attacks.attack_entity import PersistentAttack
 from game.config import TILE_SIZE
+from game.dropped_item import DroppedItem
 
 class Boomerang(PersistentAttack):
     def __init__(self, source, direction):
@@ -95,4 +96,22 @@ class Boomerang(PersistentAttack):
                 self.y += (dy / dist_to_player) * current_speed * TILE_SIZE * self.current_dt
 
         self.setPos(self.x + self.anim_offset[0], self.y + self.anim_offset[1]) 
+        
+    def check_collisions(self, scene):
+        """
+        surcharge du systeme de collision pour gerer les items
+        """
+        hitbox_zone = self.debug_rect.mapToScene(self.debug_rect.rect()).boundingRect()
 
+        for item in scene.items(hitbox_zone):
+            if isinstance(item, DroppedItem):
+                inventory = scene.screen_manager.inventory
+                if inventory.add_item(item.item_id, 1):
+                    if item in scene.dropped_items:
+                        scene.dropped_items.remove(item)
+                    scene.removeItem(item)
+                    
+                    if hasattr(scene, "sfx_manager"):
+                        scene.sfx_manager.play("snd_item")
+
+        super().check_collisions(scene)
