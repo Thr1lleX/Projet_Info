@@ -21,7 +21,7 @@
 	  "dialogue": "panneau_histoire"
     }
   ],
-  "biome" : "mountain",
+  "biome" : "desert",
   "music": "mus_overworld",
   "transitions": {
     "left": null,

@@ -1,7 +1,30 @@
 {
   "current_room": "room3",
-  "current_health": 6,
-  "player_x": 9.13,
-  "player_y": 6.04,
-  "flags": {}
+  "current_health": 4,
+  "player_x": 8.78,
+  "player_y": 5.3,
+  "flags": {
+    "opened_chest_roommurstests_9_9": true,
+    "has_boomerang": true
+  },
+  "inventory": {
+    "slots": [
+      {
+        "slot": 0,
+        "item_id": "pomme",
+        "count": 5
+      },
+      {
+        "slot": 2,
+        "item_id": "bombe",
+        "count": 5
+      },
+      {
+        "slot": 3,
+        "item_id": "boomerang",
+        "count": 1
+      }
+    ],
+    "equipped_item": "boomerang"
+  }
 }

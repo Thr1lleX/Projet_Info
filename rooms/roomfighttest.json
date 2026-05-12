@@ -1,0 +1,55 @@
+{
+  "tiles": [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+  ],
+  "biome" : "desert",
+  "music": "mus_stupid",
+  "fade_in": 1,
+  "transitions": {
+    "left": "roomdialoguetests",
+    "right": "roommurstests",
+    "up": null,
+    "down": null
+  },
+  "enemies": [
+    {
+      "id": "boss_niveau_1",
+      "type": "placeholder1",
+      "x": 5,
+      "y": 5,
+      "set_flag": ["boss_vaincu","sword_upgrade"],
+      "despawn_if": "boss_vaincu" 
+    },
+    {
+      "id": "monstre_faible_1",
+      "type": "placeholder1",
+      "x": 2,
+      "y": 3,
+      "despawn_if": "boss_vaincu"
+    },
+    {
+      "id": "monstre_fort_1",
+      "type": "placeholder2",
+      "x": 8,
+      "y": 6,
+      "spawn_if": "boss_vaincu",
+	  "set_flag": "has_boomerang"
+    },
+    {
+      "id": "monstre_permanent",
+      "type": "placeholder1",
+      "x": 4,
+      "y": 8
+    }
+]
+}

@@ -13,7 +13,7 @@
     [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]
   ],
   "biome" : "desert",
-  "music": "mus_shrine",
+  "music": "mus_ocean",
   "fade_in": 10,
   "transitions": {
     "left": null,

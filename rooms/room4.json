@@ -13,7 +13,7 @@
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
   ],
   "biome" : "desert",
-  "music": "mus_night",
+  "music": "mus_overworld",
   "fade_in": 1,
   "transitions": {
     "left": null,

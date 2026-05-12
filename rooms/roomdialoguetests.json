@@ -19,7 +19,7 @@
 	  "npc_type": "old_man",
 	  "x": 4,
       "y": 8,
-	  "dialogue": ["oldman_intro","oldman_intro2"]
+	  "dialogue": ["oldman_intro","oldman_intro2","oldman_intro3"]
     },    
 	{
       "type": "npc",
@@ -69,7 +69,7 @@
   "fade_in": 1,
   "transitions": {
     "left": null,
-    "right": null,
+    "right": "roomfighttest",
     "up": "room3",
     "down": null
   }

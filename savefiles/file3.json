@@ -1,9 +1,12 @@
 {
   "current_room": "room7",
-  "current_health" : 6,
+  "current_health": 6,
   "player_x": 5,
-  "player_y":5,
+  "player_y": 5,
   "flags": {
-	  "open_passage": true
+    "open_passage": true,
+    "jesus": true,
+    "boss_vaincu": true,
+    "sword_upgrade": true
   }
 }
