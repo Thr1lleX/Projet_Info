@@ -169,14 +169,15 @@ class Enemy(Entity):
         if scene:
             # On verifie si ennemi a flag a declencher (defini dans spawn enemy)
             if hasattr(self, "set_flag_on_death") and self.set_flag_on_death:
-                if hasattr(scene, "current_save"):
+                if hasattr(scene, "session_flags"):
                     flag_data = self.set_flag_on_death
                     # on transforme en liste si c'est un string pour boucler dessus (gestion de plusieurs flags)
                     flags = [flag_data] if isinstance(flag_data, str) else flag_data
                     
                     for f in flags:
-                        scene.current_save.set_flag(f)
-                        if DEBUG: print(f"[ENEMY] Flag déclenché à la mort : {f}")                                                                          
+                        #scene.current_save.set_flag(f)
+                        scene.session_flags[f] = True
+                        if DEBUG: print(f"[ENEMY] Flag de session déclenché à la mort : {f}")                                                                          
             # Nettoyer les chemins de debug
             if self.path_rects:
                 for rect in self.path_rects:
