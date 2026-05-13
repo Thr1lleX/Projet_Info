@@ -1,3 +1,5 @@
+Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py sur False
+
 # Fait:
 - scene générale avec déplacements
 - systeme d’entités - ennemis + joueur + pnj
