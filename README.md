@@ -26,7 +26,7 @@
 # En cours:
 
 - settings
-- hud scene generale
+- hud scene generale (doit pouvoir indiquer: coeurs, item equipé, jauge de mana si has_fireball, nb de consummables, nb de clés)
 
 # À faire:
 
