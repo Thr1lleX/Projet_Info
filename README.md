@@ -22,13 +22,12 @@
 - sauvegarde
 - systeme d'items
 - boomerang pickup items
+- update de tiles de selon action (explosion, ouverture de porte etc.)
 
 # En cours:
 
 - settings
-- hud general
-- update de tiles de selon action (explosion, ouverture de porte etc.)
-
+- hud scene generale
 
 # À faire:
 
