@@ -27,8 +27,9 @@
 
 - settings
 - hud general
+- update de tiles de selon action (explosion, ouverture de porte etc.)
 
 
 # À faire:
 
-- (.exe)
+- (.exe) - pas obligatoire
