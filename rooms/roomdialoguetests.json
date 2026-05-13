@@ -12,14 +12,19 @@
     [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
   ],
-  "biome" : "desert",
+  "biome" : "mountain",
   "interactables": [
+    {
+      "type": "save_point",
+	  "x": 7,
+      "y": 3
+    }, 
 	{
       "type": "npc",
 	  "npc_type": "old_man",
 	  "x": 4,
       "y": 8,
-	  "dialogue": ["oldman_intro","oldman_intro2","oldman_intro3"]
+	  "dialogue": ["oldman_intro","oldman_intro2","oldman_intro3","oldman_intro4"]
     },    
 	{
       "type": "npc",
@@ -48,7 +53,12 @@
 	  {
 		  "flag":"parlation",
 		  "dialogue":"minou_parlation"
+	  },
+	  {
+		  "flag":"sword_upgrade",
+		  "dialogue":""
 	  }
+	  
 	]
     },
 	{
