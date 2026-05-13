@@ -1,6 +1,6 @@
 # Fait:
 - scene générale avec déplacements
-- systeme d’entités - ennemis + joueur + pnj (en cours)
+- systeme d’entités - ennemis + joueur + pnj
 - systeme de salles dans .json
 - collisions
 - transition de piece
