@@ -14,11 +14,11 @@
 - ecran de game over
 - items et inventaire avec hud d’items
 - biomes pour mieux gérer sprites de tiles
-- clignotement blanc si invulnérable, ca passe
-- animation de stun, un peu plus dur
+- clignotement blanc si invulnérable
+- animation de stun
+- sauvegarde
 - pnj
 - boites de dialogues
-- sauvegarde
 - systeme d'items
 - boomerang pickup items
 - update de tiles de selon action (explosion, ouverture de porte etc.)
