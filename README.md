@@ -1,4 +1,4 @@
-Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py sur False
+Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py sur False, puis lancer le main.py
 
 # Fait:
 - scene générale avec déplacements
