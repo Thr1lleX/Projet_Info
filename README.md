@@ -33,3 +33,4 @@ Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py su
 # À faire:
 
 - (.exe) - pas obligatoire
+- salles et reste du jeu
