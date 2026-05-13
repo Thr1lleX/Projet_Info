@@ -57,8 +57,25 @@ ITEM_CATALOG = {
     "effect":    "spear",
     "slot":5,
     "required_flag": "has_spear"
-    }
+    },
+"key": { 
+        "name" : "Clé", 
+        "icon_path" : "assets/items/key.png",
+        "category" : "collectible",
+        "stack_max" : 99,
+        "effect" : None,
+        "slot": None
+    },
+"mana": { 
+        "name" : "Mana", 
+        "icon_path" : "assets/items/mana.png",
+        "category" : "collectible",
+        "stack_max" : 10,
+        "effect" : None,
+        "slot": None
+    },
 }
+
 
 def get_item_data(item_id):
     return ITEM_CATALOG.get(item_id)

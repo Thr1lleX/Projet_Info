@@ -60,6 +60,7 @@ class Inventory():
         self.total_slots = total_slots
         self._slots = [None]*total_slots
         self._dirty = True
+        self._collectibles = {} #pr stocker cles, gold etc. qui ne sont pas utilisables
 
         self._equipped_item_id = None
 
@@ -97,12 +98,24 @@ class Inventory():
             
         stack_max = data["stack_max"]
         target_slot = data.get("slot")
+        
+        # cas 1: l'item est collectible
+        if target_slot is None:
+            if item_id not in self._collectibles:
+                self._collectibles[item_id] = 0
+                
+            stack_max = data.get("stack_max", 999)
+            new_count = self._collectibles[item_id] + count
+            self._collectibles[item_id] = min(new_count, stack_max)
+            
+            self._diry = True
+            return True
 
-        # verifier que l'item est bien dans un solt
-        if target_slot is None or not (0 <= target_slot < self.total_slots):
-            if DEBUG:
-                print(f"Erreur : L'item {item_id} n'a pas de slot valide assigné.")
-            return False
+        # # verifier que l'item est bien dans un solt
+        # if target_slot is None or not (0 <= target_slot < self.total_slots):
+        #     if DEBUG:
+        #         print(f"Erreur : L'item {item_id} n'a pas de slot valide assigné.")
+        #     return False
 
         current_item_in_slot = self._slots[target_slot]
 
@@ -138,6 +151,11 @@ class Inventory():
         return False 
 
     def count_item(self, item_id):
+        # compte collectibles d'abord
+        if item_id in self._collectibles:
+            return self._collectibles[item_id]
+        
+        # sinon cherche dans la grille
         total = 0
         for slot in self._slots:
             if slot is not None and slot.item_id == item_id:
@@ -146,6 +164,15 @@ class Inventory():
 
 
     def consume_one(self, item_id):
+        # si c'est un collectible
+        if item_id in self._collectibles:
+            if self._collectibles[item_id] > 0:
+                self._collectibles[item_id] -= 1
+                self._dirty = True
+                return True
+            return False
+        
+        #sinon, est dans slot
         for i in range(self.total_slots):
             slot = self._slots[i]
             if slot is not None and slot.item_id == item_id:
@@ -185,6 +212,7 @@ class Inventory():
                 })
         return {
             "slots":              slots_data,
+            "collectibles": self._collectibles,
             "equipped_item": self._equipped_item_id,
         }
 
@@ -198,6 +226,7 @@ class Inventory():
             count   = entry["count"]
             if 0 <= index < self.total_slots:
                 self._slots[index] = Item(item_id, count)
+        self._collectibles = data.get("collectibles", {})
         self._equipped_item_id = data.get("equipped_item")
         self._dirty = True
 

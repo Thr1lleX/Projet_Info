@@ -24,6 +24,7 @@ from game.interactables.interactable_registry import INTERACTABLE_TYPES
 from game.dialogue_manager import DialogueManager
 from game.interactables.npc import NPC
 from game.interactables.sign import Sign
+from game.interactables.door import LockedDoor
 
 # offset de placement lorsque transition ecran
 OFFSET = 2 # pixels
@@ -105,6 +106,9 @@ class GameScene(QGraphicsScene):
         
         # etats des rooms
         self.room_states = {}
+        
+        # flags sessions courante
+        self.session_flags = {}
         
         # variables room
         self.current_room = None
@@ -351,7 +355,7 @@ class GameScene(QGraphicsScene):
                 if tile_id == 2.1:
                     wall_flag = f"broken_{self.current_room}_{x}_{y}"
                     
-                    if self.current_save.get_flag(wall_flag):
+                    if self.current_save.get_flag(wall_flag) or self.session_flags.get(wall_flag):
                         tile_id = 2.2
                         self.room_data["tiles"][y][x] = 2.2
     
@@ -594,11 +598,11 @@ class GameScene(QGraphicsScene):
             despawn_if = data.get("despawn_if")
             
             # s'il faut un flag et qu'on ne l'a pas, on ne spawn pas
-            if spawn_if and not self.current_save.get_flag(spawn_if):
+            if spawn_if and not self.get_flag(spawn_if):
                 continue
             
             # s'il y a un flag d'interaction et qu'on l'a, on ne spawn pas
-            if despawn_if and self.current_save.get_flag(despawn_if):
+            if despawn_if and self.get_flag(despawn_if):
                 continue
             
             enemy_type = data["type"]
@@ -700,7 +704,7 @@ class GameScene(QGraphicsScene):
             
 
             wall_flag = f"broken_{self.current_room}_{tile_x}_{tile_y}"
-            self.current_save.set_flag(wall_flag, True)
+            self.session_flags[wall_flag] = True
 
             self.refresh_single_tile(tile_x, tile_y, 2.2)
 
@@ -712,7 +716,7 @@ class GameScene(QGraphicsScene):
         py = (ty + HUD_HEIGHT) * TILE_SIZE
         
         for item in self.items(QRectF(px, py, TILE_SIZE, TILE_SIZE)):
-            if isinstance(item, QGraphicsPixmapItem) and item not in self.persistent_items:
+            if type(item) is QGraphicsPixmapItem and item not in self.persistent_items:
                 self.removeItem(item)
         
         pix = self.tileset.get(new_id)
@@ -723,12 +727,14 @@ class GameScene(QGraphicsScene):
             self.addItem(new_item)
         
     def load_save(self, slot=1):
+        self.session_flags.clear()
         self.current_save = SaveManager(slot)
         self.load_current_save()
         
     
     def spawn_interactables(self, room):
         self.interactables = []
+        current_biome = room.get("biome", "default")
         for data in room.get("interactables", []):
             interactable_type = data.get("type")
             interactable_class = INTERACTABLE_TYPES.get(interactable_type)
@@ -749,13 +755,21 @@ class GameScene(QGraphicsScene):
                     data.get("dialogue"),
                     data.get("conditional_dialogue")
                 )
+            
             elif interactable_type == "sign":
                 interactable = interactable_class(SCALE, x, y, data.get("dialogue"),data.get("conditional_dialogue"))
+            
             elif interactable_type == "chest":
                 interactable = interactable_class(SCALE, x, y, data.get("loot"), self.current_room)
                 
                 # chech etat initial
-                if self.current_save.get_flag(interactable.flag_name):
+                if self.get_flag(interactable.flag_name):
+                    interactable.is_open = True
+                interactable.update_graphics()
+                
+            elif interactable_type == "locked_door":
+                interactable = interactable_class(SCALE, data.get("x"), data.get("y"),self.current_room,current_biome)
+                if self.get_flag(interactable.flag_name):
                     interactable.is_open = True
                 interactable.update_graphics()
             else:
@@ -773,6 +787,9 @@ class GameScene(QGraphicsScene):
         """
         sauvegarde la partie dans un slot
         """
+        
+        for flag_name, value in self.session_flags.items():
+            self.current_save.set_flag(flag_name, value)
     
         data = {
             "current_room": self.current_room,
@@ -801,3 +818,9 @@ class GameScene(QGraphicsScene):
     
         if DEBUG:
             print(f"Sauvegarde écrite : slot {slot}")
+
+    def get_flag(self, flag_name):
+        """
+        verifie si un flag est actif en session ou en sauvegarde
+        """
+        return self.session_flags.get(flag_name) or self.current_save.get_flag(flag_name)

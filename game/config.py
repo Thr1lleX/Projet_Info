@@ -18,7 +18,7 @@ BASE_SPEED = BASE_SPEED_pxl * SCALE
 FPS = 60
 interval = int(1000 / FPS)
 
-DEBUG = False
+DEBUG = True
 
 
 DURATION_FADE_OUT_ROOM = 0.3
@@ -65,4 +65,4 @@ GAME_TITLE    = "heheheha"
 LOGO = 'assets/logo.png'
 
 # ITEMS
-DUREE_BUFF = 15 #en s
+DUREE_BUFF = 20 #en s
