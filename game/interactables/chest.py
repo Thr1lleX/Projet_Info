@@ -11,9 +11,12 @@ class Chest(Interactable):
         self.collision = 1 
   
         # gestion du loot flexible
+        if not loot_data:
+            self.loot_id = None
+            self.amount = 0
         if isinstance(loot_data, list):
-            self.loot_id = loot_data[0]
-            self.amount = loot_data[1]
+            self.loot_id = loot_data[0] if len(loot_data) > 0 else None
+            self.amount = loot_data[1] if len(loot_data) > 1 else 1
         else:
             self.loot_id = loot_data
             self.amount = 1
@@ -47,11 +50,12 @@ class Chest(Interactable):
         if self.is_open:
             self.setPixmap(self.img_open)
         else:
-            self.setPixmap(self.img_closed)
+            self.setPixmap(self.img_closed)    
+    
 
     def interact(self, scene, player=None):
         # check si ouvert
-        if scene.current_save.get_flag(self.flag_name):
+        if scene.current_save.get_flag(self.flag_name) or scene.session_flags.get(self.flag_name):
             return 
 
         # ouvre coffre sinon
@@ -60,27 +64,26 @@ class Chest(Interactable):
         self.update_graphics()
         
         # marque flag d'ouverture
-        scene.current_save.set_flag(self.flag_name, True)
+        scene.session_flags[self.flag_name] = True # On marque le coffre comme ouvert
         
-        # calcul du nom pour l'affichage (pluriel mdr)
-        item_display_name = self.loot_id.capitalize()
-        if self.amount > 1:
-            if not self.loot_id.endswith('s'):
-                item_display_name = f"{self.amount} {item_display_name}s"
-            else:
-                item_display_name = f"{self.amount} {item_display_name}"
+        # calcul du nom pour l'affichage (pluriel mdr & gestion d'erreur)
+        if not self.loot_id or self.loot_id == "none":
+            item_display_name = "RIEN"
+            if DEBUG: print(f"[DEBUG] Coffre à {self.grid_x},{self.grid_y} est vide.")
         else:
-            item_display_name = f"{item_display_name}"
+            item_display_name = ITEM_CATALOG[self.loot_id]["name"].capitalize()
+            if self.amount > 1:
+                suffix = "" if self.loot_id.endswith('s') else "s"
+                item_display_name = f"{self.amount} {item_display_name}{suffix}"
+            scene.screen_manager.inventory.add_item(self.loot_id, self.amount)
 
+        if self.loot_id in ITEM_CATALOG:
+            item_info = ITEM_CATALOG[self.loot_id]
+            if item_info.get("category") == "permanent":
+                name_flag = item_info.get("required_flag")
+                if name_flag:
+                    scene.session_flags[name_flag] = True
+                    scene.screen_manager.inventory.add_item(name_flag, 1)
 
-        success = scene.screen_manager.inventory.add_item(self.loot_id, self.amount)
-        
-        if success:
-            if DEBUG:
-                print(f"Coffre ouvert : obtenu {self.loot_id}")
-            if ITEM_CATALOG[self.loot_id]["category"] == "permanent":
-                name_flag = ITEM_CATALOG[self.loot_id]["required_flag"]
-                scene.current_save.set_flag(name_flag, True)
-                scene.screen_manager.inventory.add_item(name_flag, 1)
-            if hasattr(scene, "dialogue_manager") and scene.dialogue_manager:
-                  scene.dialogue_manager.start_text(f"Vous obtenez : {item_display_name}!",font="font2")
+        if hasattr(scene, "dialogue_manager") and scene.dialogue_manager:
+            scene.dialogue_manager.start_text(f"Vous obtenez : {item_display_name}!", font="font2")

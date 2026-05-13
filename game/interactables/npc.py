@@ -72,7 +72,8 @@ class NPC(Interactable):
         # on parcourt les regles, la derniere l'emporte
         for rule in self.conditional_rules:
             flag = rule.get("flag")
-            if scene.current_save.get_flag(flag):
+            # if scene.current_save.get_flag(flag):
+            if scene.get_flag(flag):
                 dialogue = rule.get("dialogue")
                 
         if isinstance(dialogue, str):
@@ -88,12 +89,20 @@ class NPC(Interactable):
 
     def interact(self, scene, player=None):
         self.check_conditions(scene)
+        
+        current_id = None
         if self.active_dialogue_list:
             current_id = self.active_dialogue_list[self.current_dialogue_index]
-            if DEBUG: print(f"[INTERACTION] : avec {self.npc_type}, dialogue : {current_id}")
+        
+        if not current_id or (isinstance(current_id, str) and not current_id.strip()):
+            if DEBUG: print(f"[ERREUR]: Aucun dialogue trouvé pour {self.npc_type}")
             if hasattr(scene, "dialogue_manager") and scene.dialogue_manager:
-                scene.dialogue_manager.start(current_id)
-                #on incremente l'index pr prochaine interaction, on bloque sur dernier element
-                if self.current_dialogue_index < len(self.active_dialogue_list) - 1:
-                    self.current_dialogue_index += 1
-                #scene.dialogue_manager.start(self.dialogue)
+                scene.dialogue_manager.start_text("Je suis Erreur.")
+            return
+        
+        if DEBUG: print(f"[INTERACTION] : avec {self.npc_type}, dialogue : {current_id}")
+        if hasattr(scene, "dialogue_manager") and scene.dialogue_manager:
+            scene.dialogue_manager.start(current_id)
+            #on incremente l'index pr prochaine interaction, on bloque sur dernier element
+            if self.current_dialogue_index < len(self.active_dialogue_list) - 1:
+                self.current_dialogue_index += 1
