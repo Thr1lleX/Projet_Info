@@ -8,13 +8,12 @@
 - music
 - sfx
 - hitboxes
-- biomes
 - armes/items
 - loi de move pour ennemis + pathfinding
 - ecran titre
 - ecran de game over
 - items et inventaire avec hud d’items
-- biomes pour mieux gérer sprites de tiles, un peu chiant mais ok
+- biomes pour mieux gérer sprites de tiles
 - clignotement blanc si invulnérable, ca passe
 - animation de stun, un peu plus dur
 - pnj
