@@ -1,4 +1,5 @@
-Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py sur False, puis lancer le main.py \n
+Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py sur False, puis lancer le main.py 
+
 Si confusion il y a sur les touches, consulter KEYS de game.config.py (il est prévu d'implémenter plus tard une indication explicite des contrôles en début de partie).
 
 # Fait:
