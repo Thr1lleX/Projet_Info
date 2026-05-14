@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Mateo
 from PyQt5.QtGui import QFont, QFontDatabase
 from PyQt5.QtWidgets import QApplication
 from game.config import SCALE
