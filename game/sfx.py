@@ -1,4 +1,6 @@
 # # -*- coding: utf-8 -*-
+# Auteur : essentiellement Mateo
+
 # import os
 # from PyQt5.QtMultimedia import QSoundEffect
 # from PyQt5.QtCore import QUrl
