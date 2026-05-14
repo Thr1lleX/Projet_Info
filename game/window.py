@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Mateo
 import sys
 
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QApplication
