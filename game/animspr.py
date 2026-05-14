@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Mateo
 
 from PyQt5.QtGui import QPixmap, QTransform
 from PyQt5.QtCore import Qt
