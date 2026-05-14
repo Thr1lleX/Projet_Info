@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Mateo
 
 from game.interactables.interactable import Interactable
 from game.animspr import load_animation_sequence
