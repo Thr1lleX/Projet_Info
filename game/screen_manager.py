@@ -33,7 +33,8 @@ Pour ajouter un nouvel ecran :
     3. Appeler sm.show_screen("mon_ecran") au moment voulu.
 """
 
-from PyQt5.QtCore import Qt, QTimer
+
+from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
 from game.config import KEYS
 from game.save_manager import SaveManager
 from game.music import MusicManager
@@ -43,6 +44,7 @@ class ScreenManager:
     """Chef d'orchestre de la navigation entre les ecrans."""
 
     STATE_TITLE     = "title"
+    STATE_CONTROLS  = "controls"
     STATE_GAME      = "game"
     STATE_PAUSED    = "paused"
     STATE_INVENTORY = "inventory"
@@ -326,6 +328,9 @@ class ScreenManager:
         
     
     def start_new_game(self):
+        """
+        initialise la session mais affiche l'ecran de controles d'abord
+        """
     
         self.hide_current_screen()
     
@@ -336,22 +341,50 @@ class ScreenManager:
     
         scene.load_current_save()
     
-        scene.game_paused = False
-        scene.start_room_music()
-    
-        self.state = self.STATE_GAME
-    
         if self.settings is not None:
             self.settings.apply_to_scene(scene)
     
         if self.inventory is not None:
             self.inventory.reset()
-            self.inventory.reset()
             # # items de depart (hors debug)
             # self.inventory.add_item("bombe", 5)
             # self.inventory.add_item("pomme", 5)
-            # self.inventory.equip_item("bombe")    
+            # self.inventory.equip_item("bombe")
+        if hasattr(self, 'music_manager'):
+            self.music_manager.stop()
+        self.show_screen("controls")
+        self.state = self.STATE_CONTROLS
+
             
+    def finalize_new_game(self, wipe_item):
+        """
+        affiche la scene lors d'une nouvelle partie
+        """
+        
+        if self._scene is not None:
+            self._scene.game_paused = False
+            self._scene.start_room_music()
+            
+            # detacher overlay de l'ecran de controle pour le mettre a la racine 
+            # et gerer separement pour fondu d'ouverture
+            if self._active_screen and wipe_item in self._active_screen._items:
+                self._active_screen._items.remove(wipe_item)
+            
+            self._scene.addItem(wipe_item)
+        
+        self.state = self.STATE_GAME
+        self.hide_current_screen() 
+        
+        # lancer fondu overlay
+        self.final_fade = QPropertyAnimation(wipe_item, b"opacity")
+        self.final_fade.setDuration(200) # 0.2s
+        self.final_fade.setStartValue(1.0)
+        self.final_fade.setEndValue(0.0)
+        
+        # retire de la scene
+        self.final_fade.finished.connect(lambda: self._scene.removeItem(wipe_item) if self._scene else None)
+        self.final_fade.start()
+        
     # sauvegardes
     
     def open_save_menu(self):

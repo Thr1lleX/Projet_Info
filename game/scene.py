@@ -148,6 +148,10 @@ class GameScene(QGraphicsScene):
         if getattr(self, "game_over_triggered", False):
             return
         
+                
+        if CRT_OVERLAY:
+            self.update_crt()
+        
         # dialogue continue meme si jeu bloque
         self.dialogue_manager.update(dt)
         
@@ -166,9 +170,9 @@ class GameScene(QGraphicsScene):
                 interactable.update(dt)
   
         self.transition.update(dt)
+
+            
         self.music_manager.update(dt)
-        if CRT_OVERLAY:
-            self.update_crt()
 
         self.hud.update_hearts(self.player.pv_main, self.player._pv_max)
     
