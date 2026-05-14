@@ -35,10 +35,16 @@
 	  "loot": null
   },
     {
+	  "type":"chest",
+	  "x":11,
+	  "y":4,
+	  "loot": "key"
+  },
+    {
 	  "type":"locked_door",
 	  "x":12,
 	  "y":0
-  } 
+  }
   ],
   "enemies": [
     {
