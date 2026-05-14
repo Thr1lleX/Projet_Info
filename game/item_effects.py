@@ -1,3 +1,5 @@
+# auteur : essentiellement Ryan
+
 from game.config import TILE_SIZE
 from game.item_registry import get_item_data
 from game.attacks.bomb import Bomb
