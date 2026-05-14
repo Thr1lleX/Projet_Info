@@ -12,6 +12,8 @@ Pour creer un nouvel ecran :
   1. Heriter de BaseScreen
   2. Implementer _build() en remplissant self._items
   3. Surcharger key_press() et/ou mouse_press() si necessaire
+
+  Auteur : essentiellement Mateo
 """
 
 from game.config import (
