@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-# Auteur : essentiellement Mateo
+# Auteur : essentiellement Ryan
 import sys
 
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QApplication
 from PyQt5.QtCore import Qt, QCoreApplication
 
-from game.config import (
-    TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, DEBUG,
-)
-
+from game.config import TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, DEBUG
 
 class GameWindow(QGraphicsView):
     """
