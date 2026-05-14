@@ -343,8 +343,6 @@
 
 # -*- coding: utf-8 -*-
 
-# Auteur : essentiellement Mateo
-
 from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsPixmapItem, QGraphicsTextItem
 from PyQt5.QtGui import QBrush, QColor, QPen, QPixmap, QKeySequence
 from PyQt5.QtCore import Qt
