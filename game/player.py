@@ -138,6 +138,8 @@ class Player(Entity):
         self.projectiles_delay = 0.4 #0.5s min entre chaque
         
         self.shout_pressed = False
+        self.shout_cooldown = 0
+        self.shout_delay = 1.0
         
         # INTERACTION
         self.interact_pressed = False
@@ -219,6 +221,9 @@ class Player(Entity):
             pass
         else:
             self.handle_inputs(dt, scene)
+        
+        if self.shout_cooldown > 0:
+            self.shout_cooldown = max(0, self.shout_cooldown - dt)
             
         # mise a jour des armes ! necessairement apres mouvement!
         self.update_held_weapons(dt, scene)
@@ -307,6 +312,14 @@ class Player(Entity):
                     self.attack_pressed = False
         else:
             self.attack_pressed = False
+            
+        if KEYS["SHOUTS"] in self.keys:
+            if not self.shout_pressed and self.shout_cooldown == 0:
+                self.shout(scene)
+                self.shout_pressed = True
+                self.shout_cooldown = self.shout_delay
+        else:
+            self.shout_pressed = False
         
         
         if DEBUG:

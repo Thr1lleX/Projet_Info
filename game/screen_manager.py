@@ -377,7 +377,7 @@ class ScreenManager:
         
         # lancer fondu overlay
         self.final_fade = QPropertyAnimation(wipe_item, b"opacity")
-        self.final_fade.setDuration(200) # 0.2s
+        self.final_fade.setDuration(500) # 0.2s
         self.final_fade.setStartValue(1.0)
         self.final_fade.setEndValue(0.0)
         

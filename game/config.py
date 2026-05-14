@@ -20,13 +20,16 @@ interval = int(1000 / FPS)
 
 DEBUG = True
 
+MUSIC_VOLUME = 1.0
+SFX_VOLUME = 0.75
+
 
 DURATION_FADE_OUT_ROOM = 0.3
 DURATION_FADE_IN_ROOM = 0.35 #aussi duree de freeze du jeu lorsque changement de musique
 
 # Touches
 
-KEYS = {"UP": Qt.Key_Up,
+KEYS_AZERTY = {"UP": Qt.Key_Up,
         "LEFT" : Qt.Key_Left,
         "RIGHT" : Qt.Key_Right,
         "DOWN" : Qt.Key_Down,
@@ -42,6 +45,23 @@ KEYS = {"UP": Qt.Key_Up,
         "CONFIRM" : Qt.Key_Return # celle-ci sert juste de secours pour menus, ne pas utiliser pr gameplay
         }
 
+KEYS_QWERTY = {"UP": Qt.Key_Up,
+        "LEFT" : Qt.Key_Left,
+        "RIGHT" : Qt.Key_Right,
+        "DOWN" : Qt.Key_Down,
+        "SPRINT" : Qt.Key_Shift,
+        "CROUCH" : Qt.Key_Control,
+        "PAUSE" : Qt.Key_Tab,
+        "LEAVE" : Qt.Key_Escape,
+        "INTERACT" : Qt.Key_A,
+        "ATTACK" : Qt.Key_Z,
+        "ITEM" : Qt.Key_X,
+        "INVENTORY" : Qt.Key_C,
+        "SHOUTS" : Qt.Key_M,
+        "CONFIRM" : Qt.Key_Return # celle-ci sert juste de secours pour menus, ne pas utiliser pr gameplay
+        }
+
+KEYS = KEYS_AZERTY
 
 EXIT_HOLD_TIME = 2.0
 CRT_OVERLAY = True
