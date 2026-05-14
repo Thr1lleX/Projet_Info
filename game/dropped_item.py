@@ -1,3 +1,5 @@
+# Auteur : essentiellement Ryan
+
 from PyQt5.QtWidgets import QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
