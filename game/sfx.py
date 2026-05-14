@@ -1,5 +1,4 @@
 # # -*- coding: utf-8 -*-
-# Auteur : essentiellement Mateo
 
 # import os
 # from PyQt5.QtMultimedia import QSoundEffect
@@ -66,6 +65,7 @@ sfx geres separements avec pygame (autorisation recu en cours)
 """
 
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Mateo
 
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
