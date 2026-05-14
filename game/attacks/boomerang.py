@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Mateo
 
 import math
 from game.attacks.attack_entity import PersistentAttack
