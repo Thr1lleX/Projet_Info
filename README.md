@@ -4,7 +4,7 @@ Si confusion il y a sur les touches, consulter KEYS de game.config.py (il est pr
 
 # Fait:
 - scene générale avec déplacements
-- systeme d’entités - ennemis + joueur + pnj
+- systeme d’entités - ennemis + joueur
 - systeme de salles dans .json
 - collisions
 - transition de piece
