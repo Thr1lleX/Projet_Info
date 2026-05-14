@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Ryan
 """
 Gestionnaire d'ecrans (ScreenManager).
 
