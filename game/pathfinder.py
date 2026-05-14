@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Ryan
+
+'''
+Implementation d'une intelligence artificielle aux ennemis, basee sur l'algorithme A*
+'''
 
 import heapq
 import math
