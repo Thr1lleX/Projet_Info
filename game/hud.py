@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Ryan
 """
 Gestion du HUD (barre d'interface du haut).
 Affiche les points de vie (coeurs) et les slots d'items.
