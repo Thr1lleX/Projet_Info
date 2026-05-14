@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Auteur : essentiellement Mateo
 
 from PyQt5.QtWidgets import QGraphicsRectItem
 from PyQt5.QtGui import QBrush, QColor
