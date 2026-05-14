@@ -16,14 +16,14 @@ Si confusion il y a sur les touches, consulter KEYS de game.config.py (il est pr
 - loi de move pour ennemis + pathfinding
 - ecran titre
 - ecran de game over
-- items et inventaire avec hud d’items
+- quelques items (boomerang)
 - biomes pour mieux gérer sprites de tiles
 - clignotement blanc si invulnérable
 - animation de stun
 - sauvegarde
 - pnj
 - boites de dialogues
-- systeme d'items
+- systeme d'items + inventaire
 - boomerang pickup items
 - update de tiles de selon action (explosion, ouverture de porte etc.)
 
