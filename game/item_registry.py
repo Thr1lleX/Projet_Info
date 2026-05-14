@@ -1,3 +1,5 @@
+# Auteur : essentiellement Ryan
+
 """
 Registre central des items du jeu.
 
