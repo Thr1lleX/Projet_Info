@@ -72,7 +72,7 @@ Z_CRT    = 9999
 Z_SCREEN = 10000   # ecrans superposables (titre, game over, parametres)
 
 # --- HUD ---
-HUD_ITEM_SLOTS       = 6
+
 HUD_HEART_FULL_PATH  = "assets/hud/heart_full.png"
 HUD_HEART_HALF_FULL_PATH  = "assets/hud/heart_half_full.png"
 HUD_HEART_EMPTY_PATH = "assets/hud/heart_empty.png"
