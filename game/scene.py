@@ -48,7 +48,7 @@ class GameScene(QGraphicsScene):
         self.tileset = {}
         self.current_biome = None
 
-        self.hud = HUD(self)
+        self.hud = HUD(self, self.screen_manager)
         self.dialogue_manager = DialogueManager(self)
         
         # --- PLAYER 
@@ -175,6 +175,11 @@ class GameScene(QGraphicsScene):
         self.music_manager.update(dt)
 
         self.hud.update_hearts(self.player.pv_main, self.player._pv_max)
+
+        flags = {}
+        if hasattr(self, 'current_save') and self.current_save:
+            flags = self.current_save.data.get("flags", {})
+        self.hud.update_hud(self.screen_manager.inventory, flags)
     
     def _check_pickups(self):
         """Ramasse les items au sol si le joueur les touche."""
