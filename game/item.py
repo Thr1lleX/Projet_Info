@@ -109,7 +109,7 @@ class Inventory():
             new_count = self._collectibles[item_id] + count
             self._collectibles[item_id] = min(new_count, stack_max)
             
-            self._diry = True
+            self._dirty = True
             return True
 
         # # verifier que l'item est bien dans un solt
