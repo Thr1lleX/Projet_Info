@@ -70,7 +70,8 @@ sfx geres separements avec pygame (autorisation recu en cours)
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame
-from game.config import DEBUG, SFX_VOLUME
+from game.config import DEBUG
+from game.settings import settings
 
 class SFXManager:
     def __init__(self):
@@ -84,7 +85,7 @@ class SFXManager:
 
         self.sounds = {}
         self.base_path = "sound_effect"
-        self.default_volume = SFX_VOLUME
+        self.default_volume = settings.sfx_volume
         
         self._preload_all_sounds()
 

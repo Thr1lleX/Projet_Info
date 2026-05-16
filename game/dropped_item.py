@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
-from game.config import TILE_SIZE
 from game.item_registry import get_item_data
+from game.settings import settings
 
 class DroppedItem(QGraphicsPixmapItem):
     def __init__(self, item_id, x, y):
@@ -15,7 +15,7 @@ class DroppedItem(QGraphicsPixmapItem):
         # charger et scaler le sprite
         data = get_item_data(item_id)
         pix = QPixmap(data["icon_path"])
-        size = int(TILE_SIZE * 0.75)
+        size = int(settings.tile_size * 0.75)
         self.setPixmap(pix.scaled(size, size, Qt.KeepAspectRatio, Qt.FastTransformation))
 
         # position dans la scene

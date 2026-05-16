@@ -5,7 +5,8 @@ import sys
 from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QApplication
 from PyQt5.QtCore import Qt, QCoreApplication
 
-from game.config import TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, DEBUG
+from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, DEBUG
+from game.settings import settings
 
 class GameWindow(QGraphicsView):
     """
@@ -25,8 +26,8 @@ class GameWindow(QGraphicsView):
     def __init__(self):
         super().__init__()
         # + 2 car ajoute un pixel de chaque coté (sinon y'a un decalage et fenetre peut bouger)
-        width  = GRID_WIDTH  * TILE_SIZE + 2
-        height = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE + 2
+        width  = GRID_WIDTH  * settings.tile_size + 2
+        height = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size + 2
         self.setFixedSize(width, height)
 
         # scene vide en attendant l'initialisation par ScreenManager
@@ -100,3 +101,26 @@ class GameWindow(QGraphicsView):
 
         self.close()
         QCoreApplication.quit()
+    
+    # ------------------------------------------------------------------
+    # application des parametres
+    # ------------------------------------------------------------------
+
+        
+    def update_window_size(self):
+        from game.settings import settings
+        from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
+        from PyQt5.QtWidgets import QDesktopWidget
+        
+        # Recalcule la taille en pixels
+        w = GRID_WIDTH * settings.tile_size
+        h = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
+        
+        self.setFixedSize(int(w), int(h))
+        
+        # recentrage sur ecran
+        screen_geo = QDesktopWidget().availableGeometry(self)
+        center_point = screen_geo.center()
+        frame_geo = self.frameGeometry()
+        frame_geo.moveCenter(center_point)
+        self.move(frame_geo.topLeft())

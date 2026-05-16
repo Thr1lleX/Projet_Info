@@ -2,7 +2,7 @@
 # Auteur : essentiellement Mateo
 from PyQt5.QtGui import QFont, QFontDatabase
 from PyQt5.QtWidgets import QApplication
-from game.config import SCALE
+from game.settings import settings
 
 
 # dictionnaire qui sotcke les polices une fois chargees, on ne les charge pas avant sinon Access Violation
@@ -61,7 +61,7 @@ def get_font(path, size=10, bold=False):
             _fonts[path] = "Arial"
     
     SYSTEM_SCALE = get_system_scale()
-    final_size = int(size*SCALE/ SYSTEM_SCALE)
+    final_size = int(size*settings.scale/ SYSTEM_SCALE)
 
     font = QFont(_fonts[path], final_size)
     if bold:
@@ -79,11 +79,15 @@ def get_font2(size=10):
     return get_font("fonts/earthbound-beginnings.ttf", size)
 def get_font3(size=10):
     return get_font("fonts/Greek Font.ttf", 1.1*size)
+def get_font4(size=10):
+    return get_font("fonts/moi font.ttf", 1.1*size)
+
 
 
 FONT_MAPPING = {
     "font0": get_font0,
     "font1": get_font1,
     "font2": get_font2,
-    "font3": get_font3
+    "font3": get_font3,
+    "font4": get_font4
 }

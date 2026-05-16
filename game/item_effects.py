@@ -1,6 +1,6 @@
 # auteur : essentiellement Ryan
 
-from game.config import TILE_SIZE
+from game.settings import settings
 from game.item_registry import get_item_data
 from game.attacks.bomb import Bomb
 from game.attacks.boomerang import Boomerang
@@ -58,8 +58,8 @@ def _effect_explode(player, scene):
 
     offsets = {"up": (0, -1), "down": (0, 1), "left": (-1, 0), "right": (1, 0)}
     dx, dy = offsets[player.direction]
-    bomb_x = player.x + dx * TILE_SIZE
-    bomb_y = player.y + dy * TILE_SIZE
+    bomb_x = player.x + dx * settings.tile_size
+    bomb_y = player.y + dy * settings.tile_size
 
     bomb = Bomb(player, bomb_x, bomb_y)
     scene.addItem(bomb)

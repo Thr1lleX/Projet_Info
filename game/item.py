@@ -13,7 +13,7 @@ from game.config import DEBUG
 
 class Item:
 
-    # un item est défini par son id et sa quantité (le reste des infos vient du registre)
+    # un item est defini par son id et sa quantite (le reste des infos vient du registre)
     def __init__(self, item_id, count = 1):
         self.item_id = item_id
         self.count = count
@@ -109,14 +109,8 @@ class Inventory():
             new_count = self._collectibles[item_id] + count
             self._collectibles[item_id] = min(new_count, stack_max)
             
-            self._dirty = True
+            self._diry = True
             return True
-
-        # # verifier que l'item est bien dans un solt
-        # if target_slot is None or not (0 <= target_slot < self.total_slots):
-        #     if DEBUG:
-        #         print(f"Erreur : L'item {item_id} n'a pas de slot valide assigné.")
-        #     return False
 
         current_item_in_slot = self._slots[target_slot]
 

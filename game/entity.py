@@ -7,8 +7,9 @@ from PyQt5.QtGui import QPixmap, QPen, QColor, QPainter
 from PyQt5.QtCore import Qt
 from abc import abstractmethod
 
-from game.config import BASE_TILE_SIZE, DEBUG, BASE_SPEED, GRID_WIDTH, GRID_HEIGHT, TILE_SIZE, HUD_HEIGHT
+from game.config import DEBUG, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
 from game.animspr import load_animation_sequence
+from game.settings import settings
 import random
 
 class Entity(QGraphicsPixmapItem):
@@ -17,7 +18,7 @@ class Entity(QGraphicsPixmapItem):
 
         self.setZValue(90)
         self.scale = scale
-        self.tile_size = BASE_TILE_SIZE * scale
+
 
         # --- POSITION --- (float, la position est pixel en haut à gauche)
         self.x = 0
@@ -70,16 +71,16 @@ class Entity(QGraphicsPixmapItem):
         # --- HITBOX ---
         self.hitbox_offset_x = 0
         self.hitbox_offset_y = 0
-        self.hitbox_width = self.tile_size
-        self.hitbox_height = self.tile_size
+        self.hitbox_width = settings.tile_size
+        self.hitbox_height = settings.tile_size
         
         self.stun_perp_x = 0
         self.stun_perp_y = 0
 
         # --- SPRITES ---
         base_sprite = QPixmap("assets/entity.png").scaled(
-            self.tile_size,
-            self.tile_size,
+            settings.tile_size,
+            settings.tile_size,
             transformMode=Qt.FastTransformation
         )
 
@@ -143,8 +144,8 @@ class Entity(QGraphicsPixmapItem):
             y = self.y
 
         return (
-            x + self.hitbox_offset_x * self.tile_size,
-            y + self.hitbox_offset_y * self.tile_size,
+            x + self.hitbox_offset_x * settings.tile_size,
+            y + self.hitbox_offset_y * settings.tile_size,
             self.hitbox_width,
             self.hitbox_height
         )
@@ -196,8 +197,8 @@ class Entity(QGraphicsPixmapItem):
             self.y = new_y
             return
 
-        MARGIN = 6          # Reduction de la hitbox en pixels pour les tests de collision
-        corner = self.tile_size * 0.3  # Amplitude du decalage de correction de coin
+        MARGIN = 6 * settings.scale/4         # Reduction de la hitbox en pixels pour les tests de collision
+        corner = settings.tile_size * 0.3  # Amplitude du decalage de correction de coin
 
         def passable(x, y):
             """Retourne True si la hitbox retrecie à (x, y) ne chevauche aucun mur."""
@@ -355,7 +356,7 @@ class Entity(QGraphicsPixmapItem):
                 dy /= dist
     
                 # on utilise le knockback de l'assaillant en pixels
-                distance = source.knockback * self.tile_size
+                distance = source.knockback * settings.tile_size
                 
                 
                 self.kb_dir_x = dx
@@ -461,14 +462,14 @@ class Entity(QGraphicsPixmapItem):
         if not scene:
             return False
     
-        w = GRID_WIDTH * TILE_SIZE
-        h = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE
+        w = GRID_WIDTH * settings.tile_size
+        h = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
     
         hx, hy, hw, hh = self.get_hitbox(x, y)
     
         return (
             hx < 0 or
-            hy < HUD_HEIGHT * TILE_SIZE or
+            hy < HUD_HEIGHT * settings.tile_size or
             hx + hw > w or
             hy + hh > h
         )
@@ -570,7 +571,7 @@ class Entity(QGraphicsPixmapItem):
         else:
             offset = -2*A + ((t - 0.66) / 0.34) * (3*A)
     
-        offset_pixels = offset * self.tile_size
+        offset_pixels = offset * settings.tile_size
     
         dx = self.stun_perp_x * offset_pixels
         dy = self.stun_perp_y * offset_pixels
@@ -594,8 +595,8 @@ class Entity(QGraphicsPixmapItem):
         self.stun_item.setPixmap(self.stun_frames[self.stun_frame_index])
     
         # offset du a taille du spr d'anim
-        offset_y = -self.tile_size + self.tile_size* self.hitbox_offset_y
-        offset_x = (self.hitbox_width- self.tile_size + 2*self.tile_size* self.hitbox_offset_x)/2
+        offset_y = -settings.tile_size + settings.tile_size* self.hitbox_offset_y
+        offset_x = (self.hitbox_width- settings.tile_size + 2*settings.tile_size* self.hitbox_offset_x)/2
     
         self.stun_item.setPos(offset_x, offset_y)
         
@@ -614,8 +615,8 @@ class Entity(QGraphicsPixmapItem):
         self.buff_item.setPixmap(self.buff_frames[self.buff_frame_index])
     
         # offset du a taille du spr d'anim
-        offset_y = -self.tile_size + self.tile_size* self.hitbox_offset_y
-        offset_x = (self.hitbox_width- self.tile_size + 2*self.tile_size* self.hitbox_offset_x)/2
+        offset_y = -settings.tile_size + settings.tile_size* self.hitbox_offset_y
+        offset_x = (self.hitbox_width- settings.tile_size + 2*settings.tile_size* self.hitbox_offset_x)/2
     
         self.buff_item.setPos(offset_x, offset_y)
 

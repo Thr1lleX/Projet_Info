@@ -5,7 +5,8 @@ from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtCore import QUrl, QTimer
 import os
 
-from game.config import DEBUG, DURATION_FADE_OUT_ROOM, MUSIC_VOLUME
+from game.config import DEBUG, DURATION_FADE_OUT_ROOM
+from game.settings import settings
 
 class MusicManager:
     def __init__(self):
@@ -17,7 +18,7 @@ class MusicManager:
         self.current_music = None
         self.pending_music = None
 
-        self.target_volume = MUSIC_VOLUME
+        self.target_volume = settings.music_volume
         self.state = "idle"
         self.timer = 0
         

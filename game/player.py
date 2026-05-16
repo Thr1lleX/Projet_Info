@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt, QTimer
 #from PyQt5.QtWidgets import QGraphicsRectItem, QApplication
 from PyQt5.QtGui import QPen, QColor, QFont, QFontDatabase
 
-from game.config import BASE_TILE_SIZE, BASE_SPEED, DEBUG, TILE_SIZE, EXIT_HOLD_TIME, KEYS, SCALE, DUREE_BUFF
+from game.config import BASE_TILE_SIZE, DEBUG, EXIT_HOLD_TIME, DUREE_BUFF
 from game.fonts import get_font0
 
 from game.entity import Entity
@@ -21,6 +21,7 @@ from game.attacks.test_fireball import Fireball
 from game.attacks.boomerang import Boomerang
 from game.animspr import load_animation_sequence
 import random
+from game.settings import settings
 
 class Player(Entity):
     def __init__(self, scale):
@@ -38,7 +39,7 @@ class Player(Entity):
 
         # -- STATS --
 
-        self.speed = BASE_SPEED
+        self.speed = settings.base_speed
 
         self._pv_max = 6
         self.pv_main = self._pv_max
@@ -58,8 +59,8 @@ class Player(Entity):
         self.hitbox_offset_x = 2/BASE_TILE_SIZE
         self.hitbox_offset_y = 1/BASE_TILE_SIZE
 
-        self.hitbox_width = self.tile_size * (1-4/BASE_TILE_SIZE)
-        self.hitbox_height = self.tile_size * (1-1/BASE_TILE_SIZE) 
+        self.hitbox_width = settings.tile_size * (1-4/BASE_TILE_SIZE)
+        self.hitbox_height = settings.tile_size * (1-1/BASE_TILE_SIZE) 
         
         self.corner_correction = False
         
@@ -69,7 +70,7 @@ class Player(Entity):
         
         self._buff_timer = 0.0
         self._base_damage = 1
-        self._base_speed = BASE_SPEED
+        self._base_speed = settings.base_speed
         self.buff_speed_multiplier = 1.0
         self.debug_speed_multiplier = 1.0
         
@@ -82,16 +83,16 @@ class Player(Entity):
         # --- SPRITES ---
         self.sprites = {
             "down": QPixmap("assets/chara_face.png").scaled(
-                self.tile_size, self.tile_size, transformMode=Qt.FastTransformation
+                settings.tile_size, settings.tile_size, transformMode=Qt.FastTransformation
             ),
             "up": QPixmap("assets/chara_back.png").scaled(
-                self.tile_size, self.tile_size, transformMode=Qt.FastTransformation
+                settings.tile_size, settings.tile_size, transformMode=Qt.FastTransformation
             ),
             "left": QPixmap("assets/chara_left.png").scaled(
-                self.tile_size, self.tile_size, transformMode=Qt.FastTransformation
+                settings.tile_size, settings.tile_size, transformMode=Qt.FastTransformation
             ),
             "right": QPixmap("assets/chara_right.png").scaled(
-                self.tile_size, self.tile_size, transformMode=Qt.FastTransformation
+                settings.tile_size, settings.tile_size, transformMode=Qt.FastTransformation
             ),
         }
         
@@ -110,7 +111,7 @@ class Player(Entity):
         
         # Layout de exit
         font = get_font0(size=int(10))
-        offset_exit = 1 * SCALE
+        offset_exit = 1 * settings.scale
         
         self.exit_label_shadow = QGraphicsTextItem()
         self.exit_label_main = QGraphicsTextItem()
@@ -118,8 +119,8 @@ class Player(Entity):
         self.exit_label_shadow.setZValue(2999)
         self.exit_label_main.setZValue(3000)
         
-        self.exit_label_shadow.setPos(0.25 * TILE_SIZE + offset_exit,0.25 * TILE_SIZE + offset_exit)
-        self.exit_label_main.setPos(0.25 * TILE_SIZE,0.25 * TILE_SIZE)
+        self.exit_label_shadow.setPos(0.25 * settings.tile_size + offset_exit,0.25 * settings.tile_size + offset_exit)
+        self.exit_label_main.setPos(0.25 * settings.tile_size,0.25 * settings.tile_size)
         
         self.exit_label_added = False 
         self.exit_label_shadow.setFont(font)
@@ -160,7 +161,7 @@ class Player(Entity):
             return
             
         # gestion exclusive de l'interaction
-        if key == KEYS["INTERACT"]:
+        if key == settings.keys["INTERACT"]:
             if scene.dialogue_manager.active:
                 scene.dialogue_manager.advance()
             else:
@@ -245,7 +246,7 @@ class Player(Entity):
             if self.stun_item.scene() is None:
                 scene.addItem(self.stun_item)
 
-            self.stun_item.setPos(self.x, self.y-self.tile_size)
+            self.stun_item.setPos(self.x, self.y-settings.tile_size)
         # --- FIN DU HACK ---
         
         # --- SPAGHETTI CODE BUFF!!!!! ---
@@ -261,7 +262,7 @@ class Player(Entity):
             if self.buff_item.scene() is None:
                 scene.addItem(self.buff_item)
         
-            self.buff_item.setPos(self.x, self.y - self.tile_size)
+            self.buff_item.setPos(self.x, self.y - settings.tile_size)
         # --- FIN DU HACK BUFF ---
 
     def update_held_weapons(self, dt, scene):
@@ -286,10 +287,10 @@ class Player(Entity):
         
         dx, dy = 0, 0
         if not self.kb_active:
-            if KEYS["UP"] in self.keys:    dy -= 1; self.direction = "up"
-            if KEYS["DOWN"] in self.keys:  dy += 1; self.direction = "down"
-            if KEYS["LEFT"] in self.keys:  dx -= 1; self.direction = "left"
-            if KEYS["RIGHT"] in self.keys: dx += 1; self.direction = "right"
+            if settings.keys["UP"] in self.keys:    dy -= 1; self.direction = "up"
+            if settings.keys["DOWN"] in self.keys:  dy += 1; self.direction = "down"
+            if settings.keys["LEFT"] in self.keys:  dx -= 1; self.direction = "left"
+            if settings.keys["RIGHT"] in self.keys: dx += 1; self.direction = "right"
 
          # normalisation diagonale
         if dx != 0 and dy != 0:
@@ -298,12 +299,12 @@ class Player(Entity):
 
         self.move(dx, dy, dt, scene)
 
-        if KEYS["ATTACK"] in self.keys:
+        if settings.keys["ATTACK"] in self.keys:
             if not self.attack_pressed and self.attack_cooldown == 0:
                 self.attack(scene)
                 self.attack_pressed = True
                 self.attack_cooldown = self.attack_delay
-        elif KEYS["ITEM"] in self.keys:
+        elif settings.keys["ITEM"] in self.keys:
             if not self.attack_pressed and self.projectiles_cooldown == 0:
                 if use_item(self, scene):
                     self.attack_pressed = True
@@ -313,7 +314,7 @@ class Player(Entity):
         else:
             self.attack_pressed = False
             
-        if KEYS["SHOUTS"] in self.keys:
+        if settings.keys["SHOUTS"] in self.keys:
             if not self.shout_pressed and self.shout_cooldown == 0:
                 self.shout(scene)
                 self.shout_pressed = True
@@ -323,9 +324,9 @@ class Player(Entity):
         
         
         if DEBUG:
-            if KEYS["CROUCH"] in self.keys:
+            if settings.keys["CROUCH"] in self.keys:
                 self.debug_speed_multiplier = 0.5
-            elif KEYS["SPRINT"] in self.keys:
+            elif settings.keys["SPRINT"] in self.keys:
                 self.debug_speed_multiplier = 5.0
             else:
                 self.debug_speed_multiplier = 1.0
@@ -339,8 +340,8 @@ class Player(Entity):
             y = self.y
     
         return (
-            x + self.hitbox_offset_x*self.tile_size,
-            y + self.hitbox_offset_y*self.tile_size,
+            x + self.hitbox_offset_x*settings.tile_size,
+            y + self.hitbox_offset_y*settings.tile_size,
             self.hitbox_width,
             self.hitbox_height
         )
@@ -369,7 +370,7 @@ class Player(Entity):
         utilise dans update
         """
         # -- gestion de la sortie (echap)---
-        if KEYS["LEAVE"] not in self.keys:
+        if settings.keys["LEAVE"] not in self.keys:
             if self.echap > 0:
                 self.exit_label_main.hide()
                 self.exit_label_shadow.hide()
@@ -515,7 +516,7 @@ class Player(Entity):
     
         center_x = px + pw / 2
         center_y = py + ph / 2
-        size = TILE_SIZE
+        size = settings.tile_size
     
         if self.direction == "up":
             return (
@@ -533,7 +534,7 @@ class Player(Entity):
             )
         elif self.direction == "left":
             return (
-                px - size-(self.hitbox_offset_x*TILE_SIZE),
+                px - size-(self.hitbox_offset_x*settings.tile_size),
                 center_y - size / 2,
                 size * 2,
                 size

@@ -9,10 +9,11 @@ from PyQt5.QtGui import QPixmap,QColor
 
 from PyQt5.QtCore import Qt
 
-from game.config import SCALE, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
+from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
 from game.fonts import *
 
-from game.config import DEBUG, KEYS
+from game.config import DEBUG
+from game.settings import settings
 
 
 class DialogueManager:
@@ -65,8 +66,8 @@ class DialogueManager:
 
         pix = QPixmap("assets/hud/dialogue_box.png")
 
-        width = GRID_WIDTH * TILE_SIZE
-        height = 5 * TILE_SIZE
+        width = GRID_WIDTH * settings.tile_size
+        height = 5 * settings.tile_size
 
         self.box.setPixmap(
             pix.scaled(
@@ -83,7 +84,7 @@ class DialogueManager:
         # position en bas ecran
         self.box.setPos(
             0,
-            (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE - height
+            (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size - height
         )
 
         # -------------------------
@@ -100,12 +101,12 @@ class DialogueManager:
 
         # largeur max du texte
         self.text_item.setTextWidth(
-            width - (2 * TILE_SIZE)
+            width - (2 * settings.tile_size)
         )
 
         self.text_item.setPos(
-            TILE_SIZE,
-            self.box.y() + TILE_SIZE * 0.65
+            settings.tile_size,
+            self.box.y() + settings.tile_size * 0.65
         )
 
     # ==========================================================
@@ -176,12 +177,12 @@ class DialogueManager:
             return
     
         if not self.active or self.current_char_index >= len(self.full_text):
-            if hasattr(self.scene, 'player') and KEYS["ITEM"] in self.scene.player.keys:
+            if hasattr(self.scene, 'player') and settings.keys["ITEM"] in self.scene.player.keys:
                 self.advance()
             return
         
         markiplier = 1.0
-        if hasattr(self.scene, 'player') and KEYS["ITEM"] in self.scene.player.keys:
+        if hasattr(self.scene, 'player') and settings.keys["ITEM"] in self.scene.player.keys:
             markiplier = 10.0
             
         current_delay = self.text_speed_delay / markiplier

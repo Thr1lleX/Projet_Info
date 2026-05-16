@@ -12,8 +12,10 @@ from game.transition import TransitionManager
 from game.sfx import SFXManager
 
 from game.tileset import TILE_TYPES
-from game.config import SCALE, BASE_TILE_SIZE, TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
-from game.config import FPS, interval, DEBUG, CRT_OVERLAY
+from game.config import BASE_TILE_SIZE, GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, OFFSET
+from game.config import FPS, interval, DEBUG
+
+from game.settings import settings
 
 from game.player import Player
 from game.enemies.enemy_registry import ENEMY_TYPES
@@ -22,12 +24,8 @@ from game.animspr import load_animation_sequence
 from game.save_manager import SaveManager
 from game.interactables.interactable_registry import INTERACTABLE_TYPES
 from game.dialogue_manager import DialogueManager
-from game.interactables.npc import NPC
-from game.interactables.sign import Sign
-from game.interactables.door import LockedDoor
 
-# offset de placement lorsque transition ecran
-OFFSET = 2 # pixels
+
 
 # --- SCENE ---
 class GameScene(QGraphicsScene):
@@ -40,8 +38,8 @@ class GameScene(QGraphicsScene):
         # le jeu reste en pause jusqu'a ce que start_new_game() soit appele
         self.game_paused = True
 
-        width = GRID_WIDTH * TILE_SIZE
-        height = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE
+        width = GRID_WIDTH * settings.tile_size
+        height = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
 
         self.setSceneRect(0, 0, width, height)
 
@@ -52,7 +50,7 @@ class GameScene(QGraphicsScene):
         self.dialogue_manager = DialogueManager(self)
         
         # --- PLAYER 
-        self.player = Player(SCALE)
+        self.player = Player(settings.scale)
         self.addItem(self.player)
         
         self.enemies = []
@@ -63,26 +61,13 @@ class GameScene(QGraphicsScene):
 
         
         # coordonées commencent sous hud
-        self.player.y += HUD_HEIGHT * TILE_SIZE
+        self.player.y += HUD_HEIGHT * settings.tile_size
         
         self.is_transitioning = False
         
         if DEBUG:
             self.addItem(self.player.debug_rect)
         
-        # effet CRT (test)
-        if CRT_OVERLAY:
-            self.crt_overlay = QGraphicsPixmapItem()
-            self.crt_overlay.setPixmap(QPixmap("assets/scanlines.png").scaled(width, height))
-            
-            # position
-            self.crt_overlay.setPos(0, 0)
-            
-            # priorité maximale
-            self.crt_overlay.setZValue(9999)
-            
-            
-            self.addItem(self.crt_overlay)
         
         # --- GAME LOOP ---
         self.last_time = time.time()
@@ -126,8 +111,7 @@ class GameScene(QGraphicsScene):
         # les items du HUD doivent survivre aux changements de salle
         self.persistent_items.update(self.hud.get_items())
 
-        if CRT_OVERLAY:
-            self.persistent_items.add(self.crt_overlay)
+        self.update_crt(settings.crt_overlay)
         
         
         if DEBUG:
@@ -148,9 +132,7 @@ class GameScene(QGraphicsScene):
         if getattr(self, "game_over_triggered", False):
             return
         
-                
-        if CRT_OVERLAY:
-            self.update_crt()
+        self.update_crt()
         
         # dialogue continue meme si jeu bloque
         self.dialogue_manager.update(dt)
@@ -174,12 +156,8 @@ class GameScene(QGraphicsScene):
             
         self.music_manager.update(dt)
 
-        self.hud.update_hearts(self.player.pv_main, self.player._pv_max)
+        self.hud.update_hud(self.player, self.screen_manager.inventory, self)
 
-        flags = {}
-        if hasattr(self, 'current_save') and self.current_save:
-            flags = self.current_save.data.get("flags", {})
-        self.hud.update_hud(self.screen_manager.inventory, flags)
     
     def _check_pickups(self):
         """Ramasse les items au sol si le joueur les touche."""
@@ -195,14 +173,42 @@ class GameScene(QGraphicsScene):
                     self.removeItem(drop)
                     self.sfx_manager.play("snd_item")
                     self.dropped_items.remove(drop)                                              
-
-
-    def update_crt(self):
-        self.crt_overlay.setOpacity(random.uniform(0.1, 0.15))
     
-        if random.random() < 0.1:
-            y = self.crt_overlay.y()
-            self.crt_overlay.setY((y + 1*SCALE) % 2)
+
+    def update_crt(self, is_enabled=None):
+        """
+        gere a la fois l'activation/desactivation via le menu et l'animation via le game_loop
+        """
+        if is_enabled is not None:
+            if is_enabled:
+                if not hasattr(self, 'crt_overlay'):
+                    self._create_crt_overlay()
+                self.crt_overlay.show()
+            else:
+                if hasattr(self, 'crt_overlay'):
+                    self.crt_overlay.hide()
+            return
+
+        if hasattr(self, 'crt_overlay') and self.crt_overlay.isVisible():
+            self.crt_overlay.setOpacity(random.uniform(0.1, 0.15))
+            if random.random() < 0.1:
+                y = self.crt_overlay.y()
+                self.crt_overlay.setY((y + 1 * settings.scale) % 2)
+
+    def _create_crt_overlay(self):
+        """
+        cree l'image CRT uniquement si on en a besoin
+        """
+        width = GRID_WIDTH * settings.tile_size
+        height = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
+        
+        self.crt_overlay = QGraphicsPixmapItem()
+        self.crt_overlay.setPixmap(QPixmap("assets/scanlines.png").scaled(int(width), int(height)))
+        self.crt_overlay.setPos(0, 0)
+        self.crt_overlay.setZValue(9999)
+        
+        self.addItem(self.crt_overlay)
+        self.persistent_items.add(self.crt_overlay)
 
     def is_blocking_rect(self, x, y, w, h, entity=None):
         """
@@ -227,8 +233,8 @@ class GameScene(QGraphicsScene):
         transitions = self.room_data.get("transitions", {})
     
         for px, py in points:
-            tile_x = int(px // TILE_SIZE)
-            tile_y = int((py - HUD_HEIGHT * TILE_SIZE) // TILE_SIZE)
+            tile_x = int(px // settings.tile_size)
+            tile_y = int((py - HUD_HEIGHT * settings.tile_size) // settings.tile_size)
     
             if tile_x < 0:
                 if transitions.get("left"):
@@ -320,7 +326,7 @@ class GameScene(QGraphicsScene):
                 
                 if not pix.isNull():
                     self.tileset[tile_id] = pix.scaled(
-                        int(pix.width() * SCALE), int(pix.height() * SCALE), 
+                        int(pix.width() * settings.scale), int(pix.height() * settings.scale), 
                         transformMode=Qt.FastTransformation
                     )
 
@@ -348,8 +354,8 @@ class GameScene(QGraphicsScene):
                 for x, _ in enumerate(row):
                     ground_item = QGraphicsPixmapItem(ground_pixmap)
                     ground_item.setPos(
-                        x * TILE_SIZE,
-                        (y + HUD_HEIGHT) * TILE_SIZE
+                        x * settings.tile_size,
+                        (y + HUD_HEIGHT) * settings.tile_size
                     )
                     ground_item.setZValue(TILE_TYPES[0].get("z", 0))
                     self.addItem(ground_item)
@@ -384,8 +390,8 @@ class GameScene(QGraphicsScene):
                     item = QGraphicsPixmapItem(data)
     
                 item.setPos(
-                    x * TILE_SIZE,
-                    (y + HUD_HEIGHT) * TILE_SIZE
+                    x * settings.tile_size,
+                    (y + HUD_HEIGHT) * settings.tile_size
                 )
     
                 z_value = TILE_TYPES[tile_id].get("z", 1)
@@ -395,9 +401,9 @@ class GameScene(QGraphicsScene):
     
                 if DEBUG and TILE_TYPES[tile_id]["collision"] == 1:
                     rect = QGraphicsRectItem(
-                        x * TILE_SIZE,
-                        (y + HUD_HEIGHT) * TILE_SIZE,
-                        TILE_SIZE, TILE_SIZE
+                        x * settings.tile_size,
+                        (y + HUD_HEIGHT) * settings.tile_size,
+                        settings.tile_size, settings.tile_size
                     )
                     rect.setPen(QPen(QColor("blue"), 1))
                     rect.setZValue(500)
@@ -440,6 +446,7 @@ class GameScene(QGraphicsScene):
         self.is_transitioning = True
         self.room_data = room
         self.enemies = []
+        self.dropped_items = []
     
         # netoyer frames animees
         self.animated_tile_items.clear()
@@ -459,8 +466,8 @@ class GameScene(QGraphicsScene):
         
         hx, hy, hw, hh = self.player.get_hitbox() # permet de faire transition par hitbox et non position
     
-        room_w = GRID_WIDTH * TILE_SIZE
-        #room_h = GRID_HEIGHT * TILE_SIZE
+        room_w = GRID_WIDTH * settings.tile_size
+        #room_h = GRID_HEIGHT * settings.tile_size
     
         transitions = self.room_data.get("transitions", {})
     
@@ -474,12 +481,12 @@ class GameScene(QGraphicsScene):
             if target:
                 self.transition.start(target, "right")
     
-        elif hy < HUD_HEIGHT * TILE_SIZE:
+        elif hy < HUD_HEIGHT * settings.tile_size:
             target = transitions.get("up")
             if target:
                 self.transition.start(target, "up")
     
-        elif hy + hh > (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE:
+        elif hy + hh > (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size:
             target = transitions.get("down")
             if target:
                 self.transition.start(target, "down")
@@ -572,16 +579,16 @@ class GameScene(QGraphicsScene):
 
         """
         if direction == "left":
-            self.player.x = GRID_WIDTH * TILE_SIZE - self.player.hitbox_width - OFFSET - self.player.hitbox_offset_x * TILE_SIZE
+            self.player.x = GRID_WIDTH * settings.tile_size - self.player.hitbox_width - OFFSET - self.player.hitbox_offset_x * settings.tile_size
     
         elif direction == "right":
-            self.player.x = OFFSET  - self.player.hitbox_offset_x * TILE_SIZE
+            self.player.x = OFFSET  - self.player.hitbox_offset_x * settings.tile_size
     
         elif direction == "up":
-            self.player.y = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE - self.player.hitbox_height  - self.player.hitbox_offset_y* TILE_SIZE - OFFSET
+            self.player.y = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size - self.player.hitbox_height  - self.player.hitbox_offset_y* settings.tile_size - OFFSET
     
         elif direction == "down":
-            self.player.y = HUD_HEIGHT * TILE_SIZE + OFFSET - self.player.hitbox_offset_y * TILE_SIZE
+            self.player.y = HUD_HEIGHT * settings.tile_size + OFFSET - self.player.hitbox_offset_y * settings.tile_size
     
         self.player.update_graphics()
 
@@ -615,14 +622,14 @@ class GameScene(QGraphicsScene):
                 continue
             
             enemy_type = data["type"]
-            x = data["x"] * TILE_SIZE
-            y = (data["y"] + HUD_HEIGHT) * TILE_SIZE
+            x = data["x"] * settings.tile_size
+            y = (data["y"] + HUD_HEIGHT) * settings.tile_size
             
             # utilise enemy_registry.py pour obtenir liste des ennemis
             enemy_class = ENEMY_TYPES.get(enemy_type)
             if enemy_class is None:
                 continue
-            enemy = enemy_class(SCALE,x,y)
+            enemy = enemy_class(settings.scale,x,y)
             
             enemy.enemy_id = data["id"]
             enemy.room_name = self.current_room
@@ -684,8 +691,8 @@ class GameScene(QGraphicsScene):
         current_health = self.current_save.get_current_health()
         self.player.pv_main = current_health
     
-        self.player.x = px * TILE_SIZE
-        self.player.y = (py + HUD_HEIGHT) * TILE_SIZE
+        self.player.x = px * settings.tile_size
+        self.player.y = (py + HUD_HEIGHT) * settings.tile_size
     
         self.player.update_graphics()
         
@@ -721,10 +728,10 @@ class GameScene(QGraphicsScene):
         """
         supprime l'ancien sprite a (tx, ty) et place le nouveau
         """
-        px = tx * TILE_SIZE
-        py = (ty + HUD_HEIGHT) * TILE_SIZE
+        px = tx * settings.tile_size
+        py = (ty + HUD_HEIGHT) * settings.tile_size
         
-        for item in self.items(QRectF(px, py, TILE_SIZE, TILE_SIZE)):
+        for item in self.items(QRectF(px, py, settings.tile_size, settings.tile_size)):
             if type(item) is QGraphicsPixmapItem and item not in self.persistent_items:
                 self.removeItem(item)
         
@@ -752,12 +759,12 @@ class GameScene(QGraphicsScene):
                 if DEBUG: print(f"Interactable inconnu : {interactable_type}")
                 continue
 
-            x = data["x"] * TILE_SIZE
-            y = (data["y"] + HUD_HEIGHT) * TILE_SIZE
+            x = data["x"] * settings.tile_size
+            y = (data["y"] + HUD_HEIGHT) * settings.tile_size
 
             if interactable_type == "npc":
                 interactable = interactable_class(
-                    SCALE, 
+                    settings.scale, 
                     x, 
                     y, 
                     data.get("npc_type"), 
@@ -766,10 +773,10 @@ class GameScene(QGraphicsScene):
                 )
             
             elif interactable_type == "sign":
-                interactable = interactable_class(SCALE, x, y, data.get("dialogue"),data.get("conditional_dialogue"))
+                interactable = interactable_class(settings.scale, x, y, data.get("dialogue"),data.get("conditional_dialogue"))
             
             elif interactable_type == "chest":
-                interactable = interactable_class(SCALE, x, y, data.get("loot"), self.current_room)
+                interactable = interactable_class(settings.scale, x, y, data.get("loot"), self.current_room)
                 
                 # chech etat initial
                 if self.get_flag(interactable.flag_name):
@@ -777,12 +784,12 @@ class GameScene(QGraphicsScene):
                 interactable.update_graphics()
                 
             elif interactable_type == "locked_door":
-                interactable = interactable_class(SCALE, data.get("x"), data.get("y"),self.current_room,current_biome)
+                interactable = interactable_class(settings.scale, data.get("x"), data.get("y"),self.current_room,current_biome)
                 if self.get_flag(interactable.flag_name):
                     interactable.is_open = True
                 interactable.update_graphics()
             else:
-                interactable = interactable_class(SCALE, x, y)
+                interactable = interactable_class(settings.scale, x, y)
 
             interactable.interactable_id = data.get("id")
             self.interactables.append(interactable)
@@ -804,14 +811,14 @@ class GameScene(QGraphicsScene):
             "current_room": self.current_room,
             "current_health": self.player.pv_main,
             "player_x": round(
-                self.player.x / TILE_SIZE,
+                self.player.x / settings.tile_size,
                 2
             ),
             "player_y": round(
                 (
                     self.player.y
-                    - HUD_HEIGHT * TILE_SIZE
-                ) / TILE_SIZE,
+                    - HUD_HEIGHT * settings.tile_size
+                ) / settings.tile_size,
                 2
             ),
             "flags": self.current_save.data.get(

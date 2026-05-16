@@ -35,9 +35,9 @@ Pour ajouter un nouvel ecran :
 
 
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
-from game.config import KEYS
 from game.save_manager import SaveManager
 from game.music import MusicManager
+from game.settings import settings
 
 
 class ScreenManager:
@@ -90,8 +90,6 @@ class ScreenManager:
         if old is not None:
             if hasattr(old, 'timer'):
                 old.timer.stop()
-            # if hasattr(old, 'music_manager'):
-            #     old.music_manager.stop()
 
         new_scene = GameScene(screen_manager=self)
         self.set_scene(new_scene)
@@ -140,12 +138,12 @@ class ScreenManager:
         if self.state == self.STATE_GAME:
             if self._scene and self._scene.dialogue_manager.active:
                 # on ne fait rien, on laisse la touche passer au jeu mais empeche ouverture
-                if key == KEYS["PAUSE"] or key == KEYS["INVENTORY"]:
+                if key == settings.keys["PAUSE"] or key == settings.keys["INVENTORY"]:
                     return True
-            if key == KEYS["PAUSE"]:
+            if key == settings.keys["PAUSE"]:
                 self.open_pause()
                 return True
-            if key == KEYS["INVENTORY"]:
+            if key == settings.keys["INVENTORY"]:
                 self.open_inventory()
                 return True
 
@@ -188,6 +186,13 @@ class ScreenManager:
 
     def go_to_settings(self):
         """Affiche l'ecran des parametres en memorisant l'etat precedent."""
+        # verifie si on vient de l'ecran titre pour autoriser le re-scale
+        allow_rescale = (self.state == self.STATE_TITLE)
+        
+        settings_scr = self._screens.get("settings")
+        if settings_scr:
+            settings_scr.set_rescale_allowed(allow_rescale)
+        
         self._prev_state = self.state
         self.show_screen("settings")
         self.state = self.STATE_SETTINGS
@@ -413,3 +418,35 @@ class ScreenManager:
             self._scene.game_paused = False
     
         self.state = self.STATE_GAME
+        
+    # ------------------------------------------------------------------
+    # Application des parametres
+    # ------------------------------------------------------------------
+
+    def apply_crt(self):
+        if self._scene and hasattr(self._scene, 'update_crt'):
+            from game.settings import settings
+            self._scene.update_crt(settings.crt_overlay)
+
+    
+    def rebuild_display(self):
+        """
+        Reconstruit tout l'affichage lors d'un changement de résolution (SCALE).
+        """
+        # cacher ecran actuel
+        self.hide_current_screen()
+        
+        # vider tous les ecran pour re forcer _build
+        for screen in self._screens.values():
+            if hasattr(screen, 'reset_build'):
+                screen.reset_build()
+                
+        # change taille fenetre
+        if hasattr(self.window, 'update_window_size'):
+            self.window.update_window_size()
+            
+        # re-cree scene vierge
+        self._create_fresh_scene()
+        
+        # re-affiche ecran de parametres
+        self.show_screen("settings")

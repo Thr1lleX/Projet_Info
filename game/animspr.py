@@ -3,7 +3,8 @@
 
 from PyQt5.QtGui import QPixmap, QTransform
 from PyQt5.QtCore import Qt
-from game.config import TILE_SIZE, DEBUG
+from game.config import DEBUG
+from game.settings import settings
 
 def load_animation_sequence(folder_path, size, frame_count=None):
     """
@@ -18,8 +19,8 @@ def load_animation_sequence(folder_path, size, frame_count=None):
         taille en tiles
     """
     # on recupere les tailles en pixels scaled
-    width = size[0]*TILE_SIZE
-    height = size[1]*TILE_SIZE
+    width = size[0]*settings.tile_size
+    height = size[1]*settings.tile_size
     frames = []
     
     i=1
@@ -121,8 +122,8 @@ def generate_directional_animations(base_frames, pos, size):
                 offset_y = pos_y - (taille_y-1)
                 
             # conversion en pxl
-            offset_x_pxl = offset_x * TILE_SIZE
-            offset_y_pxl = offset_y * TILE_SIZE
+            offset_x_pxl = offset_x * settings.tile_size
+            offset_y_pxl = offset_y * settings.tile_size
             
             # rotations
             transform = QTransform()
