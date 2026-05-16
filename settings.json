@@ -1,6 +1,8 @@
 {
-  "music_volume": 1,
-  "sfx_volume": 1,
-  "crt_overlay": true,
-  "tile_anim_speed": 0.8
+    "scale": 4.0,
+    "resolution_index": 2,
+    "control_scheme": "azerty",
+    "music_volume": 1.0,
+    "sfx_volume": 0.75,
+    "crt_overlay": true
 }
