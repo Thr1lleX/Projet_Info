@@ -57,6 +57,10 @@
 	  {
 		  "flag":"sword_upgrade",
 		  "dialogue":""
+	  },
+	  {
+		  "flag":"boss_vaincu",
+		  "dialogue":"minou_boss"
 	  }
 	  
 	]

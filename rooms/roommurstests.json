@@ -41,6 +41,12 @@
 	  "loot": "key"
   },
     {
+	  "type":"chest",
+	  "x":13,
+	  "y":4,
+	  "loot": ["bombe",10]
+  },
+    {
 	  "type":"locked_door",
 	  "x":12,
 	  "y":0
