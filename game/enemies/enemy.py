@@ -4,11 +4,13 @@ from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsLineItem
 from PyQt5.QtCore import Qt
 
 from game.entity import Entity
-from game.config import BASE_SPEED, DEBUG, HUD_HEIGHT
+from game.config import DEBUG, HUD_HEIGHT
 from game.pathfinder import astar, get_walkable_grid
 import math
 import random
 from game.dropped_item import DroppedItem
+
+from game.settings import settings
 
 class Enemy(Entity):
     def __init__(self, scale, x, y):
@@ -17,13 +19,13 @@ class Enemy(Entity):
         self.x = x
         self.y = y
         
-        self.speed = BASE_SPEED
+        self.speed = settings.base_speed
 
         # cible par defaut
         self.target = None
 
         # portée détection standard
-        self.aggro_range = self.tile_size * 13
+        self.aggro_range = settings.tile_size * 13
         
         self.damage = 1 #degats de base
         self.give_stun = 0 # duree du stun infligé au joueur (0 = pas de stun)
@@ -94,16 +96,16 @@ class Enemy(Entity):
                 self.path_timer = 0.0
                 
                 # On calcule les dimensions en tuiles séparément
-                w_tiles = max(1, math.ceil(self.hitbox_width / self.tile_size))
-                h_tiles = max(1, math.ceil(self.hitbox_height / self.tile_size))
+                w_tiles = max(1, math.ceil(self.hitbox_width / settings.tile_size))
+                h_tiles = max(1, math.ceil(self.hitbox_height / settings.tile_size))
                 
-                start_pos = start_pos = (self.x + self.tile_size / 2.0, self.y + self.tile_size / 2.0)
-                goal_pos = (self.target.x + self.target.tile_size / 2.0, self.target.y + self.target.tile_size / 2.0)
+                start_pos = start_pos = (self.x + settings.tile_size / 2.0, self.y + settings.tile_size / 2.0)
+                goal_pos = (self.target.x + settings.tile_size / 2.0, self.target.y + settings.tile_size / 2.0)
                 
                 grid = get_walkable_grid(scene.room_data)
                 
                 # On passe les deux dimensions
-                new_path = astar(grid, start_pos, goal_pos, self.tile_size, w_tiles, h_tiles)
+                new_path = astar(grid, start_pos, goal_pos, settings.tile_size, w_tiles, h_tiles)
                 
                 
                 if new_path is not None:
@@ -120,8 +122,8 @@ class Enemy(Entity):
                 target_y = next_pos[1]
                 
                 # Cible par rapport au CENTRE de l'ennemi
-                center_x = self.x + self.tile_size / 2.0
-                center_y = self.y + self.tile_size / 2.0
+                center_x = self.x + settings.tile_size / 2.0
+                center_y = self.y + settings.tile_size / 2.0
                 
                 dx = target_x - center_x
                 dy = target_y - center_y
@@ -204,7 +206,7 @@ class Enemy(Entity):
 
 # drop loot        
     def _drop_loot(self,scene):
-        offset = int(0.3 * self.tile_size)
+        offset = int(0.3 * settings.tile_size)
         for item_id, chance in self.loot:
             if random.random() < chance:
                 dx = random.randint(-offset, offset)
@@ -247,8 +249,8 @@ class Enemy(Entity):
             return
 
         # Use centers for visualization
-        current_x = self.x + self.tile_size / 2
-        current_y = self.y + self.tile_size / 2
+        current_x = self.x + settings.tile_size / 2
+        current_y = self.y + settings.tile_size / 2
 
         for px, py in self.path:
             # Red line connecting waypoints

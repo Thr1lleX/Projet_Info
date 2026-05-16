@@ -5,6 +5,8 @@ from PyQt5.QtCore import Qt
 
 from game.enemies.enemy import Enemy
 
+from game.settings import settings
+
 
 class Placeholder1(Enemy):
     def __init__(self, scale, x, y):
@@ -15,7 +17,7 @@ class Placeholder1(Enemy):
         self._pv_max = 2
         self.pv_main = self._pv_max
         
-        self.aggro_range = self.tile_size * 10
+        self.aggro_range = settings.tile_size * 10
         
         self.damage = 1
         self.give_stun = 0
@@ -26,8 +28,8 @@ class Placeholder1(Enemy):
 
         # --- SPRITE UNIQUE (même pour toutes directions) ---
         sprite = QPixmap("assets/placeholder1.png").scaled(
-            self.tile_size,
-            self.tile_size,
+            settings.tile_size,
+            settings.tile_size,
             transformMode=Qt.FastTransformation
         )
 

@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 
 from game.enemies.enemy import Enemy
 from game.rick import RickWindow
-
+from game.settings import settings
 import random
 
 class Placeholder2(Enemy):
@@ -16,7 +16,7 @@ class Placeholder2(Enemy):
         self.speed = self.speed / 20
         self._pv_max = 10
         self.pv_main = self._pv_max
-        self.aggro_range = self.tile_size * 10
+        self.aggro_range = settings.tile_size * 10
         
         self.invuln_duration = 5
         self.effect_immunity_duration = 1.5
@@ -33,16 +33,16 @@ class Placeholder2(Enemy):
         # --- HITBOX ---
         self.hitbox_offset_x = 0
         self.hitbox_offset_y = 0
-        self.hitbox_width = self.tile_size * 2
-        self.hitbox_height = self.tile_size * 2
+        self.hitbox_width = settings.tile_size * 2
+        self.hitbox_height = settings.tile_size * 2
         
         self.knockback = 7
         self.duree_knockback = 1.5
 
         # --- SPRITE UNIQUE (même pour toutes directions) ---
         sprite = QPixmap("assets/placeholder2.png").scaled(
-            self.tile_size * 2,
-            self.tile_size * 2,
+            settings.tile_size * 2,
+            settings.tile_size * 2,
             transformMode=Qt.FastTransformation
         )
 
