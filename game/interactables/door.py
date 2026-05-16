@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtGui import QPixmap
 from game.interactables.interactable import Interactable
-from game.config import SCALE, TILE_SIZE,DEBUG, HUD_HEIGHT
+from game.config import DEBUG, HUD_HEIGHT
+
+from game.settings import settings
 
 class LockedDoor(Interactable):
     def __init__(self, scale, x, y, room_name, biome):
@@ -22,8 +24,8 @@ class LockedDoor(Interactable):
         self.is_open = False
         self.collision = 1
         
-        self.x = self.grid_x * TILE_SIZE
-        self.y = (self.grid_y + HUD_HEIGHT) * TILE_SIZE
+        self.x = self.grid_x * settings.tile_size
+        self.y = (self.grid_y + HUD_HEIGHT) * settings.tile_size
         self.update_graphics()
 
     def update_graphics(self):
@@ -64,4 +66,4 @@ class LockedDoor(Interactable):
         if pix.isNull() and self.biome != "default":
             pix = QPixmap(f"assets/default/{name}.png")
             
-        return pix.scaled(TILE_SIZE, TILE_SIZE)
+        return pix.scaled(settings.tile_size, settings.tile_size)

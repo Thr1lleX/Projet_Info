@@ -3,7 +3,8 @@
 from game.interactables.npc import NPC
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
-from game.config import SCALE, TILE_SIZE
+
+from game.settings import settings
 
 class Sign(NPC):
     def __init__(self, scale, x, y, dialogue_id=None,conditional_rules=None):
@@ -15,8 +16,8 @@ class Sign(NPC):
         if not pixmap.isNull():
             # On passe les arguments directement, sans les nommer
             self.setPixmap(pixmap.scaled(
-                int(TILE_SIZE), 
-                int(TILE_SIZE),
+                int(settings.tile_size), 
+                int(settings.tile_size),
                 Qt.IgnoreAspectRatio,
                 Qt.FastTransformation
             ))

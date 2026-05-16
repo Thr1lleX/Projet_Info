@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from PyQt5.QtGui import QPixmap
 from game.interactables.interactable import Interactable
-from game.config import SCALE, TILE_SIZE, DEBUG
+from game.config import DEBUG
 from game.item_registry import ITEM_CATALOG
+
+from game.settings import settings
 
 class Chest(Interactable):
     def __init__(self, scale, x, y, loot_data, room_name):
@@ -24,8 +26,8 @@ class Chest(Interactable):
         self.room_name = room_name
         
         # position du la grille pour generer flag unique
-        self.grid_x = int(x // TILE_SIZE)
-        self.grid_y = int(y // TILE_SIZE) 
+        self.grid_x = int(x // settings.tile_size)
+        self.grid_y = int(y // settings.tile_size) 
         
         self.flag_name = f"opened_chest_{self.room_name}_{self.grid_x}_{self.grid_y}"
         
@@ -34,8 +36,8 @@ class Chest(Interactable):
         self.img_closed = QPixmap("assets/chest_closed.png")
         self.img_open = QPixmap("assets/chest_open.png")
         
-        self.img_closed = self.img_closed.scaled(int(self.tile_size), int(self.tile_size))
-        self.img_open = self.img_open.scaled(int(self.tile_size), int(self.tile_size))
+        self.img_closed = self.img_closed.scaled(int(settings.tile_size), int(settings.tile_size))
+        self.img_open = self.img_open.scaled(int(settings.tile_size), int(settings.tile_size))
 
         self.x = x
         self.y = y

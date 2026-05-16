@@ -3,12 +3,12 @@
 from game.interactables.interactable import Interactable
 from game.animspr import load_animation_sequence
 
-from game.config import SCALE, DEBUG
-
+from game.config import DEBUG
+from game.settings import settings
 
 class SavePoint(Interactable):
-    def __init__(self, scale=SCALE, x=0, y=0):
-        super().__init__(scale)
+    def __init__(self, scale=settings.scale, x=0, y=0):
+        super().__init__()
 
         self.type = "save_point"
 

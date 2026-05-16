@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem
 from PyQt5.QtGui import QPen, QColor
 from PyQt5.QtCore import Qt
 from abc import abstractmethod
-from game.config import DEBUG, TILE_SIZE, BASE_TILE_SIZE
+from game.config import DEBUG
+from game.settings import settings
 
 
 class Interactable(QGraphicsPixmapItem):
@@ -23,8 +24,6 @@ class Interactable(QGraphicsPixmapItem):
         super().__init__()
 
         self.setZValue(20)
-        self.scale = scale
-        self.tile_size = BASE_TILE_SIZE * scale
         
         # POSITION 
         self.x = 0
@@ -49,6 +48,10 @@ class Interactable(QGraphicsPixmapItem):
             self.debug_rect = QGraphicsRectItem(self)
             self.debug_rect.setPen(QPen(QColor("yellow"), 1))
             self.debug_rect.setZValue(999)
+            
+    @property
+    def tile_size(self):
+        return settings.tile_size
             
     def get_hitbox(self, x=None, y=None):
         """
@@ -86,7 +89,7 @@ class Interactable(QGraphicsPixmapItem):
             
     def distance_to(self, other):
         """
-        Utilitaire optionnel pour interactions avancées.
+        Utilitaire optionnel pour interactions avancees.
         """
         return (self.pos() - other.pos()).manhattanLength()
 

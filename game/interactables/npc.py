@@ -3,7 +3,7 @@
 
 from game.interactables.interactable import Interactable
 from game.animspr import load_animation_sequence
-from game.config import SCALE, DEBUG
+from game.config import DEBUG
 
 class NPC(Interactable):
     def __init__(self, scale, x, y, npc_type=None, dialogue_id=None,conditional_rules=None):
