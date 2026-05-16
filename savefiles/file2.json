@@ -5,13 +5,21 @@
   "player_y": 5.3,
   "flags": {
     "opened_chest_roommurstests_9_9": true,
-    "has_boomerang": true
+    "has_boomerang": true,
+    "boss_vaincu": true,
+    "broken_roommurstests_6_4": true,
+    "broken_roommurstests_7_4": true
   },
   "inventory": {
     "slots": [
       {
         "slot": 0,
         "item_id": "pomme",
+        "count": 5
+      },
+	  {
+        "slot": 1,
+        "item_id": "potion",
         "count": 5
       },
       {
