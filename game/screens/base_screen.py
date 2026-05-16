@@ -16,13 +16,9 @@ Pour creer un nouvel ecran :
   Auteur : essentiellement Mateo
 """
 
-from game.config import (
-    GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, TILE_SIZE, SCALE,
-    Z_SCREEN, KEYS,
-)
+from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
 
-_SCENE_W = GRID_WIDTH * TILE_SIZE
-_SCENE_H = (GRID_HEIGHT + HUD_HEIGHT) * TILE_SIZE
+from game.settings import settings
 
 class BaseScreen:
     """
@@ -44,6 +40,14 @@ class BaseScreen:
         self._selected   = 0
         self._btns       = []      # liste de SpriteButton
         self._is_pressed = False
+    
+    @property
+    def scene_w(self):
+        return GRID_WIDTH * settings.tile_size
+    
+    @property
+    def scene_h(self):
+        return (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
     # ------------------------------------------------------------------
     # cycle de vie
     # ------------------------------------------------------------------
@@ -65,6 +69,12 @@ class BaseScreen:
             if current is not None:
                 current.removeItem(item)
         self._visible = False
+        
+    def reset_build(self):
+        """Vide le cache pour forcer un nouveau _build() au prochain show()"""
+        self._items = []
+        self._btns = []
+        self._built = False
 
     def _build(self):
         """
@@ -82,11 +92,11 @@ class BaseScreen:
         from game.ui.sprite_button import SpriteButton
 
         self._btns = []
-        btn_h   = TILE_SIZE
-        spacing = int(self._menu_spacing * SCALE)
-        start_y = int(_SCENE_H * self._menu_start_ratio)
-        btn_w   = 7 * TILE_SIZE
-        btn_x   = (_SCENE_W - btn_w) // 2
+        btn_h   = settings.tile_size
+        spacing = int(self._menu_spacing * settings.scale)
+        start_y = int(self.scene_h * self._menu_start_ratio)
+        btn_w   = 7 * settings.tile_size
+        btn_x   = (self.scene_w - btn_w) // 2
 
         for i, entry in enumerate(self._menu):
             y = start_y + i * (btn_h + spacing)
@@ -115,15 +125,15 @@ class BaseScreen:
     # ------------------------------------------------------------------
 
     def key_press(self, key):
-        if key == KEYS["DOWN"]:
+        if key == settings.keys["DOWN"]:
             self._move(+1)
-        elif key == KEYS["UP"]:
+        elif key == settings.keys["UP"]:
             self._move(-1)
-        elif key in (KEYS["INTERACT"], KEYS["CONFIRM"]):
+        elif key in (settings.keys["INTERACT"], settings.keys["CONFIRM"]):
             self._press_selected()
 
     def key_release(self, key):
-        if key in (KEYS["INTERACT"], KEYS["CONFIRM"]):
+        if key in (settings.keys["INTERACT"], settings.keys["CONFIRM"]):
             self._release_selected()
 
     def _move(self, direction):

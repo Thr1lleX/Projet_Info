@@ -59,9 +59,11 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsTextItem, QGraphicsRec
 from PyQt5.QtGui import QPixmap, QColor, QKeySequence, QPen
 from PyQt5.QtCore import Qt
 
-from game.screens.base_screen import BaseScreen, _SCENE_W, _SCENE_H
-from game.config import TILE_SIZE, Z_SCREEN, KEYS
+from game.screens.base_screen import BaseScreen
+from game.config import Z_SCREEN
 from game.fonts import get_font0
+
+from game.settings import settings
 
 class ControlsScreen(BaseScreen):
     def __init__(self, screen_manager):
@@ -78,7 +80,7 @@ class ControlsScreen(BaseScreen):
 
     def _build(self):
         # Background noir
-        bg_black = QGraphicsRectItem(0, 0, _SCENE_W, _SCENE_H)
+        bg_black = QGraphicsRectItem(0, 0, self.scene_w, self.scene_h)
         bg_black.setBrush(QColor(0, 0, 0))
         bg_black.setPen(QPen(Qt.NoPen))
         bg_black.setZValue(Z_SCREEN)
@@ -87,15 +89,15 @@ class ControlsScreen(BaseScreen):
         # Cadre en 16x13
         pix_frame = QPixmap(r"assets\hud\hud_demarrage.png")
         if not pix_frame.isNull():
-            frame = QGraphicsPixmapItem(pix_frame.scaled(_SCENE_W, _SCENE_H))
+            frame = QGraphicsPixmapItem(pix_frame.scaled(self.scene_w, self.scene_h))
             frame.setZValue(Z_SCREEN + 1)
             self._items.append(frame)
 
         # lignes
-        start_x = 2 * TILE_SIZE
-        start_y = 1.25 * TILE_SIZE
-        box_size = 1.25 * TILE_SIZE
-        spacing = 1.5 * TILE_SIZE 
+        start_x = 2 * settings.tile_size
+        start_y = 1.25 * settings.tile_size
+        box_size = 1.25 * settings.tile_size
+        spacing = 1.5 * settings.tile_size 
         # (1.25 de boite + 0.25 d'ecart)
 
         pix_box = QPixmap(r"assets\hud\hud_box_demarrage.png")
@@ -115,15 +117,15 @@ class ControlsScreen(BaseScreen):
                 # icone de deplacement
                 pix_move = QPixmap(r"assets\hud\hud_icone_deplacement.png")
                 if not pix_move.isNull():
-                    icon = QGraphicsPixmapItem(pix_move.scaled(TILE_SIZE, TILE_SIZE))
+                    icon = QGraphicsPixmapItem(pix_move.scaled(settings.tile_size, settings.tile_size))
                     # centrage
-                    offset = (box_size - TILE_SIZE) / 2
+                    offset = (box_size - settings.tile_size) / 2
                     icon.setPos(start_x + offset, current_y + offset)
                     icon.setZValue(Z_SCREEN + 3)
                     self._items.append(icon)
             else:
                 # texte de la tocuhe
-                key_str = QKeySequence(KEYS[info["key_cfg"]]).toString()
+                key_str = QKeySequence(settings.keys[info["key_cfg"]]).toString()
                 key_text = QGraphicsTextItem(key_str)
                 key_text.setFont(get_font0(5.5))
                 key_text.setDefaultTextColor(QColor(255, 255, 255))
@@ -140,7 +142,7 @@ class ControlsScreen(BaseScreen):
             action_text.setFont(get_font0(9))
             action_text.setDefaultTextColor(QColor(255, 255, 255))
             # alignement
-            action_text.setPos(start_x + box_size + TILE_SIZE, current_y)
+            action_text.setPos(start_x + box_size + settings.tile_size, current_y)
             action_text.setZValue(Z_SCREEN + 2)
             self._items.append(action_text)
             
@@ -156,10 +158,9 @@ class ControlsScreen(BaseScreen):
             except RuntimeError:
                 pass
         
-        self.wipe_item = WipeOverlay(_SCENE_W, _SCENE_H)
+        self.wipe_item = WipeOverlay(self.scene_w, self.scene_h)
         self._items.append(self.wipe_item)
         scene.addItem(self.wipe_item)
-        
         
         self.is_closing = False
         
@@ -181,9 +182,9 @@ class ControlsScreen(BaseScreen):
         # empeche spam durant animation
         if self.is_closing: return 
         
-        if key in (KEYS["INTERACT"], KEYS["CONFIRM"]):
+        if key in (settings.keys["INTERACT"], settings.keys["CONFIRM"]):
             self.is_closing = True
-            self._play_sfx("snd_accept")
+            self._play_sfx("snd_lancement")
             
             # Animation de fermeture (1s) : le noir remonte depuis le bas
             self.wipe_item.invert = True

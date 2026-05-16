@@ -4,9 +4,10 @@ from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsTextItem
 from PyQt5.QtGui import QBrush, QColor, QPen
 from PyQt5.QtCore import Qt
 
-from game.screens.base_screen import BaseScreen, _SCENE_W, _SCENE_H
-from game.config import Z_SCREEN, KEYS
+from game.screens.base_screen import BaseScreen
+from game.config import Z_SCREEN
 from game.fonts import get_font0
+from game.settings import settings
 
 
 class PauseScreen(BaseScreen):
@@ -31,7 +32,7 @@ class PauseScreen(BaseScreen):
         self._refresh_highlight()
 
     def _build_overlay(self):
-        overlay = QGraphicsRectItem(0, 0, _SCENE_W, _SCENE_H)
+        overlay = QGraphicsRectItem(0, 0, self.scene_w, self.scene_h)
         overlay.setBrush(QBrush(QColor(0, 0, 0, 160)))
         overlay.setPen(QPen(Qt.NoPen))
         overlay.setZValue(Z_SCREEN)
@@ -43,17 +44,17 @@ class PauseScreen(BaseScreen):
         title.setDefaultTextColor(QColor(180, 180, 255))
         title.setZValue(Z_SCREEN + 1)
         tw = title.boundingRect().width()
-        title.setPos((_SCENE_W - tw) / 2, int(_SCENE_H * 0.18))
+        title.setPos((self.scene_w - tw) / 2, int(self.scene_h * 0.18))
         self._items.append(title)
 
     def key_press(self, key):
-        if key in (KEYS["PAUSE"], KEYS["LEAVE"]):
+        if key in (settings.keys["PAUSE"], settings.keys["LEAVE"]):
             self.screen_manager.resume_game()
         else:
             super().key_press(key)
 
     def key_release(self, key):
-        if key in (KEYS["PAUSE"], KEYS["LEAVE"]):
+        if key in (settings.keys["PAUSE"], settings.keys["LEAVE"]):
             return
         super().key_release(key)
 

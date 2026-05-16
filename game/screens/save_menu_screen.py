@@ -6,7 +6,7 @@ from PyQt5.QtGui import QBrush,QColor,QPen,QPixmap
 
 from PyQt5.QtCore import Qt
 
-from game.screens.base_screen import BaseScreen, _SCENE_W,_SCENE_H
+from game.screens.base_screen import BaseScreen
 
 from game.config import Z_SCREEN,TITLE_BG_PATH
 
@@ -63,8 +63,8 @@ class SaveMenuScreen(BaseScreen):
         bg = QGraphicsRectItem(
             0,
             0,
-            _SCENE_W,
-            _SCENE_H
+            self.scene_w,
+            self.scene_h
         )
 
         bg.setBrush(
@@ -86,14 +86,14 @@ class SaveMenuScreen(BaseScreen):
         title.setZValue(Z_SCREEN + 1)
     
         # largeur fixe pour permettre l'alignement
-        title.setTextWidth(_SCENE_W)
+        title.setTextWidth(self.scene_w)
     
         # centrage horizontal du texte
         option = title.document().defaultTextOption()
         option.setAlignment(Qt.AlignHCenter)
         title.document().setDefaultTextOption(option)
     
-        title.setPos(0, int(_SCENE_H * 0.18))
+        title.setPos(0, int(self.scene_h * 0.18))
     
         self._items.append(title)
 

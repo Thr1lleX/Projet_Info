@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsPixmapItem, QGraphicsTex
 from PyQt5.QtGui import QBrush, QColor, QPen, QPixmap
 from PyQt5.QtCore import Qt
 
-from game.screens.base_screen import BaseScreen, _SCENE_W, _SCENE_H
-from game.config import TILE_SIZE, Z_SCREEN, TITLE_BG_PATH, GAME_TITLE
+from game.screens.base_screen import BaseScreen
+from game.config import Z_SCREEN, TITLE_BG_PATH, GAME_TITLE
 from game.fonts import get_font0
 from game.save_manager import SaveManager
 
@@ -35,10 +35,10 @@ class TitleScreen(BaseScreen):
         pix = QPixmap(TITLE_BG_PATH)
         if not pix.isNull():
             bg = QGraphicsPixmapItem(
-                pix.scaled(_SCENE_W, _SCENE_H, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+                pix.scaled(self.scene_w, self.scene_h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
             )
         else:
-            bg = QGraphicsRectItem(0, 0, _SCENE_W, _SCENE_H)
+            bg = QGraphicsRectItem(0, 0, self.scene_w, self.scene_h)
             bg.setBrush(QBrush(QColor(10, 10, 30)))
             bg.setPen(QPen(Qt.NoPen))
         bg.setZValue(Z_SCREEN)
@@ -50,7 +50,7 @@ class TitleScreen(BaseScreen):
         title.setDefaultTextColor(QColor(255, 215, 0))
         title.setZValue(Z_SCREEN + 1)
         tw = title.boundingRect().width()
-        title.setPos((_SCENE_W - tw) / 2, int(_SCENE_H * 0.18))
+        title.setPos((self.scene_w - tw) / 2, int(self.scene_h * 0.18))
         self._items.append(title)
 
     def _activate(self):

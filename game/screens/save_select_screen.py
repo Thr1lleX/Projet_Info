@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsPixmapItem, QGraphicsTex
 from PyQt5.QtGui import QBrush, QColor, QPen, QPixmap
 from PyQt5.QtCore import Qt
 
-from game.screens.base_screen import BaseScreen, _SCENE_W, _SCENE_H
+from game.screens.base_screen import BaseScreen
 from game.config import Z_SCREEN, TITLE_BG_PATH
 from game.fonts import get_font0
 from game.save_manager import SaveManager
@@ -29,7 +29,7 @@ class SaveSelectScreen(BaseScreen):
 
     def _build_background(self):
         pixmap = QPixmap("assets/hud/settings_background.png")
-        pixmap = pixmap.scaled(_SCENE_W, _SCENE_H, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
+        pixmap = pixmap.scaled(self.scene_w, self.scene_h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
         bg = QGraphicsPixmapItem(pixmap)
         bg.setZValue(Z_SCREEN - 1)
         self._items.append(bg)
@@ -43,14 +43,14 @@ class SaveSelectScreen(BaseScreen):
         title.setZValue(Z_SCREEN + 1)
     
         # largeur fixe pour permettre l'alignement
-        title.setTextWidth(_SCENE_W)
+        title.setTextWidth(self.scene_w)
     
         # centrage horizontal du texte
         option = title.document().defaultTextOption()
         option.setAlignment(Qt.AlignHCenter)
         title.document().setDefaultTextOption(option)
     
-        title.setPos(0, int(_SCENE_H * 0.18))
+        title.setPos(0, int(self.scene_h * 0.18))
     
         self._items.append(title)
 

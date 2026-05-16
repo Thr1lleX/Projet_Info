@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QGraphicsRectItem, QGraphicsTextItem
 from PyQt5.QtGui import QBrush, QColor, QPen
 from PyQt5.QtCore import Qt
 
-from game.screens.base_screen import BaseScreen, _SCENE_W, _SCENE_H
+from game.screens.base_screen import BaseScreen
 from game.config import Z_SCREEN
 from game.fonts import get_font0
 
@@ -30,7 +30,7 @@ class GameOverScreen(BaseScreen):
         self._refresh_highlight()
 
     def _build_overlay(self):
-        overlay = QGraphicsRectItem(0, 0, _SCENE_W, _SCENE_H)
+        overlay = QGraphicsRectItem(0, 0, self.scene_w, self.scene_h)
         overlay.setBrush(QBrush(QColor(0, 0, 0, 210)))
         overlay.setPen(QPen(Qt.NoPen))
         overlay.setZValue(Z_SCREEN)
@@ -42,7 +42,7 @@ class GameOverScreen(BaseScreen):
         title.setDefaultTextColor(QColor(200, 30, 30))
         title.setZValue(Z_SCREEN + 1)
         tw = title.boundingRect().width()
-        title.setPos((_SCENE_W - tw) / 2, int(_SCENE_H * 0.26))
+        title.setPos((self.scene_w - tw) / 2, int(self.scene_h * 0.26))
         self._items.append(title)
 
     def _activate(self):
