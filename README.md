@@ -27,11 +27,11 @@ Si pas d'auteur precise, ou bien le code est trop court, ou bien il est trop imp
 - systeme d'items + inventaire
 - boomerang pickup items
 - update de tiles de selon action (explosion, ouverture de porte etc.)
+- settings
+- hud scene generale
 
 # En cours:
-
-- settings
-- hud scene generale (doit pouvoir indiquer: coeurs, item equipé, jauge de mana si has_fireball, nb de consummables, nb de clés)
+- interrupteur
 
 # À faire:
 
