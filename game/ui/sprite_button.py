@@ -5,8 +5,9 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsTextItem
 from PyQt5.QtGui import QPixmap, QColor
 from PyQt5.QtCore import Qt, QRectF
 
-from game.config import TILE_SIZE, SCALE, Z_SCREEN
+from game.config import Z_SCREEN
 from game.fonts import get_font0
+from game.settings import settings
 
 # --- Chemins des 3 sprites de bouton ---
 _PATH_NORMAL   = "assets/hud/hud_select1.png"
@@ -31,8 +32,8 @@ class SpriteButton:
 
     def __init__(self, label, x, y, z=Z_SCREEN + 1, enabled=True):
         # --- Dimensions finales en pixels (scalees avec tile_size) ---
-        self.width  = _BTN_WIDTH_TILES * TILE_SIZE
-        self.height = _BTN_HEIGHT_TILES * TILE_SIZE
+        self.width  = _BTN_WIDTH_TILES * settings.tile_size
+        self.height = _BTN_HEIGHT_TILES * settings.tile_size
         self.x = x
         self.y = y
         self.enabled = enabled

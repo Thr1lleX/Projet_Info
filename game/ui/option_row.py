@@ -3,8 +3,9 @@
 from PyQt5.QtWidgets import QGraphicsTextItem
 from PyQt5.QtGui import QColor
 
-from game.config import TILE_SIZE, Z_SCREEN
+from game.config import Z_SCREEN
 from game.fonts import get_font0
+from game.seetings import settings
 
 _C_NORMAL   = QColor(190, 190, 210)
 _C_SELECTED = QColor(255, 215, 0)
@@ -31,7 +32,7 @@ class OptionRow:
         self.x_value     = x_value
         self.value_width = value_width
         self.y           = y
-        self.height      = TILE_SIZE
+        self.height      = settings.tile_size
 
         # --- label (cote gauche) ---
         self.label_item = QGraphicsTextItem(label)
@@ -39,7 +40,7 @@ class OptionRow:
         self.label_item.setDefaultTextColor(_C_NORMAL)
         self.label_item.setZValue(z)
         lh = self.label_item.boundingRect().height()
-        self.label_item.setPos(x_label, y + (TILE_SIZE - lh) / 2)
+        self.label_item.setPos(x_label, y + (settings.tile_size - lh) / 2)
 
         # --- valeur (cote droit) ---
         self.value_item = QGraphicsTextItem()
@@ -56,7 +57,7 @@ class OptionRow:
         th = self.value_item.boundingRect().height()
         self.value_item.setPos(
             self.x_value + (self.value_width - tw) / 2,
-            self.y + (TILE_SIZE - th) / 2,
+            self.y + (settings.tile_size - th) / 2,
         )
 
     def cycle(self, direction):
