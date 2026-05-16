@@ -5,11 +5,13 @@
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem
 #from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtGui import QPen, QColor
-from game.config import TILE_SIZE, DEBUG, SCALE, BASE_TILE_SIZE
+from game.config import DEBUG, BASE_TILE_SIZE
 from abc import abstractmethod
 
 from game.animspr import load_animation_sequence, generate_directional_animations
 from game.sfx import SFXManager
+
+from game.settings import settings
 
 
 class AttackEntity(QGraphicsPixmapItem):
@@ -103,10 +105,10 @@ class AttackEntity(QGraphicsPixmapItem):
         
         # c'est ma hitbox, show ssi DEBUG
         self.debug_rect.setRect(
-            x * SCALE,
-            y * SCALE,
-            w * SCALE,
-            h * SCALE
+            x * settings.scale,
+            y * settings.scale,
+            w * settings.scale,
+            h * settings.scale
         )
         
         if DEBUG:
@@ -369,7 +371,7 @@ class PersistentAttack(AttackEntity):
         mouvement de base en ligne droite, 
         a override si on veut une autre loi de deplacement
         """
-        move_dist = self.projectile_speed * TILE_SIZE * self.current_dt
+        move_dist = self.projectile_speed * settings.tile_size * self.current_dt
 
         if self.direction == "up":
             self.y -= move_dist
@@ -391,11 +393,11 @@ class PersistentAttack(AttackEntity):
         hw, hh = hitbox_zone.width(), hitbox_zone.height()
         
         # collision avec bords de l'ecran
-        marge = 0 * TILE_SIZE
+        marge = 0 * settings.tile_size
         limit_left = 0 - marge
-        limit_right = (16 * TILE_SIZE) + marge
-        limit_top = (2 * TILE_SIZE) - marge
-        limit_bottom = (13 * TILE_SIZE) + marge
+        limit_right = (16 * settings.tile_size) + marge
+        limit_top = (2 * settings.tile_size) - marge
+        limit_bottom = (13 * settings.tile_size) + marge
         if (hx < limit_left) or (hx + hw > limit_right) or (hy < limit_top) or (hy + hh > limit_bottom):
             scene.sfx_manager.play("snd_woodhit")
             self.die()

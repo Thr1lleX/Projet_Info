@@ -3,8 +3,8 @@
 
 import math
 from game.attacks.attack_entity import PersistentAttack
-from game.config import TILE_SIZE
 from game.dropped_item import DroppedItem
+from game.settings import settings
 
 class Boomerang(PersistentAttack):
     def __init__(self, source, direction):
@@ -57,7 +57,7 @@ class Boomerang(PersistentAttack):
 
     def update_position(self):
         dist_px = ((self.x - self.start_x)**2 + (self.y - self.start_y)**2)**0.5
-        dist_tiles = dist_px / TILE_SIZE
+        dist_tiles = dist_px / settings.tile_size
         
         # etat aller
         if not self.returning:
@@ -71,7 +71,7 @@ class Boomerang(PersistentAttack):
             # pas nulle sinon se bloque
             current_speed = max(self.f_exp(-dist_tiles + self.max_travel_dist), 0.2)
             
-            move_dist = current_speed * TILE_SIZE * self.current_dt
+            move_dist = current_speed * settings.tile_size * self.current_dt
 
             if self.direction == "up": self.y -= move_dist
             elif self.direction == "down": self.y += move_dist
@@ -84,17 +84,17 @@ class Boomerang(PersistentAttack):
             dy = self.source.y - self.y
             dist_to_player = (dx**2 + dy**2)**0.5
 
-            if dist_to_player < TILE_SIZE * 0.5:
+            if dist_to_player < settings.tile_size * 0.5:
                 self.die()
                 return
 
-            dist_since_turn = math.hypot(self.x - self.turn_x, self.y - self.turn_y) / TILE_SIZE
+            dist_since_turn = math.hypot(self.x - self.turn_x, self.y - self.turn_y) / settings.tile_size
             
             current_speed = max(self.f_exp(dist_since_turn), 0.05)
 
             if dist_to_player > 0:
-                self.x += (dx / dist_to_player) * current_speed * TILE_SIZE * self.current_dt
-                self.y += (dy / dist_to_player) * current_speed * TILE_SIZE * self.current_dt
+                self.x += (dx / dist_to_player) * current_speed * settings.tile_size * self.current_dt
+                self.y += (dy / dist_to_player) * current_speed * settings.tile_size * self.current_dt
 
         self.setPos(self.x + self.anim_offset[0], self.y + self.anim_offset[1]) 
         

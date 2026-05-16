@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from game.attacks.attack_entity import PersistentAttack
-from game.config import TILE_SIZE
 
 class Fireball(PersistentAttack):
     def __init__(self, source, direction):

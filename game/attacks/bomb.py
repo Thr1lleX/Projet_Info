@@ -4,10 +4,11 @@ from PyQt5.QtWidgets import QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt
 
-from game.config import TILE_SIZE, BASE_TILE_SIZE
+from game.config import BASE_TILE_SIZE, HUD_HEIGHT
 from game.attacks.attack_entity import TemporaryAttack
 from game.animspr import load_animation_sequence
-from game.config import TILE_SIZE, HUD_HEIGHT
+
+from game.settings import settings
 
 class Bomb(QGraphicsPixmapItem):
     """
@@ -34,21 +35,21 @@ class Bomb(QGraphicsPixmapItem):
 
         # --- SPRITES ---
         self.sprite_normal = QPixmap("assets/player/attack/bombe.png").scaled(
-            int(TILE_SIZE * 0.75),
-            int(TILE_SIZE * 0.75),
+            int(settings.tile_size * 0.75),
+            int(settings.tile_size * 0.75),
             Qt.IgnoreAspectRatio,
             Qt.FastTransformation
         )
         self.sprite_white = QPixmap("assets/player/attack/white_bombe.png").scaled(
-            int(TILE_SIZE * 0.75),
-            int(TILE_SIZE * 0.75),
+            int(settings.tile_size * 0.75),
+            int(settings.tile_size * 0.75),
             Qt.IgnoreAspectRatio,
             Qt.FastTransformation
         )
 
         self.setPixmap(self.sprite_normal)
 
-        offset_center = (TILE_SIZE - int(TILE_SIZE * 0.75)) / 2
+        offset_center = (settings.tile_size - int(settings.tile_size * 0.75)) / 2
         self.setPos(self.x + offset_center, self.y + offset_center)
 
     def update(self, dt, scene):
@@ -114,8 +115,8 @@ class Explosion(TemporaryAttack):
         self.setPixmap(self.frames[0])
 
         self.anim_offset = (
-            -self.pos_origin[0] * TILE_SIZE,
-            -self.pos_origin[1] * TILE_SIZE
+            -self.pos_origin[0] * settings.tile_size,
+            -self.pos_origin[1] * settings.tile_size
         )
         self.raw_hitbox_data = {
             1: ((19, 29), (30, 17)),
@@ -130,8 +131,8 @@ class Explosion(TemporaryAttack):
         
         self.can_hit_source = True
         
-        center_tile_x = int(x // TILE_SIZE)
-        center_tile_y = int((y - HUD_HEIGHT * TILE_SIZE) // TILE_SIZE)
+        center_tile_x = int(x // settings.tile_size)
+        center_tile_y = int((y - HUD_HEIGHT * settings.tile_size) // settings.tile_size)
 
         # On vérifie un carré de 3x3 autour du centre
         if source.scene(): # Sécurité pour accéder à la scène
