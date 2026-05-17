@@ -29,9 +29,10 @@ Si pas d'auteur precise, ou bien le code est trop court, ou bien il est trop imp
 - update de tiles de selon action (explosion, ouverture de porte etc.)
 - settings
 - hud scene generale
+- interrupteur
 
 # En cours:
-- interrupteur
+
 
 # À faire:
 
