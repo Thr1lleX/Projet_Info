@@ -17,7 +17,7 @@
   "fade_in": 1,
   "transitions": {
     "left": "roomfighttest",
-    "right": null,
+    "right": "roomswitchtest",
     "up": "roommurstests",
     "down": "roommurstests"
   },
