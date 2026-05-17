@@ -18,10 +18,10 @@ ITEM_CATALOG = {
     "slot":0
     },
 "potion":{ 
-    "name" : "Potion de Vitesse", 
+    "name" : "Potion de Puissance", 
     "icon_path" : "assets/items/potion.png",
     "category" : "consumable",
-    "stack_max" : 10,
+    "stack_max" : 5,
     "effect" : "buff_strength_speed",
     "slot":1
     },
@@ -29,7 +29,7 @@ ITEM_CATALOG = {
     "name" : "Bombe", 
     "icon_path" : "assets/items/bombe.png",
     "category" : "consumable",
-    "stack_max" : 10,
+    "stack_max" : 20,
     "effect" : "explode",
     "slot":2
     },

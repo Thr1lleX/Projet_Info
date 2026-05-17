@@ -344,7 +344,8 @@ class HUD:
             self._mini_entries.append({
                 "item_id": item_id,
                 "text": count_text,
-                "last_count": -1
+                "last_count": -1,
+                "stack_max": data["stack_max"]
             })           
 
     # ------------------------------------------------------------------
@@ -448,6 +449,12 @@ class HUD:
             if count != entry["last_count"]:
                 entry["last_count"] = count
                 entry["text"].setPlainText(f"x{count}")
+                
+                # jaune si max atteint
+                if count >= entry["stack_max"]:
+                    entry["text"].setDefaultTextColor(QColor(235, 211, 32))
+                else:
+                    entry["text"].setDefaultTextColor(QColor(220, 220, 220))
 
     # ------------------------------------------------------------------
     # utilitaire
