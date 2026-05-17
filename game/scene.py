@@ -203,7 +203,7 @@ class GameScene(QGraphicsScene):
         height = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
         
         self.crt_overlay = QGraphicsPixmapItem()
-        self.crt_overlay.setPixmap(QPixmap("assets/scanlines.png").scaled(int(width), int(height)))
+        self.crt_overlay.setPixmap(QPixmap("assets/hud/scanlines.png").scaled(int(width), int(height)))
         self.crt_overlay.setPos(0, 0)
         self.crt_overlay.setZValue(9999)
         
