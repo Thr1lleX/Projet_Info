@@ -479,7 +479,7 @@ class Player(Entity):
             voice = "snd_charalongvoice2"
         scene.sfx_manager.play(voice)
         
-        # Créer l'épée et l'ajouter à la scène
+        # Creer l'épee et l'ajouter a la scene
         self.current_spear = Spear(self, self.direction)
         scene.addItem(self.current_spear)
 

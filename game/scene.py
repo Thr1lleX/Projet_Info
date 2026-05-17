@@ -348,6 +348,16 @@ class GameScene(QGraphicsScene):
     
         ground_pixmap = self.tileset.get(0)
         
+        
+        # forcer l'etat des blocs dynamiques selon le flag
+        blue_active = self.get_flag("blue_switch")
+        for y, row in enumerate(room["tiles"]):
+            for x, tile_id in enumerate(row):
+                if tile_id in (6.1, 6.2):
+                    room["tiles"][y][x] = 6.2 if blue_active else 6.1
+                elif tile_id in (7.1, 7.2):
+                    room["tiles"][y][x] = 7.1 if blue_active else 7.2
+        
         # dessins du sol d'abord - pas d'animation
         if ground_pixmap:
             for y, row in enumerate(room["tiles"]):
@@ -565,6 +575,31 @@ class GameScene(QGraphicsScene):
     """
     FIN DE LA SECTION MUSIQUE
     """
+    
+    def toggle_crystal_blocks(self):
+        """
+        met a jour toutes les tiles bleues/rouges de la salle courante
+        
+        si blue_switch == True : Bleu baisse (6.2), Rouge se leve (7.1)
+        si blue_switch == False : Bleu se lève (6.1), Rouge baisse (7.2)
+        """
+        if not self.room_data:
+            return
+            
+        blue_active = self.get_flag("blue_switch")
+        
+        for y, row in enumerate(self.room_data["tiles"]):
+            for x, tile_id in enumerate(row):
+                new_id = None
+                
+                if tile_id in (6.1, 6.2):
+                    new_id = 6.2 if blue_active else 6.1
+                elif tile_id in (7.1, 7.2):
+                    new_id = 7.1 if blue_active else 7.2
+                    
+                if new_id and new_id != tile_id:
+                    self.room_data["tiles"][y][x] = new_id
+                    self.refresh_single_tile(x, y, new_id)
 
     def reposition_player(self, direction):
         """
@@ -664,7 +699,6 @@ class GameScene(QGraphicsScene):
         self.enemies.clear()
         # l'ecran de game over est gere par ScreenManager.on_game_over()
                 
-            
         
 
     def load_current_save(self):
@@ -837,6 +871,9 @@ class GameScene(QGraphicsScene):
 
     def get_flag(self, flag_name):
         """
-        verifie si un flag est actif en session ou en sauvegarde
+        verifie si un flag est actif en session ou en sauvegarde avec priorite sur session
         """
-        return self.session_flags.get(flag_name) or self.current_save.get_flag(flag_name)
+        if flag_name in self.session_flags:
+            return self.session_flags[flag_name]
+        return self.current_save.get_flag(flag_name)
+        #return self.session_flags.get(flag_name) or self.current_save.get_flag(flag_name)

@@ -50,6 +50,26 @@ TILE_TYPES = {
         "name": "grass",
         "collision": 0,
         "z": 2
+    },
+    6.1: {
+        "name": "blue_block_up",
+        "collision": 1,
+        "z": 2
+    },
+    6.2: {
+        "name": "blue_block_down",
+        "collision": 0,
+        "z": 0
+    },
+    7.1: {
+        "name": "red_block_up",
+        "collision": 1,
+        "z": 2
+    },
+    7.2: {
+        "name": "red_block_down",
+        "collision": 0,
+        "z": 0
     }
 }
 
