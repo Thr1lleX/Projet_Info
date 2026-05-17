@@ -402,6 +402,18 @@ class PersistentAttack(AttackEntity):
             scene.sfx_manager.play("snd_woodhit")
             self.die()
             return
+        
+        # collision avec ennemis
+        for item in scene.items(hitbox_zone):
+            if item != self.source and item != self:
+                # si touche ennemi, disparait
+                if hasattr(item, "take_damage") and item not in self.targets_hit:
+                    item.take_damage(scene, self.damage, self)
+                    item.stun(self.do_stun)
+                    self.targets_hit.add(item)
+                    scene.sfx_manager.play("snd_woodhit")
+                    self.die() 
+                    return
 
         # collisions avec murs
         if scene.is_blocking_rect(
@@ -414,17 +426,7 @@ class PersistentAttack(AttackEntity):
             scene.sfx_manager.play("snd_woodhit")
             self.die()
             return
-        # collision avec ennemis
-        for item in scene.items(hitbox_zone):
-            if item != self.source and item != self:
-                # si touche ennemi, disparait
-                if hasattr(item, "take_damage") and item not in self.targets_hit:
-                    item.take_damage(scene, self.damage, self)
-                    item.stun(self.do_stun)
-                    self.targets_hit.add(item)
-                    scene.sfx_manager.play("snd_woodhit")
-                    self.die() 
-                    return
+
                 
     # def die(self):
     #     """ 
