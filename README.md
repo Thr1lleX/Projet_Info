@@ -32,9 +32,10 @@ Si pas d'auteur precise, ou bien le code est trop court, ou bien il est trop imp
 - interrupteur
 
 # En cours:
+- salles et reste du jeu
 
 
 # À faire:
 
 - (.exe) - pas obligatoire
-- salles et reste du jeu
+
