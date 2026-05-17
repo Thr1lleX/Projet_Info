@@ -91,6 +91,16 @@ class NPC(Interactable):
     def interact(self, scene, player=None):
         self.check_conditions(scene)
         
+        # gestion du son
+        if hasattr(scene, "sfx_manager") and scene.sfx_manager:
+            voice_key = f"snd_{self.npc_type}"
+            
+            if hasattr(scene.sfx_manager, "sounds") and voice_key in scene.sfx_manager.sounds:
+                scene.sfx_manager.play(voice_key)
+            else:
+                scene.sfx_manager.play("snd_npc")
+        
+        # gestion de l'interaction
         current_id = None
         if self.active_dialogue_list:
             current_id = self.active_dialogue_list[self.current_dialogue_index]

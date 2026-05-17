@@ -5,6 +5,7 @@ from game.interactables.npc import NPC
 from game.interactables.sign import Sign
 from game.interactables.chest import Chest 
 from game.interactables.door import LockedDoor 
+from game.interactables.crystal_switch import CrystalSwitch
 
 
 INTERACTABLE_TYPES = {
@@ -12,6 +13,7 @@ INTERACTABLE_TYPES = {
     "npc": NPC,
     "sign" : Sign,
     "chest": Chest,
-    "locked_door": LockedDoor
+    "locked_door": LockedDoor,
+    "crystal_switch": CrystalSwitch
 }
 
