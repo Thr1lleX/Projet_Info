@@ -50,7 +50,8 @@
       "id": "monstre_permanent",
       "type": "placeholder1",
       "x": 4,
-      "y": 8
+      "y": 8,
+	  "set_flag": "sword_tungsten"
     }
 ]
 }
