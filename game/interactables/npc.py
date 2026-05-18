@@ -93,17 +93,18 @@ class NPC(Interactable):
         self.check_conditions(scene)
         
         # gestion du son
-        if hasattr(scene, "sfx_manager") and scene.sfx_manager:
-            base_voice_key = f"snd_{self.npc_type}"
-            
-            # on recupere toutes les cles qui commencent par le nom (ex: snd_old_man, snd_old_man1, snd_old_man2)
-            available_sounds = [key for key in scene.sfx_manager.sounds.keys() if key.startswith(base_voice_key)]
-            
-            if available_sounds:
-                chosen_voice = random.choice(available_sounds)
-                scene.sfx_manager.play(chosen_voice)
-            else:
-                scene.sfx_manager.play("snd_npc")
+        if self.type != "sign":
+            if hasattr(scene, "sfx_manager") and scene.sfx_manager:
+                base_voice_key = f"snd_{self.npc_type}"
+                
+                # on recupere toutes les cles qui commencent par le nom (ex: snd_old_man, snd_old_man1, snd_old_man2)
+                available_sounds = [key for key in scene.sfx_manager.sounds.keys() if key.startswith(base_voice_key)]
+                
+                if available_sounds:
+                    chosen_voice = random.choice(available_sounds)
+                    scene.sfx_manager.play(chosen_voice)
+                else:
+                    scene.sfx_manager.play("snd_npc")
         
         # gestion de l'interaction
         current_id = None
