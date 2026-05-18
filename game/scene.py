@@ -20,6 +20,7 @@ from game.settings import settings
 from game.player import Player
 from game.enemies.enemy_registry import ENEMY_TYPES
 from game.animspr import load_animation_sequence
+from game.poof_effect import PoofEffect
 
 from game.save_manager import SaveManager
 from game.interactables.interactable_registry import INTERACTABLE_TYPES
@@ -85,6 +86,9 @@ class GameScene(QGraphicsScene):
         self.animated_tile_items = [] 
         self.animation_timer = 0
         self.frame_duree = 0.5 #duree de frame d'animation tile avant changement
+        
+        self.visual_effects = []
+        self.magic_walls_poofed = False
 
         # save courante
         self.current_save = None
@@ -134,6 +138,11 @@ class GameScene(QGraphicsScene):
         
         self.update_crt()
         
+        for effect in self.visual_effects[:]:
+            if effect.update(dt):
+                self.removeItem(effect)
+                self.visual_effects.remove(effect)
+        
         # dialogue continue meme si jeu bloque
         self.dialogue_manager.update(dt)
         
@@ -141,6 +150,12 @@ class GameScene(QGraphicsScene):
             return
 
         if not self.is_transitioning:
+            #gestion de surveillange du flag de magic_wall
+            magic_flag = self.room_data.get("magic_wall")
+            poofed_room_flag = f"magic_poofed_{self.current_room}"
+            if magic_flag and self.get_flag(magic_flag) and not self.get_flag(poofed_room_flag):
+                self.poof_all_magic_walls()
+                
             self.player.update(dt, self)
             self.check_room_transition()
             self.update_animations(dt)
@@ -294,14 +309,23 @@ class GameScene(QGraphicsScene):
             
             # code pour looper si animation de tiles
             if props.get("animated"):
-    
                 path = f"assets/{biome_name}/{name}"
-                sequence = load_animation_sequence(path, (1, 1), None)
+                sequence = None
                 
-                if not sequence and biome_name != "default":
-                    sequence = load_animation_sequence(path,(1,1), None)
-                    # self.tileset[tile_id] = sequence
-            
+                try:
+                    # on essaie dans le biome actuel
+                    sequence = load_animation_sequence(path, (1, 1), None)
+                except FileNotFoundError:
+                    # si ca echoue, on tente le fallback dans default
+                    if biome_name != "default":
+                        path_fallback = f"assets/default/{name}"
+                        try:
+                            sequence = load_animation_sequence(path_fallback, (1, 1), None)
+                            if DEBUG:
+                                print(f"  > Séquence '{name}' non trouvée dans {biome_name}, utilisation du dossier default.")
+                        except FileNotFoundError:
+                            pass
+                
                 if sequence:
                     self.tileset[tile_id] = sequence
                 elif DEBUG:
@@ -345,7 +369,18 @@ class GameScene(QGraphicsScene):
     
         biome_actuel = room.get("biome", "default")
         self.load_biome_tileset(biome_actuel)
-    
+        
+        # gesiton du flag magic_wall, si present supprime tile
+        magic_flag = room.get("magic_wall")
+        # flag pour check si on a deja poof dans salle
+        poofed_room_flag = f"magic_poofed_{self.current_room}"   
+        if magic_flag and self.get_flag(magic_flag):
+            if self.get_flag(poofed_room_flag):
+                for y, row in enumerate(room["tiles"]):
+                    for x, tile_id in enumerate(row):
+                        if tile_id == 8:
+                            room["tiles"][y][x] = 0
+                            
         ground_pixmap = self.tileset.get(0)
         
         
@@ -457,6 +492,8 @@ class GameScene(QGraphicsScene):
         self.room_data = room
         self.enemies = []
         self.dropped_items = []
+        self.magic_walls_poofed = False 
+        self.visual_effects.clear()
     
         # netoyer frames animees
         self.animated_tile_items.clear()
@@ -757,6 +794,24 @@ class GameScene(QGraphicsScene):
             self.session_flags[wall_flag] = True
 
             self.refresh_single_tile(tile_x, tile_y, 2.2)
+            
+    def poof_all_magic_walls(self):
+        """
+        dans une meme piece
+        """
+        poofed_room_flag = f"magic_poofed_{self.current_room}"
+        for y, row in enumerate(self.room_data["tiles"]):
+            for x, tile_id in enumerate(row):
+                if tile_id == 8:
+                    self.room_data["tiles"][y][x] = 0
+                    
+                    self.refresh_single_tile(x, y, 0)
+                    
+                    effect = PoofEffect(x, y)
+                    self.addItem(effect)
+                    self.visual_effects.append(effect)
+        self.session_flags[poofed_room_flag] = True
+        self.sfx_manager.play("snd_poof")
 
     def refresh_single_tile(self, tx, ty, new_id):
         """

@@ -70,7 +70,14 @@ TILE_TYPES = {
         "name": "red_block_down",
         "collision": 0,
         "z": 0
-    }
+    },
+    8: {
+        "name": "magic_wall",
+        "collision": 1,
+        "animated": True,
+        "z": 2,
+        "poofable": True
+    },
 }
 
 """
