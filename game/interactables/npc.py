@@ -4,6 +4,7 @@
 from game.interactables.interactable import Interactable
 from game.animspr import load_animation_sequence
 from game.config import DEBUG
+import random 
 
 class NPC(Interactable):
     def __init__(self, scale, x, y, npc_type=None, dialogue_id=None,conditional_rules=None):
@@ -93,10 +94,14 @@ class NPC(Interactable):
         
         # gestion du son
         if hasattr(scene, "sfx_manager") and scene.sfx_manager:
-            voice_key = f"snd_{self.npc_type}"
+            base_voice_key = f"snd_{self.npc_type}"
             
-            if hasattr(scene.sfx_manager, "sounds") and voice_key in scene.sfx_manager.sounds:
-                scene.sfx_manager.play(voice_key)
+            # on recupere toutes les cles qui commencent par le nom (ex: snd_old_man, snd_old_man1, snd_old_man2)
+            available_sounds = [key for key in scene.sfx_manager.sounds.keys() if key.startswith(base_voice_key)]
+            
+            if available_sounds:
+                chosen_voice = random.choice(available_sounds)
+                scene.sfx_manager.play(chosen_voice)
             else:
                 scene.sfx_manager.play("snd_npc")
         
