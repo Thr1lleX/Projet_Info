@@ -1,29 +1,35 @@
 {
-  "current_room": "room3",
-  "current_health": 5.5,
-  "player_x": 8.57,
-  "player_y": 5.82,
+  "current_room": "roomdialoguetests",
+  "current_health": 6,
+  "player_x": 8.02,
+  "player_y": 2.77,
   "flags": {
     "boss_vaincu": true,
-    "sword_upgrade": true
+    "sword_upgrade": true,
+    "magic_poofed_roomswitchtest": true,
+    "opened_chest_roommurstests_9_9": true,
+    "has_boomerang": true,
+    "magic_poofed_roomfighttest": true,
+    "opened_chest_roommurstests_13_6": true,
+    "broken_roommurstests_6_4": true,
+    "broken_roommurstests_7_4": true,
+    "magic_poofed_roommurstests": true,
+    "blue_switch": false
   },
   "inventory": {
     "slots": [
       {
-        "slot": 0,
-        "item_id": "pomme",
-        "count": 1
-      },
-      {
         "slot": 2,
         "item_id": "bombe",
-        "count": 10
+        "count": 9
+      },
+      {
+        "slot": 3,
+        "item_id": "boomerang",
+        "count": 1
       }
     ],
-    "collectibles": {
-      "key": 7,
-      "mana": 7
-    },
-    "equipped_item": null
+    "collectibles": {},
+    "equipped_item": "bombe"
   }
 }

@@ -31,7 +31,12 @@
         "slot": 3,
         "item_id": "boomerang",
         "count": 1
-      }
+      },
+	  {
+		  "slot":5,
+		  "item_id" :"spear",
+		  "count":1
+	  }
     ],
     "equipped_item": "boomerang"
   }
