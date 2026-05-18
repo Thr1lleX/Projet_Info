@@ -16,7 +16,7 @@
   "music": "mus_overworld",
   "transitions": {
     "left": "room2",
-    "right": "room5",
+    "right": "room_ocean1",
     "up": null,
     "down": "room3"
   },
