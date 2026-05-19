@@ -15,6 +15,7 @@ from game.enemies.enemy import Enemy
 #from game.window import GameWindow
 from game.attacks.sword_slash import SwordSlash
 from game.attacks.sword_slash_upgrade import SwordSlashUpgrade
+from game.attacks.sword_slash_tungsten import SwordSlashTungsten
 from game.item_effects import use_item
 from game.attacks.spear import Spear
 from game.attacks.test_fireball import Fireball
@@ -451,8 +452,8 @@ class Player(Entity):
         
         if scene.get_flag("sword_upgrade"):
             SwordClass = SwordSlashUpgrade
-        # elif scene.get_flag("fire_sword"):
-        #     SwordClass = FireSword
+        elif scene.get_flag("sword_tungsten"):
+            SwordClass = SwordSlashTungsten
         else:
             SwordClass = SwordSlash
         self.current_sword = SwordClass(self, self.direction)

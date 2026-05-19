@@ -399,6 +399,8 @@ class HUD:
         
         if scene.get_flag("sword_upgrade"):
                 sword_path = "assets/items/sword_upgrade.png"
+        elif scene.get_flag("sword_tungsten"):
+                sword_path = "assets/items/sword_tungsten"
 
         # mise a jour si palier a change
         if getattr(self, "_cache_sword_path", None) != sword_path:
