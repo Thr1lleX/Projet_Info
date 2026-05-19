@@ -7,4 +7,4 @@ class SwordSlashUpgrade(SwordSlash):
         
         super().__init__(player, direction,spr_path = "player/attack/sword_upgrade")
         
-        self.damage = self.source.damage * 2
+        self.damage = self.source.damage * 5
