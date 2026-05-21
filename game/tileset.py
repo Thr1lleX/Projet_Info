@@ -35,6 +35,11 @@ TILE_TYPES = {
         "collision": 0,
         "z": 0
     },
+    2.5: {
+        "name": "wall",
+        "collision": 0,
+        "z": 2
+    },
     3: {
         "name": "black",
         "collision": 0,
@@ -78,6 +83,11 @@ TILE_TYPES = {
         "z": 2,
         "poofable": True
     },
+    9: {
+        "name": "bridge",
+        "collision": 0,
+        "z": 1
+    }
 }
 
 """

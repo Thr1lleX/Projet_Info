@@ -456,7 +456,24 @@ class GameScene(QGraphicsScene):
     
         self.spawn_enemies(room)
         self.spawn_interactables(room)
-
+        
+        if biome_actuel == "mountain":
+            try:
+                self.snow_frames = load_animation_sequence("assets/mountain/falling_snow", (1, 1))
+                
+                if self.snow_frames:
+                    full_width = GRID_WIDTH * settings.tile_size
+                    full_height = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
+                    self.snow_overlay = QGraphicsRectItem(0, 0, full_width, full_height)
+                    brush = QBrush(self.snow_frames[0])
+                    brush.setStyle(Qt.TexturePattern) 
+                    self.snow_overlay.setBrush(brush)
+                    self.snow_overlay.setPen(QPen(Qt.NoPen))
+                    self.snow_overlay.setZValue(200)
+                    self.addItem(self.snow_overlay)
+            except FileNotFoundError:
+                if DEBUG: print("Erreur : Sprite 'falling_snow' introuvable.")
+                
     def update_animations(self, dt):
         self.animation_timer += dt
         frame_index = int(self.animation_timer / self.frame_duree)
@@ -465,6 +482,14 @@ class GameScene(QGraphicsScene):
             frames = self.tileset[tile_id]
             current_frame = frame_index % len(frames)
             item.setPixmap(frames[current_frame])
+            
+        # animation overlay neige
+        if hasattr(self, 'snow_overlay') and self.snow_overlay and self.snow_frames:
+            snow_frame_index = int((self.animation_timer * FPS) / self.frame_duree)
+            current_frame = snow_frame_index % len(self.snow_frames)
+            brush = self.snow_overlay.brush()
+            brush.setTexture(self.snow_frames[current_frame])
+            self.snow_overlay.setBrush(brush)
             
             
     # --- CHARGEMENT DES SALLES ---
@@ -497,6 +522,8 @@ class GameScene(QGraphicsScene):
     
         # netoyer frames animees
         self.animated_tile_items.clear()
+        self.snow_anim_data = None
+        
         # nettoyer scene (items persistants), conserver joueur, ecran, fondu... lors de chgmt
         for item in list(self.items()):
             if item not in self.persistent_items: 
