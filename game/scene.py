@@ -506,6 +506,8 @@ class GameScene(QGraphicsScene):
         self.draw_room(room)
     
         self.reposition_player(direction)
+        
+        if DEBUG: print(f"> Current Room : {room_name}")
     
     def check_room_transition(self):
         if self.is_transitioning: #check pour empecher transitions multiples
