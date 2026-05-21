@@ -80,6 +80,15 @@
       "tu fais peur en fait"
     ]
   },
+  "minou_boss": {
+	  "font" : "font4",
+	  "lines": [
+	    "tes vraimen 1 gar bg pr avoir tuer thun thun thun sahur",
+		"brr brr brr patapim c moi",
+		"taa buter la concurense'.",
+		"zizi_lian"
+		]
+  },
   "panneau_test": {
     "lines": [
       "ceci n'est pas un panneau"
@@ -91,5 +100,44 @@
       "En tant que panneau, je suis profondément choqué."
     ],
 	"set_flag": ["sword_upgrade","jesus"]
+  },
+  "farmer_desert1": {
+    "lines": [
+      "Salut mec. Comment ça va ?"
+    ]
+  },
+  "farmer_desert2": {
+    "lines": [
+      "Moi perso, j'me détends.",
+	  "Je sais pas pourquoi les monstres ne m'attaquent pas.",
+	  "Sûrement les developpeurs qui avaient la flemme de donner des points de vie aux pnjs."
+    ]
+  },
+  "farmer_desert3": {
+    "lines": [
+      "Du coup j'me détends.",
+	  "C'est plutôt bien ici."
+    ]
+  },
+  "farmer_desert4": {
+    "lines": [
+      "Dis donc, t'es plutôt opiniâtre toi.",
+	  "Si tu veux, je vais te dire un secret.",
+	  "À ce qu'il paraît, on raconte qu'une clef cachée se trouve vers le nord-est de la rivière.",
+	  "Tu devrais tenter d'y faire péter des trucs ;)"
+    ]
+  },
+  "farmer_desert_secret_key": {
+    "lines": [
+      "Ah? Alors apparemment y'avait pas de clef ?",
+	  "J'me suis p'tet trompé.",
+	  "Je pense pas pourtant. Ah! Mais, vous les jeunots vous êtes bien impatients."
+    ]
+  },
+  "farmer_desert_secret_key2": {
+    "lines": [
+      "Pourquoi tu cherchais cette clef à la base ?",
+	  "Bahahaha! Va savoir!"
+    ]
   }
 }
