@@ -15,7 +15,7 @@
   "biome": "desert",
   "music": "mus_overworld",
   "transitions": {
-    "left": null,
+    "left": "room_riverE4",
     "right": "room4",
     "up": "room7",
     "down": null

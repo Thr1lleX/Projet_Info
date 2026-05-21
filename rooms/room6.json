@@ -15,9 +15,9 @@
   "biome": "desert",
   "music": "mus_overworld",
   "transitions": {
-    "left": null,
+    "left": "room_riverE2",
     "right": "room5",
-    "up": null,
+    "up": "room_riverF1",
     "down": "room7"
   },
   "enemies": [

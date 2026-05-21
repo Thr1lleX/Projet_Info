@@ -15,7 +15,7 @@
   "magic_wall" : "broken_roommurstests_7_4",
   "biome" : "desert",
   "music": "mus_town",
-  "fade_in": 1,
+  "fade_in": 2,
   "transitions": {
     "left": "roomfighttest",
     "right": "roomswitchtest",

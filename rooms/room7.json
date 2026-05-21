@@ -7,7 +7,7 @@
     [0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0],
-    [1, 0, 1, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 0, 1, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0],
     [0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -15,7 +15,7 @@
   "biome": "desert",
   "music": "mus_overworld",
   "transitions": {
-    "left": "room_plaine1",
+    "left": "room_riverE3",
     "right": "room2",
     "up": "room6",
     "down": "room8"
@@ -23,10 +23,16 @@
   "interactables": [
     {
       "type": "npc",
-      "npc_type": "farmer",
       "x": 6,
       "y": 3,
-      "dialogue": ""
+      "npc_type": "farmer",
+      "dialogue": ["farmer_desert1","farmer_desert2","farmer_desert3","farmer_desert4"],
+	  "conditional_dialogue" : [
+	  {
+		  "flag" : "opened_chest_room_cave_secretkey2_10_4",
+		  "dialogue": ["farmer_desert_secret_key","farmer_desert_secret_key2"]
+	  }
+	  ]
     }
   ],
   "enemies": [
