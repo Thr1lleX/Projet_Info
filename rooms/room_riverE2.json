@@ -30,5 +30,25 @@
       "x": 6,
       "y": 2
     }
+  ],
+  "enemies": [
+    {
+      "id": "arakwa_4472",
+      "type": "arakwa",
+      "x": 5,
+      "y": 7
+    },
+    {
+      "id": "arakwa_3814",
+      "type": "arakwa",
+      "x": 11,
+      "y": 3
+    },
+    {
+      "id": "placeholder1_1612",
+      "type": "placeholder1",
+      "x": 7,
+      "y": 5
+    }
   ]
 }

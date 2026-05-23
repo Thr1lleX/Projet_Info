@@ -27,6 +27,12 @@
       "type": "placeholder2",
       "x": 6,
       "y": 7
+    },
+    {
+      "id": "arakwa_4890",
+      "type": "arakwa",
+      "x": 13,
+      "y": 8
     }
   ]
 }

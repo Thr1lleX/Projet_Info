@@ -19,5 +19,13 @@
     "right": "room_riverD2",
     "up": "room_riverC1",
     "down": "room_riverC3"
-  }
+  },
+  "enemies": [
+    {
+      "id": "arakwa_3278",
+      "type": "arakwa",
+      "x": 6,
+      "y": 6
+    }
+  ]
 }

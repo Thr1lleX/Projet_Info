@@ -19,5 +19,13 @@
     "right": null,
     "up": "room_cave_secretkey",
     "down": "room5"
-  }
+  },
+  "enemies": [
+    {
+      "id": "placeholder1_2802",
+      "type": "placeholder1",
+      "x": 5,
+      "y": 9
+    }
+  ]
 }

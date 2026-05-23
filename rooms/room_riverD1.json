@@ -17,7 +17,21 @@
   "transitions": {
     "left": "room_riverC1",
     "right": "room_riverE1",
-    "up": null,
+    "up": "room_river_north_cave",
     "down": "room_riverD2"
-  }
+  },
+  "enemies": [
+    {
+      "id": "arakwa_2029",
+      "type": "arakwa",
+      "x": 2,
+      "y": 8
+    },
+    {
+      "id": "arakwa_1311",
+      "type": "arakwa",
+      "x": 12,
+      "y": 7
+    }
+  ]
 }
