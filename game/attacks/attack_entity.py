@@ -39,6 +39,7 @@ class AttackEntity(QGraphicsPixmapItem):
         self.give_player_knockback = False
         self.do_stun = 0  # 0 = aucun stun, x = duree
         self.can_go_on_water = False
+        self.can_go_on_black = True
         self.can_hit_source = False
         
         # VISUELS
