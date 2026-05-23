@@ -30,6 +30,8 @@ class Enemy(Entity):
         self.damage = 1 #degats de base
         self.give_stun = 0 # duree du stun infligé au joueur (0 = pas de stun)
         
+        self.recoil_distance = 0.5 #distance qu'ils recoient lorsquent frappent joueur
+        
         # loot
         self.loot = [
             ("pomme",  0.10),
@@ -236,6 +238,13 @@ class Enemy(Entity):
             if self.give_stun > 0: 
                 # on doit additionner les temps car ils demarrent tout deux au coup
                 self.target.stun(self.give_stun+self.duree_knockback, wiggle=True)
+                
+            old_player_kb = self.target.knockback
+            self.target.knockback = self.recoil_distance
+            
+            self.get_knockback(scene, self.target)
+            
+            self.target.knockback = old_player_kb
 
     def draw_debug_path(self, scene):
         # Clear old items
