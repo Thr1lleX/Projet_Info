@@ -99,6 +99,7 @@ class Entity(QGraphicsPixmapItem):
         self.death_cry = "snd_placeholderdeath"
 
         self.can_go_on_water = False
+        self.can_go_on_black = False
         
         
         # --- STUN ANIMATION'---

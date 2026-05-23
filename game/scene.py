@@ -279,6 +279,9 @@ class GameScene(QGraphicsScene):
             if tile["name"] == "water" and entity.can_go_on_water:
                 continue
             
+            if tile["name"] == "black" and entity.can_go_on_black:
+                continue
+            
             if tile["collision"] == 1:
                 return True
         
@@ -382,6 +385,8 @@ class GameScene(QGraphicsScene):
                             room["tiles"][y][x] = 0
                             
         ground_pixmap = self.tileset.get(0)
+        is_ocean_room = self.current_room.startswith("room_ocean")
+        water_data = self.tileset.get(4)
         
         
         # forcer l'etat des blocs dynamiques selon le flag
@@ -394,17 +399,22 @@ class GameScene(QGraphicsScene):
                     room["tiles"][y][x] = 7.1 if blue_active else 7.2
         
         # dessins du sol d'abord - pas d'animation
-        if ground_pixmap:
-            for y, row in enumerate(room["tiles"]):
-                for x, _ in enumerate(row):
+        for y, row in enumerate(room["tiles"]):
+            for x, tile_id in enumerate(row):
+                ground_item = None
+                if is_ocean_room and tile_id in (2, 2.5) and isinstance(water_data, list):
+                    ground_item = QGraphicsPixmapItem(water_data[0])
+                    self.animated_tile_items.append((ground_item, 4))
+                elif ground_pixmap:
                     ground_item = QGraphicsPixmapItem(ground_pixmap)
+                if ground_item:     
                     ground_item.setPos(
                         x * settings.tile_size,
                         (y + HUD_HEIGHT) * settings.tile_size
                     )
                     ground_item.setZValue(TILE_TYPES[0].get("z", 0))
                     self.addItem(ground_item)
-    
+
         # dessins des autres tiles
         for y, row in enumerate(room["tiles"]):
             for x, tile_id in enumerate(row):
@@ -473,6 +483,8 @@ class GameScene(QGraphicsScene):
                     self.addItem(self.snow_overlay)
             except FileNotFoundError:
                 if DEBUG: print("Erreur : Sprite 'falling_snow' introuvable.")
+                
+        
                 
     def update_animations(self, dt):
         self.animation_timer += dt

@@ -45,6 +45,11 @@ TILE_TYPES = {
         "collision": 0,
         "z": 0
     },
+    3.5: {
+        "name": "black",
+        "collision": 1,
+        "z": 0
+    },
     4: {
         "name": "water",
         "collision": 1,
