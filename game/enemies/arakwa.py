@@ -13,7 +13,7 @@ class Arakwa(Enemy):
         super().__init__(scale, x, y)
 
         # --- STATS ---
-        self.speed = settings.base_speed * 0.8
+        self.speed = settings.base_speed * 0.95
         self._pv_max = 3
         self.pv_main = self._pv_max
         self.aggro_range = settings.tile_size * 12
@@ -41,6 +41,8 @@ class Arakwa(Enemy):
 
         # Assigne les sprites initiaux
         self.set_sprites(self.sprite_normal)
+        
+        self.death_cry = "snd_death_arakwa"
 
         # --- ETATS DE SAUT ---
         self.tile_max_saut = 3
