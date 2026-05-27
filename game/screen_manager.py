@@ -357,6 +357,11 @@ class ScreenManager:
             # self.inventory.equip_item("bombe")
         if hasattr(self, 'music_manager'):
             self.music_manager.stop()
+            
+        controls_scr = self._screens.get(self.STATE_CONTROLS)
+        if hasattr(controls_scr, 'reset_build'):
+            controls_scr.reset_build()
+            
         self.show_screen("controls")
         self.state = self.STATE_CONTROLS
 
