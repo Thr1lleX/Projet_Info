@@ -92,6 +92,11 @@ TILE_TYPES = {
         "name": "bridge",
         "collision": 0,
         "z": 1
+    },
+    10: {
+        "name": "ice",
+        "collision": 0,
+        "z": 1
     }
 }
 

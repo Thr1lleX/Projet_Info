@@ -704,6 +704,19 @@ class GameScene(QGraphicsScene):
             self.player.y = HUD_HEIGHT * settings.tile_size + OFFSET - self.player.hitbox_offset_y * settings.tile_size
     
         self.player.update_graphics()
+        
+
+    def get_tile_id_at(self, x, y):
+        """
+        renvoie l'ID de la tile aux coordonnees pixel (x, y)
+        utilisee pour gestion des tiles de glace
+        """
+        tile_x = int(x // settings.tile_size)
+        tile_y = int((y - HUD_HEIGHT * settings.tile_size) // settings.tile_size)
+    
+        if 0 <= tile_x < GRID_WIDTH and 0 <= tile_y < GRID_HEIGHT:
+            return self.room_data["tiles"][tile_y][tile_x]
+        return -1
 
     def spawn_enemies(self, room):
         """

@@ -370,7 +370,7 @@ class HUD:
                 full.show()
                 half.hide()
                 empty.hide()
-            elif heart_value == 0.5:
+            elif 1 > heart_value >= 0.5:
                 full.hide()
                 half.show()
                 empty.hide()

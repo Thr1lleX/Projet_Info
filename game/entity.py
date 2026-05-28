@@ -29,6 +29,7 @@ class Entity(QGraphicsPixmapItem):
         self.pv_main = 1
         self.speed = 0
         self.is_damaged = False
+        self.defense = 1
         
         # -- Damages---
         self.is_damaged = False
@@ -237,7 +238,7 @@ class Entity(QGraphicsPixmapItem):
         if self.is_invulnerable:
             return 
         
-        self.pv_main -= damage
+        self.pv_main -= damage/self.defense
         if self.cries and self.pv_main > 0: #jouer un cri aleatoire parmi liste de cris, en general 2
             scene.sfx_manager.play(random.choice(self.cries))
 

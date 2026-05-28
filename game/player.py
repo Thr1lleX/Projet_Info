@@ -45,6 +45,8 @@ class Player(Entity):
         self._pv_max = 6
         self.pv_main = self._pv_max
         
+        self.defense = 1
+        
         # --Attaques--
         
         self.attack_cooldown = 0
@@ -83,16 +85,16 @@ class Player(Entity):
         self.keys = set()
         # --- SPRITES ---
         self.sprites = {
-            "down": QPixmap("assets/chara_face.png").scaled(
+            "down": QPixmap("assets/player/move/chara_face.png").scaled(
                 settings.tile_size, settings.tile_size, transformMode=Qt.FastTransformation
             ),
-            "up": QPixmap("assets/chara_back.png").scaled(
+            "up": QPixmap("assets/player/move/chara_back.png").scaled(
                 settings.tile_size, settings.tile_size, transformMode=Qt.FastTransformation
             ),
-            "left": QPixmap("assets/chara_left.png").scaled(
+            "left": QPixmap("assets/player/move/chara_left.png").scaled(
                 settings.tile_size, settings.tile_size, transformMode=Qt.FastTransformation
             ),
-            "right": QPixmap("assets/chara_right.png").scaled(
+            "right": QPixmap("assets/player/move/chara_right.png").scaled(
                 settings.tile_size, settings.tile_size, transformMode=Qt.FastTransformation
             ),
         }
@@ -139,9 +141,16 @@ class Player(Entity):
         self.projectiles_cooldown = 0
         self.projectiles_delay = 0.4 #0.5s min entre chaque
         
+        self.current_outfit = "default"
+        
         self.shout_pressed = False
         self.shout_cooldown = 0
         self.shout_delay = 1.0
+        
+        # etat de slide
+        self.is_sliding = False
+        self.slide_dir = (0, 0)
+        self.slide_speed_multiplier = 1.25
         
         # INTERACTION
         self.interact_pressed = False
@@ -155,6 +164,10 @@ class Player(Entity):
         self.update_graphics()
 
     def key_press(self, key):
+        
+        if self.is_sliding:
+            return
+    
         self.keys.add(key)
         
         scene = self.scene()
@@ -213,16 +226,79 @@ class Player(Entity):
             return
 
         # # 2 - deplacements
-        # bloque le joueur si knockback, mais autorise wiggle de stun
-        if self.kb_active:
-            self.apply_knockback(dt, scene)
-        if self.is_stunned:
-            self.apply_stun_wiggle(dt, scene)
-        elif self.is_attacking or self.is_usingspear:
-            # bloque le joeur durant animation d'attaque
-            pass
-        else:
-            self.handle_inputs(dt, scene)
+        
+        # detection de la glace (se fait par rapport au centre du joueur)
+        px, py, pw, ph = self.get_hitbox()
+        center_x = px + pw / 2
+        center_y = py + ph / 2
+        
+        current_tile = scene.get_tile_id_at(center_x, center_y)
+        
+        # slide
+        if current_tile == 10 and not self.is_sliding:
+            dx, dy = 0, 0
+            if settings.keys["UP"] in self.keys: dy = -1
+            elif settings.keys["DOWN"] in self.keys: dy = 1
+            elif settings.keys["LEFT"] in self.keys: dx = -1
+            elif settings.keys["RIGHT"] in self.keys: dx = 1
+            
+            if dx != 0 or dy != 0:
+                if dx > 0:
+                    self.direction = "right"
+                elif dx < 0:
+                    self.direction = "left"
+                elif dy > 0:
+                    self.direction = "down"
+                elif dy < 0:
+                    self.direction = "up"
+            
+                self.is_sliding = True
+                self.slide_dir = (dx, dy)
+            
+                self.keys.clear() # on vide pour eviter touches fantomes apres pause
+        
+        # mouvement forcé
+        if self.is_sliding:
+        
+            dx, dy = self.slide_dir
+        
+            # sauvegarde position avant move
+            old_x = self.x
+            old_y = self.y
+            old_speed = self.speed
+            self.speed *= self.slide_speed_multiplier
+            
+            self.move(dx, dy, dt, scene)
+            
+            self.speed = old_speed
+        
+            # collision si position inchangée
+            collided = (self.x == old_x and self.y == old_y)
+        
+            # recalcul tile après déplacement
+            px, py, pw, ph = self.get_hitbox()
+        
+            center_x = px + pw / 2
+            center_y = py + ph / 2
+        
+            new_tile = scene.get_tile_id_at(center_x, center_y)
+        
+            # arrêt slide
+            if collided or new_tile != 10:
+                self.is_sliding = False
+                self.slide_dir = (0, 0)
+        
+        if not self.is_sliding:
+            # bloque le joueur si knockback, mais autorise wiggle de stun
+            if self.kb_active:
+                self.apply_knockback(dt, scene)
+            if self.is_stunned:
+                self.apply_stun_wiggle(dt, scene)
+            elif self.is_attacking or self.is_usingspear:
+                # bloque le joeur durant animation d'attaque
+                pass
+            else:
+                self.handle_inputs(dt, scene)
         
         if self.shout_cooldown > 0:
             self.shout_cooldown = max(0, self.shout_cooldown - dt)
@@ -361,6 +437,38 @@ class Player(Entity):
             self.can_go_on_water = True
         else:
             self.can_go_on_water = False
+            
+        if scene.current_save.get_flag("has_gilet_jaune") or scene.session_flags.get("has_gilet_jaune"):
+            if self.current_outfit != "gilet_jaune":
+                self.apply_gilet_jaune_outfit()
+                
+    def apply_gilet_jaune_outfit(self):
+        """
+        change les stats et les textures du joueur
+        """
+        self.defense = 2
+        self.current_outfit = "gilet_jaune"
+        
+        new_paths = {
+            "down": "assets/player/move/chara_face_gilet_jaune.png",
+            "up": "assets/player/move/chara_back_gilet_jaune.png",
+            "left": "assets/player/move/chara_left_gilet_jaune.png",
+            "right": "assets/player/move/chara_right_gilet_jaune.png",
+        }
+
+        for direction, path in new_paths.items():
+            new_pix = QPixmap(path).scaled(
+                settings.tile_size, settings.tile_size, transformMode=Qt.FastTransformation
+            )
+            
+            self._base_sprites[direction] = new_pix
+            self.sprites[direction] = new_pix
+            
+        self.setPixmap(self.sprites[self.direction])
+        
+        
+        
+                
     """
     Fonctions pour quitter le jeu
     """

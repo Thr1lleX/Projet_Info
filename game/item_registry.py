@@ -76,6 +76,15 @@ ITEM_CATALOG = {
         "effect" : None,
         "slot": None
     },
+    "gilet_jaune": {
+        "name" : "Gilet Jaune", 
+        "icon_path" : "assets/items/gilet_jaune.png",
+        "category" : "permanent",
+        "stack_max" : 1,
+        "effect" : None,
+        "slot": 6,
+        "required_flag": "has_gilet_jaune"
+    }
 }
 
 
