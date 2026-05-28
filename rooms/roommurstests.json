@@ -48,6 +48,12 @@
 	  "loot": ["bombe",10]
   },
     {
+	  "type":"chest",
+	  "x":15,
+	  "y":3,
+	  "loot": "gilet_jaune"
+  },
+    {
 	  "type":"locked_door",
 	  "x":12,
 	  "y":0

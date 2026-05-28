@@ -17,8 +17,8 @@
   "fade_in": 10,
   "transitions": {
     "left": "room_ocean5",
-    "right": null,
-    "up": null,
+    "right": "room_mountainB2",
+    "up": "room_mountainA1",
     "down": "room_ocean2"
   },
   "interactables": [

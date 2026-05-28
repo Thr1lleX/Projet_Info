@@ -20,5 +20,12 @@
     "right": "room_ocean2",
     "up": null,
     "down": "room_ocean4"
-  }
+  },
+  "conditional_transitions": [
+    {
+      "flag": "open_passage",
+      "direction": "right",
+      "target": "room_ocean3"
+    }
+  ]
 }
