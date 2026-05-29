@@ -252,22 +252,22 @@ class GameScene(QGraphicsScene):
             tile_y = int((py - HUD_HEIGHT * settings.tile_size) // settings.tile_size)
     
             if tile_x < 0:
-                if transitions.get("left"):
+                if entity == self.player and transitions.get("left"):
                     continue
                 return True
     
             if tile_x >= GRID_WIDTH:
-                if transitions.get("right"):
+                if entity == self.player and transitions.get("right"):
                     continue
                 return True
     
             if tile_y < 0:
-                if transitions.get("up"):
+                if entity == self.player and transitions.get("up"):
                     continue
                 return True
     
             if tile_y >= GRID_HEIGHT:
-                if transitions.get("down"):
+                if entity == self.player and transitions.get("down"):
                     continue
                 return True
     
