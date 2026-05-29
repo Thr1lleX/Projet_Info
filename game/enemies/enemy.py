@@ -48,6 +48,12 @@ class Enemy(Entity):
         self.show_path = DEBUG
         self.path_rects = []
         self.path_lines = []
+        
+        # Wandering
+        self.idle_timer = 0.0
+        self.idle_state = "pause"
+        self.idle_dx = 0
+        self.idle_dy =0
 
 
         if DEBUG:
@@ -88,6 +94,7 @@ class Enemy(Entity):
 
         # joueur trop loin
         if dist > self.aggro_range:
+            self.wander(dt, scene)
             self.update_graphics()
             self.update_damage_state(dt)
             return
@@ -284,6 +291,41 @@ class Enemy(Entity):
 
             # Update current to next point
             current_x, current_y = px, py
+            
+    def wander(self,dt,scene):
+        """
+        fonction qui gere le mouvement aleatoire des ennemis. appelee lorsque joueur hors range
+        """
+        self.idle_timer -= dt
+
+        # si le timer est termine, on choisit une nouvelle action
+        if self.idle_timer <= 0:
+            # 50% de chance de bouger, 50% de chance d'attendre sur place
+            if random.random() < 0.5:
+                self.idle_state = "move"
+                dirs = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+                self.idle_dx, self.idle_dy = random.choice(dirs)
+                # temps aleatoire de marche
+                self.idle_timer = random.uniform(0.5, 2)
+            else:
+                self.idle_state = "pause"
+                self.idle_dx = 0
+                self.idle_dy = 0
+                # temps aleatoire de pause
+                self.idle_timer = random.uniform(0.5, 1.5)
+
+        # appliquer le mouvement si l'etat est "move"
+        if self.idle_state == "move":
+            if self.idle_dx > 0: self.direction = "right"
+            elif self.idle_dx < 0: self.direction = "left"
+            elif self.idle_dy > 0: self.direction = "down"
+            elif self.idle_dy < 0: self.direction = "up"
+            old_x, old_y = self.x, self.y
+            self.move(self.idle_dx * 0.5, self.idle_dy * 0.5, dt, scene)
+            # si la position n'a pas changee alors ennemi est bloque, donc on annule le timer
+            if self.x == old_x and self.y == old_y:
+                self.idle_timer = 0.0
+        
             
         
 """
