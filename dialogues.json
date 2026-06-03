@@ -158,5 +158,29 @@
 		"C'est une longue descente...",
 		"Es-tu sûr de vouloir continuer ?"
 	]
+  },
+  "panneau_hell1": {
+	  "font" : "font2",
+	  "lines": [
+		"Dans l'entrevue de l'enfer, se cachant dans la mer de sang."
+	]
+  },
+  "panneau_hell2": {
+	  "font" : "font2",
+	  "lines": [
+		"On ne pouvait cependant pas voir plus loin que ce que l'on voyait déjà."
+	]
+  },
+  "panneau_hell3": {
+	  "font" : "font2",
+	  "lines": [
+		"Et pourtant, juste là, une lueur, brillant dans la mare rouge."
+	]
+  },
+  "panneau_hell4": {
+	  "font" : "font2",
+	  "lines": [
+		"Était-ce la raison de cette venue ? Ou pour simplement se perdre ?"
+	]
   }
 }
