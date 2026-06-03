@@ -2,10 +2,20 @@
 
 # --- TILESET --
 TILE_TYPES = {
+    -1: {
+        "name": "empty",
+        "collision": 1,
+        "z": 0
+    },
     0: {
         "name": "ground",
         "collision": 0,
         "z": 0
+    },
+    0.5: {
+        "name": "stones",
+        "collision": 0,
+        "z": 1
     },
     1: {
         "name": "tree",
@@ -97,7 +107,24 @@ TILE_TYPES = {
         "name": "ice",
         "collision": 0,
         "z": 1
-    }
+    },
+    11: {
+        "name": "house_fire",
+        "collision": 1,
+        "animated": True,
+        "z": 2
+    },
+    12: {
+        "name": "bookshelves",
+        "collision": 1,
+        "z": 2
+    },
+    13: {
+        "name": "big_house_entry",
+        "collision": 1,
+        "animated": False,
+        "z": 2
+    },
 }
 
 """
