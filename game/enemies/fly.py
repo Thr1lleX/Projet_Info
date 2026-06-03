@@ -30,10 +30,11 @@ class Fly(Enemy):
         self.give_stun = 0
         
         self.loot = []
+        self.can_go_on_water = True
         
         # --- AUDIO ---
         self.death_cry = "snd_mouche_death"
-        self.sfx_timer = random.uniform(1.0, 2.0)
+        self.sfx_timer = random.uniform(0.5, 2.0)
 
         # --- SPRITE UNIQUE ---
         sprite = QPixmap("assets/enemies/fly/fly.png").scaled(

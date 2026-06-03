@@ -17,7 +17,7 @@ class Placeholder1(Enemy):
         self._pv_max = 2
         self.pv_main = self._pv_max
         
-        self.aggro_range = settings.tile_size * 10
+        self.aggro_range = settings.tile_size * 7.5
         
         self.damage = 1
         self.give_stun = 0
@@ -26,7 +26,7 @@ class Placeholder1(Enemy):
             ("pomme",0.5)
         ]
 
-        # --- SPRITE UNIQUE (même pour toutes directions) ---
+        # --- SPRITE UNIQUE (meme pour toutes directions) ---
         sprite = QPixmap("assets/placeholder1.png").scaled(
             settings.tile_size,
             settings.tile_size,

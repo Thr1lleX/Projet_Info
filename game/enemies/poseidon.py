@@ -22,7 +22,7 @@ class Poseidon(Enemy):
         self._pv_max = 12
         self.pv_main = self._pv_max
         self.aggro_range = settings.tile_size * 16
-        self.speed = 0 # Ne se déplace pas classiquement
+        self.speed = 0 # Ne se deplace pas classiquement
         self.can_go_on_water = True
         self.use_pathfinding = False # On désactive l'A* de l'ennemi standard
         
@@ -50,12 +50,11 @@ class Poseidon(Enemy):
         self.phase = "emerging" 
         self.state_timer = 1.0 # 9 frames / 9 fps = 1 seconde pour la sortie initiale
         
-        # "multi" ou "simple" (commence nécessairement par multi)
+        # "multi" ou "simple" (commence necessairement par multi)
         self.current_attack = "multi" 
         self.visual_dir = "up"
         self.is_invulnerable = False
         
-        # On definit la direction de départ
         # Initialisation sur la première frame de sortie
         self.setPos(self.x, self.y)
         if self.anim_sortie_up:
@@ -104,19 +103,19 @@ class Poseidon(Enemy):
         boss_h = self.taille_boss[1] * settings.tile_size
 
         if self.visual_dir == "down":
-            # S'il regarde vers le bas (face), le joueur doit passer entièrement 
-            # au-dessus de sa tête pour qu'il se retourne vers le haut (back)
+            # S'il regarde vers le bas (face), le joueur doit passer entierement 
+            # au-dessus de sa tete pour qu'il se retourne vers le haut (back)
             if player_y + player_hitbox_h < self.y:
                 self.visual_dir = "up"
                 
         elif self.visual_dir == "up":
-            # S'il regarde vers le haut (back), le joueur doit passer entièrement
+            # S'il regarde vers le haut (back), le joueur doit passer entierement
             # en dessous de ses pieds pour qu'il se retourne vers le bas (face)
             if player_y > self.y + boss_h:
                 self.visual_dir = "down"
                 
     def setPixmap(self, pixmap):
-        """ Intercepte les textures d'animations pour appliquer les effets visuels à la volée """
+        """ Intercepte les textures d'animations pour appliquer les effets visuels à la volee """
         if not pixmap or pixmap.isNull():
             super().setPixmap(pixmap)
             return
@@ -125,7 +124,7 @@ class Poseidon(Enemy):
             super().setPixmap(pixmap)
             return
 
-        # 1. Flash Rouge (Dégâts)
+        # flash rouge
         if getattr(self, "is_damaged", False):
             tinted = pixmap.copy()
             painter = QPainter(tinted)
@@ -135,7 +134,7 @@ class Poseidon(Enemy):
             super().setPixmap(tinted)
             return
 
-        # 2. Clignotement Blanc (Invulnérabilité de l'Entity)
+        # clignotement blanc
         if getattr(self, "is_invulnerable", False):
             blink_delay = 0.7
             blink_speed = 0.3
@@ -161,7 +160,7 @@ class Poseidon(Enemy):
     def update(self, dt, scene):
         if self._update_death_sequence(dt, scene):
             return
-        # 1. Gérer les états bloquants (Stun, Knockback) s'il est vulnérable
+        # 1. Gerer les états bloquants (Stun, Knockback) s'il est vulnerable
         if not self.is_invulnerable:
             if self.kb_active:
                 self.apply_knockback(dt, scene)
@@ -219,10 +218,10 @@ class Poseidon(Enemy):
             if self.state_timer <= 0:
                 # --- comportement aleatoire entre les attaques ---
                 if self.current_attack == "multi":
-                    # Apres un multi, c'est nécessairement un solo (simple)
+                    # Apres un multi, c'est necessairement un solo (simple)
                     self.current_attack = "simple"
                 else:
-                    # Après un solo, 1 chance sur 3 de refaire un solo (2/3 d'avoir un multi)
+                    # Apres un solo, 1 chance sur 3 de refaire un solo (2/3 d'avoir un multi)
                     if random.random() < (1.0 / 3.0):
                         self.current_attack = "simple"
                     else:
@@ -240,12 +239,10 @@ class Poseidon(Enemy):
             
             if self.state_timer <= 0:
                 self.phase = "hidden"
-                self.hide() # Masque le sprite
-                # Temps caché aléatoire de 0.5s à 2s
+                self.hide()
                 self.state_timer = random.uniform(0.5, 2.0)
 
         elif self.phase == "hidden":
-            # Le boss est invisible et invulnérable
             if self.state_timer <= 0:
                 self._relocate()
                 self.show()
@@ -301,12 +298,10 @@ class Poseidon(Enemy):
             scene.projectiles.append(trident)
             
         elif self.current_attack == "multi":
-            # Attaque de pluie de tridents, dégâts = 1.5
             base_speed = 7 * self.speed_multiplier
-            safe_col = random.randint(1, 14) # Colonne qui aura la vitesse divisée par 3 (en excluant 0 et 15)
+            safe_col = random.randint(2, 14)
             
             for col in range(1, 15):
-                # Vitesse variable ou divisée
                 if col == safe_col:
                     speed = base_speed / 1.4
                 else:
@@ -314,7 +309,6 @@ class Poseidon(Enemy):
                 
                 trident = Trident(source=self, direction="down", damage=1.5, speed=speed)
                 
-                # Apparition au-dessus de l'écran (ex: y = -2 tiles)
                 spawn_x = col * settings.tile_size
                 spawn_y = -2 * settings.tile_size + (HUD_HEIGHT * settings.tile_size)
                 trident.x = spawn_x
@@ -374,7 +368,7 @@ class Poseidon(Enemy):
                 if self.current_frame_index < 0:
                     self.current_frame_index = len(frame_list) - 1 if loop else 0
                     
-        # --- GARDE-FOUS (CLAMP DE SÉCURITÉ CONTRE LES BRUSQUES CHANGEMENTS DE PHASES) ---
+        # --- GARDE-FOUS (CLAMP DE SECURITE CONTRE LES BRUSQUES CHANGEMENTS DE PHASES) ---
         if self.current_frame_index >= len(frame_list):
             self.current_frame_index = 0 if forward else len(frame_list) - 1
         if self.current_frame_index < 0:
@@ -387,20 +381,19 @@ class Poseidon(Enemy):
     
     def die(self):
         scene = self.scene()
-        # Si on est déjà en train de mourir, on ignore pour éviter les boucles
+        # Si on est deja en train de mourir, on ignore pour eviter les boucles
         if not scene or self.phase in ["dying_dialogue", "dying_dive", "dead"]:
             return
         
         self.is_damaged = False
         self.damage_timer = 0
 
-        # On verrouille le boss dans sa séquence de mort
         self.phase = "dying_dialogue"
         self.is_invulnerable = True
         self.kb_active = False
         self.is_stunned = False
 
-        # 1. Détruire tous les tridents à l'écran
+        # 1. Detruire tous les tridents à l'ecran
         for p in list(scene.projectiles):
             if isinstance(p, Trident):
                 p.die()
@@ -437,7 +430,7 @@ class Poseidon(Enemy):
         self.current_frame_index = 0
         
     def _update_death_sequence(self, dt, scene):
-        """ Gère la machine à états de la mort. Retourne True si la séquence est en cours. """
+        """ Gere la machine a etats de la mort. Retourne True si la sequence est en cours. """
         if self.phase == "dying_dialogue":
             # Animation d'idle pendant qu'il parle
             self._play_animation(dt, self._get_anim_list("idle"), forward=True, loop=True)
@@ -445,13 +438,15 @@ class Poseidon(Enemy):
             
             # Attendre que le joueur ferme la boîte de dialogue
             if not scene.dialogue_manager.active:
-                # 4. Le dialogue est terminé : on donne l'objet (flag) et on lance la plongée
                 scene.session_flags["sword_tungsten"] = True
                 
                 self.phase = "dying_dive"
                 self.state_timer = 1.0 # Durée de l'anim de plongée (9 frames)
                 liste_sortie = self._get_anim_list("sortie")
                 self.current_frame_index = max(0, len(liste_sortie) - 1)
+                
+                if self.target:
+                    self.target.is_cinematic = True
                 
             return True
 
@@ -475,6 +470,9 @@ class Poseidon(Enemy):
                     # On force la durée à 2 secondes juste pour cette fois, puis on lance le fade_out
                     scene.music_manager.fade_out_duration = 2.0
                     scene.music_manager.start_fade_out()
+                    
+                if self.target:
+                    self.target.is_cinematic = False
                     
                 # On appelle le VRAI die() de la classe parente pour nettoyer l'entité et dropper le loot
                 super().die()
