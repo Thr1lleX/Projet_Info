@@ -100,6 +100,6 @@ class Interactable(QGraphicsPixmapItem):
         """
         pass
 
-    def update(self, dt):
+    def update(self, dt,scene):
         pass
     

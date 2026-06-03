@@ -3,12 +3,26 @@
 
 from game.interactables.interactable import Interactable
 from game.animspr import load_animation_sequence
-from game.config import DEBUG
+from game.config import DEBUG, GRID_HEIGHT,HUD_HEIGHT,GRID_WIDTH
 import random 
+from game.settings import settings
 
 class NPC(Interactable):
-    def __init__(self, scale, x, y, npc_type=None, dialogue_id=None,conditional_rules=None):
-        super().__init__(scale) 
+    def __init__(self, 
+                 scale, 
+                 x, 
+                 y, 
+                 npc_type=None, 
+                 dialogue_id=None,
+                 conditional_rules=None,
+                 spawn_if=None,
+                 despawn_if=None,
+                 spawn_transition=None,
+                 despawn_transition=None,
+                 scene = None
+        ):
+        super().__init__(scale)
+
 
         self.type = "npc"
         self.npc_type = npc_type
@@ -16,6 +30,13 @@ class NPC(Interactable):
         self.x = x
         self.y = y
         
+        self.target_x = x
+        self.target_y = y
+        
+        self.scene = scene
+        
+        self.room_name = self.scene.current_room
+                
         
         # recuperation du dialogue, on normalise pr que ce soit une liste
         if isinstance(dialogue_id, str):
@@ -31,6 +52,33 @@ class NPC(Interactable):
         
         self.current_dialogue_index = 0 
         
+        # spawn/despawn
+        self.spawn_if = spawn_if
+        self.despawn_if = despawn_if
+        
+        self.spawn_transition = spawn_transition or {}
+        self.despawn_transition = despawn_transition or {}
+        
+        self.is_despawning = False
+        
+        self.slide_speed = 0
+        self.slide_direction = None
+        
+        # nametag
+        tile_x = int(self.target_x / settings.tile_size)
+
+        tile_y = int(
+            (self.target_y / settings.tile_size) - HUD_HEIGHT
+        )
+                
+        self.spawn_memory_flag = (
+            f"has_spawned_"
+            f"{self.npc_type}_"
+            f"{self.room_name}_"
+            f"{tile_x}_"
+            f"{tile_y}"
+        )
+                
         # animation
         self.frames = []
         self.current_frame = 0
@@ -46,15 +94,119 @@ class NPC(Interactable):
                 self.setPixmap(self.frames[0])
         
         self.update_graphics()
-
-    def update(self, dt):
+        self.init_slide()
+    
+    def init_slide(self):
+        
+        if self.scene.get_flag(self.spawn_memory_flag):
+            return
+    
+        if self.spawn_transition.get("type") != "slide":
+            return
+    
+        direction = self.spawn_transition.get("direction", "down")
+    
+        screen_w = GRID_WIDTH * settings.tile_size
+        screen_h = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
+    
+        margin = settings.tile_size * 2
+    
+        # spawn hors écran
+        if direction == "down":
+            self.y = screen_h + margin
+    
+        elif direction == "up":
+            self.y = -margin
+    
+        elif direction == "left":
+            self.x = -margin
+    
+        elif direction == "right":
+            self.x = screen_w + margin
+    
+        self.start_slide(direction,self.spawn_transition.get("speed", 1.0))
+        self.scene.current_save.data["flags"][self.spawn_memory_flag] = True
+        
+    def update(self, dt,scene=None):
         """
         gere le defilement des images de l'animation.
-        cette methode est appelze à chaque frame par la GameScene.
+        cette methode est appelee à chaque frame par la GameScene.
         """
+        
+        # despawn
+        if (scene and self.despawn_if and scene.get_flag(self.despawn_if) and not self.is_despawning):
+            self.is_despawning = True
+        
+            transition = self.despawn_transition
+        
+            if transition.get("type") == "slide":
+                self.start_slide(
+                    transition.get("direction", "down"),
+                    transition.get("speed", 1.0)
+                )
+            else:
+                scene.removeItem(self)
+                scene.interactables.remove(self)
+                return
+        # suppression apres sortie ecran
+        if self.is_despawning:
+        
+            limit = (
+                GRID_HEIGHT
+                + HUD_HEIGHT
+                + 2
+            ) * settings.tile_size
+        
+            if self.y > limit:
+                scene.removeItem(self)
+        
+                if self in scene.interactables:
+                    scene.interactables.remove(self)
+        
+                return
+        
+        # slide
+        if self.slide_direction:
+            speed = self.slide_speed * dt * 60
+            # on inverse la direction si on sort, et on ne check pas le target
+            if self.is_despawning:
+                if self.slide_direction == "down":
+                    self.y -= speed
+                elif self.slide_direction == "up":
+                    self.y += speed
+                elif self.slide_direction == "left":
+                    self.x += speed
+                elif self.slide_direction == "right":
+                    self.x -= speed
+            else:
+                if self.slide_direction == "down":
+                    self.y += speed
+                    if self.y >= self.target_y:
+                        self.y = self.target_y
+                        self.slide_direction = None
+                elif self.slide_direction == "up":
+                    self.y -= speed
+                    if self.y <= self.target_y:
+                        self.y = self.target_y
+                        self.slide_direction = None
+                elif self.slide_direction == "left":
+                    self.x -= speed
+                    if self.x <= self.target_x:
+                        self.x = self.target_x
+                        self.slide_direction = None
+                elif self.slide_direction == "right":
+                    self.x += speed
+                    if self.x >= self.target_x:
+                        self.x = self.target_x
+                        self.slide_direction = None
+        
+            self.update_graphics()
+        
+        # NPC NON STATIQUE
         if not self.frames or len(self.frames) <= 1:
             return
-
+        
+        # animation
         self.animation_timer += dt
 
         if self.animation_timer >= self.frame_duration:
@@ -123,3 +275,16 @@ class NPC(Interactable):
             #on incremente l'index pr prochaine interaction, on bloque sur dernier element
             if self.current_dialogue_index < len(self.active_dialogue_list) - 1:
                 self.current_dialogue_index += 1
+
+    def start_slide(self, origin_direction, speed=1.0):
+    
+        self.slide_speed = speed * settings.scale
+    
+        movement_map = {
+            "down": "up",
+            "up": "down",
+            "left": "right",
+            "right": "left"
+        }
+    
+        self.slide_direction = movement_map[origin_direction]

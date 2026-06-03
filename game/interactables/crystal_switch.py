@@ -31,7 +31,7 @@ class CrystalSwitch(Entity):
         self.current_state = None
         self.setPos(self.x, self.y)
 
-    def update(self, dt):
+    def update(self, dt,scene):
         
         self.sync_with_global_state()
         

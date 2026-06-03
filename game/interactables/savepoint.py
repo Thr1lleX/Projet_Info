@@ -44,7 +44,7 @@ class SavePoint(Interactable):
         self.update_graphics()
 
 
-    def update(self, dt):
+    def update(self, dt,scene):
         """
         animation du savepoint
         """

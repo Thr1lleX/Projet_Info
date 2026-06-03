@@ -7,8 +7,15 @@ from PyQt5.QtCore import Qt
 from game.settings import settings
 
 class Sign(NPC):
-    def __init__(self, scale, x, y, dialogue_id=None,conditional_rules=None):
-        super().__init__(scale, x, y, npc_type=None, dialogue_id=dialogue_id,conditional_rules=conditional_rules)
+    def __init__(self, 
+                 scale, 
+                 x, 
+                 y, 
+                 dialogue_id=None,
+                 conditional_rules=None,
+                 scene = None
+        ):
+        super().__init__(scale, x, y, npc_type=None, dialogue_id=dialogue_id,conditional_rules=conditional_rules,scene = scene)
         self.collision = 1
         self.type = "sign"
         
@@ -24,6 +31,6 @@ class Sign(NPC):
         
         self.update_graphics()
 
-    def update(self, dt):
+    def update(self, dt,scene):
         # ecrase methode car image statique
         pass
