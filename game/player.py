@@ -142,6 +142,8 @@ class Player(Entity):
         self.projectiles_cooldown = 0
         self.projectiles_delay = 0.4 #0.5s min entre chaque
         
+        self.is_cinematic = False
+        
         self.current_outfit = "default"
         
         self.shout_pressed = False
@@ -359,7 +361,7 @@ class Player(Entity):
         """
         
         #bloque mouvements du joueur si dialogue
-        if scene.dialogue_manager.active:
+        if scene.dialogue_manager.active or self.is_cinematic:
             self.attack_pressed = True
             return
         

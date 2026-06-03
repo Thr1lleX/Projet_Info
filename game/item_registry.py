@@ -43,7 +43,7 @@ ITEM_CATALOG = {
     "required_flag": "has_boomerang"
     },
 "fireball":{ 
-    "name" : "Magie de Feu", 
+    "name" : "Baguette de Feu", 
     "icon_path" : "assets/items/firerod.png",
     "category" : "permanent",
     "stack_max" : 1,
