@@ -20,5 +20,13 @@
     "right": "room_hellF2",
     "up": "room_hellE1",
     "down": "room_hellE3"
-  }
+  },
+  "interactables": [
+    {
+      "type": "sign",
+      "x": 13,
+      "y": 8,
+      "dialogue": "panneau_hell3"
+    }
+  ]
 }
