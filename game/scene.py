@@ -89,6 +89,8 @@ class GameScene(QGraphicsScene):
         
         self.visual_effects = []
         self.magic_walls_poofed = False
+        
+        self.pending_npcs = []
 
         # save courante
         self.current_save = None
@@ -103,7 +105,9 @@ class GameScene(QGraphicsScene):
         self.current_room = None
         self.room_data = None
         # items droppes
-        self.dropped_items = []                
+        self.dropped_items = []    
+
+        self.projectiles = []            
         
         # IMPORTANT ! items persistant, a ajouter pour conservation lors de chgmt de salle
         self.persistent_items = {
@@ -162,9 +166,16 @@ class GameScene(QGraphicsScene):
             
             for enemy in self.enemies:
                 enemy.update(dt, self)
-            self._check_pickups()                                     
+            self._check_pickups()    
+            self.check_pending_npcs()                                 
             for interactable in self.interactables:
-                interactable.update(dt)
+                interactable.update(dt,self)
+        
+        for p in self.projectiles[:]:
+            if p.scene() is None:
+                self.projectiles.remove(p)
+            else:
+                p.update(dt, self)
   
         self.transition.update(dt)
 
@@ -373,6 +384,8 @@ class GameScene(QGraphicsScene):
         biome_actuel = room.get("biome", "default")
         self.load_biome_tileset(biome_actuel)
         
+        is_ocean_room = self.current_room.startswith("room_ocean")
+        
         # gesiton du flag magic_wall, si present supprime tile
         magic_flag = room.get("magic_wall")
         # flag pour check si on a deja poof dans salle
@@ -382,10 +395,12 @@ class GameScene(QGraphicsScene):
                 for y, row in enumerate(room["tiles"]):
                     for x, tile_id in enumerate(row):
                         if tile_id == 8:
-                            room["tiles"][y][x] = 0
+                            if is_ocean_room:
+                                room["tiles"][y][x] = 4
+                            else:
+                                room["tiles"][y][x] = 0
                             
         ground_pixmap = self.tileset.get(0)
-        is_ocean_room = self.current_room.startswith("room_ocean")
         water_data = self.tileset.get(4)
         
         
@@ -402,7 +417,7 @@ class GameScene(QGraphicsScene):
         for y, row in enumerate(room["tiles"]):
             for x, tile_id in enumerate(row):
                 ground_item = None
-                if is_ocean_room and tile_id in (2, 2.5) and isinstance(water_data, list):
+                if is_ocean_room and tile_id in (2, 2.5,8) and isinstance(water_data, list):
                     ground_item = QGraphicsPixmapItem(water_data[0])
                     self.animated_tile_items.append((ground_item, 4))
                 elif ground_pixmap:
@@ -590,7 +605,7 @@ class GameScene(QGraphicsScene):
     
             flag = rule["flag"]
     
-            if self.current_save.get_flag(flag):
+            if self.get_flag(flag):
     
                 direction = rule["direction"]
                 target = rule["target"]
@@ -854,13 +869,19 @@ class GameScene(QGraphicsScene):
         dans une meme piece
         """
         poofed_room_flag = f"magic_poofed_{self.current_room}"
+        is_ocean_room = self.current_room.startswith("room_ocean")
         for y, row in enumerate(self.room_data["tiles"]):
             for x, tile_id in enumerate(row):
                 if tile_id == 8:
-                    self.room_data["tiles"][y][x] = 0
-                    
-                    self.refresh_single_tile(x, y, 0)
-                    
+                    if is_ocean_room:
+                        self.room_data["tiles"][y][x] = 4
+                        
+                        self.refresh_single_tile(x, y, 4)
+                    else:
+                        self.room_data["tiles"][y][x] = 0
+                        
+                        self.refresh_single_tile(x, y, 0)
+                        
                     effect = PoofEffect(x, y)
                     self.addItem(effect)
                     self.visual_effects.append(effect)
@@ -879,11 +900,17 @@ class GameScene(QGraphicsScene):
                 self.removeItem(item)
         
         pix = self.tileset.get(new_id)
-        if pix:
+        if isinstance(pix, list):
+            new_item = QGraphicsPixmapItem(pix[0])
+            self.animated_tile_items.append((new_item,new_id))
+        elif pix:
             new_item = QGraphicsPixmapItem(pix)
-            new_item.setPos(px, py)
-            new_item.setZValue(TILE_TYPES[new_id].get("z", 0))
-            self.addItem(new_item)
+        else:
+            return
+        new_item.setPos(px, py)
+        new_item.setZValue(TILE_TYPES[new_id].get("z", 0))
+        self.addItem(new_item)
+
         
     def load_save(self, slot=1):
         self.session_flags.clear()
@@ -901,6 +928,16 @@ class GameScene(QGraphicsScene):
             if interactable_class is None:
                 if DEBUG: print(f"Interactable inconnu : {interactable_type}")
                 continue
+            
+            spawn_if = data.get("spawn_if")
+            despawn_if = data.get("despawn_if")
+            
+            if spawn_if and not self.get_flag(spawn_if):
+                self.pending_npcs.append(data)
+                continue
+            
+            if despawn_if and self.get_flag(despawn_if):
+                continue
 
             x = data["x"] * settings.tile_size
             y = (data["y"] + HUD_HEIGHT) * settings.tile_size
@@ -912,11 +949,16 @@ class GameScene(QGraphicsScene):
                     y, 
                     data.get("npc_type"), 
                     data.get("dialogue"),
-                    data.get("conditional_dialogue")
+                    data.get("conditional_dialogue"),
+                    data.get("spawn_if"),
+                    data.get("despawn_if"),
+                    data.get("spawn_transition"),
+                    data.get("despawn_transition"),
+                    scene = self,
                 )
             
             elif interactable_type == "sign":
-                interactable = interactable_class(settings.scale, x, y, data.get("dialogue"),data.get("conditional_dialogue"))
+                interactable = interactable_class(settings.scale, x, y, data.get("dialogue"),data.get("conditional_dialogue"),scene = self)
             
             elif interactable_type == "chest":
                 interactable = interactable_class(settings.scale, x, y, data.get("loot"), self.current_room)
@@ -941,14 +983,55 @@ class GameScene(QGraphicsScene):
             
             if DEBUG and hasattr(interactable, "debug_rect"):
                 interactable.debug_rect.show()
-                
+
+    def check_pending_npcs(self):
+        """
+        cette fonction permet de checker si un npc possede une 
+        propriete de spawn et si son flag est rempli
+        appelee dans game_loop()
+        """
+        for data in self.pending_npcs[:]:
+            spawn_if = data.get("spawn_if")
+    
+            if not self.get_flag(spawn_if):
+                continue
+    
+            x = data["x"] * settings.tile_size
+            y = (data["y"] + HUD_HEIGHT) * settings.tile_size
+    
+            interactable = INTERACTABLE_TYPES["npc"](
+                settings.scale,
+                x,
+                y,
+                data.get("npc_type"),
+                data.get("dialogue"),
+                data.get("conditional_dialogue"),
+                data.get("spawn_if"),
+                data.get("despawn_if"),
+                data.get("spawn_transition"),
+                data.get("despawn_transition"),
+                self
+            )
+    
+            interactable.interactable_id = data.get("id")
+    
+            self.interactables.append(interactable)
+            self.addItem(interactable)
+    
+            interactable.update_graphics()
+    
+            self.pending_npcs.remove(data)
+    
+            if DEBUG:
+                print(f"[NPC] Spawn dynamique : {interactable.npc_type}")
+            
+            
     def save_game(self, slot):
         """
         sauvegarde la partie dans un slot
         """
-        
-        for flag_name, value in self.session_flags.items():
-            self.current_save.set_flag(flag_name, value)
+        flags_to_save = self.current_save.data.get("flags", {}).copy()
+        flags_to_save.update(self.session_flags)
     
         data = {
             "current_room": self.current_room,
@@ -964,15 +1047,13 @@ class GameScene(QGraphicsScene):
                 ) / settings.tile_size,
                 2
             ),
-            "flags": self.current_save.data.get(
-                "flags",
-                {}
-            ),
+            "flags": flags_to_save, 
             "inventory": self.screen_manager.inventory.to_save_data()
         }
+        
         SaveManager.write_save(slot, data)
         
-        # on lie la sessions actuelle a ce slot
+        # on lie la session actuelle a ce nouveau slot
         self.current_save = SaveManager(slot)
     
         if DEBUG:

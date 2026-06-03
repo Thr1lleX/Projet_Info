@@ -12,13 +12,14 @@ from game.fonts import get_font0
 
 from game.entity import Entity
 from game.enemies.enemy import Enemy
+from game.enemies.fly import Fly
 #from game.window import GameWindow
 from game.attacks.sword_slash import SwordSlash
 from game.attacks.sword_slash_upgrade import SwordSlashUpgrade
 from game.attacks.sword_slash_tungsten import SwordSlashTungsten
 from game.item_effects import use_item
 from game.attacks.spear import Spear
-from game.attacks.test_fireball import Fireball
+from game.attacks.fireball import Fireball
 from game.attacks.boomerang import Boomerang
 from game.animspr import load_animation_sequence
 import random
@@ -387,7 +388,7 @@ class Player(Entity):
                     self.attack_pressed = True
                     self.projectiles_cooldown = self.projectiles_delay
                 else:
-                    self.attack_pressed = False
+                    self.attack_pressed = True
         else:
             self.attack_pressed = False
             
@@ -425,6 +426,8 @@ class Player(Entity):
 
     def die(self):
         scene = self.scene()
+        sfx = scene.sfx_manager
+        sfx.stop_all_except(self.death_cry)
         if scene:
             sm = getattr(scene, 'screen_manager', None)
             if sm is not None:
@@ -574,6 +577,11 @@ class Player(Entity):
         if DEBUG:
             print("[PLAYER] Shout!")
         scene.sfx_manager.play("snd_sad")
+        
+        for enemy in scene.enemies:
+            if isinstance(enemy, Fly):
+                enemy.die()
+                scene.sfx_manager.play(enemy.death_cry)
     
     def spear(self, scene):
         if self.is_attacking:
@@ -615,45 +623,50 @@ class Player(Entity):
         new_boom = Boomerang(self, self.direction)
         self.projectiles.append(new_boom)
         scene.addItem(new_boom)
-        
-        
+
     def get_interaction_hitbox(self):
-        """
-        renvoie la hitbox d'interaction devant le joueur
-        """
         px, py, pw, ph = self.get_hitbox()
     
         center_x = px + pw / 2
         center_y = py + ph / 2
-        size = settings.tile_size
+    
+        tile = settings.tile_size
+    
+        length_tiles = 1.6
+    
+        width = self.hitbox_height
+        length = length_tiles * tile
     
         if self.direction == "up":
             return (
-                center_x - size / 2,
-                py - size,
-                size,
-                size * 2
+                center_x - width / 2,
+                py - (length - tile +self.hitbox_offset_y*tile),
+                width,
+                length
             )
+    
         elif self.direction == "down":
             return (
-                center_x - size / 2,
+                center_x - width / 2,
                 py,
-                size,
-                size * 2
+                width,
+                length
             )
+    
         elif self.direction == "left":
             return (
-                px - size-(self.hitbox_offset_x*settings.tile_size),
-                center_y - size / 2,
-                size * 2,
-                size
+                px - (length - tile + self.hitbox_width/2-self.hitbox_offset_x*tile),
+                center_y - width / 2,
+                length,
+                width
             )
+    
         elif self.direction == "right":
             return (
                 px,
-                center_y - size / 2,
-                size * 2,
-                size
+                center_y - width / 2,
+                length,
+                width
             )
         
     

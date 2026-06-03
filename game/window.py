@@ -98,6 +98,8 @@ class GameWindow(QGraphicsView):
             scene.timer.stop()
         if hasattr(scene, 'music_manager'):
             scene.music_manager.stop()
+        if hasattr(scene,'sfx_manager'):
+            scene.sfx_manager.stop_all_except()
 
         self.close()
         QCoreApplication.quit()

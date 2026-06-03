@@ -44,10 +44,10 @@ ITEM_CATALOG = {
     },
 "fireball":{ 
     "name" : "Magie de Feu", 
-    "icon_path" : "assets/items/spear.png",
+    "icon_path" : "assets/items/firerod.png",
     "category" : "permanent",
     "stack_max" : 1,
-    "effect":    None,
+    "effect": "shoot_fireball",
     "slot":4,
     "required_flag": "has_fireball"
     },
@@ -76,15 +76,15 @@ ITEM_CATALOG = {
         "effect" : None,
         "slot": None
     },
-    "gilet_jaune": {
-        "name" : "Gilet Jaune", 
-        "icon_path" : "assets/items/gilet_jaune.png",
-        "category" : "permanent",
-        "stack_max" : 1,
-        "effect" : None,
-        "slot": 6,
-        "required_flag": "has_gilet_jaune"
-    }
+"gilet_jaune": {
+    "name" : "Gilet Jaune", 
+    "icon_path" : "assets/items/gilet_jaune.png",
+    "category" : "permanent",
+    "stack_max" : 1,
+    "effect" : None,
+    "slot": 6,
+    "required_flag": "has_gilet_jaune"
+}
 }
 
 

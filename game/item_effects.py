@@ -78,6 +78,21 @@ def _effect_spear(player, scene):
     player.spear(scene)
     return True
 
+def _effect_fireball(player, scene):
+    """Magie de Feu : lance une boule de feu en ligne droite en consommant 1 de Mana."""
+    inventory = scene.screen_manager.inventory
+    
+    if not inventory.count_item("mana") > 0:
+        scene.sfx_manager.play("snd_false")
+        return False
+    
+    inventory.consume_one("mana")
+    
+    player.shoot_fireball(scene)
+    scene.sfx_manager.play("snd_fireball") 
+    
+    return True
+
 
 
 # ------------------------------------------------------------------
@@ -89,5 +104,6 @@ _EFFECTS = {
     "buff_strength_speed": _effect_buff,
     "explode":             _effect_explode,
     "throw_boomerang":     _effect_boomerang,
+    "shoot_fireball":      _effect_fireball,
     "spear": _effect_spear
 }

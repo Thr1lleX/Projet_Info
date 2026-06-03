@@ -79,13 +79,24 @@ def line_of_sight(start_pos, end_pos, grid, tile_size, w_size, h_size):
     height_grid = len(grid)
     width_grid = len(grid[0]) if height_grid > 0 else 0
     
-    # On définit les coins du rectangle
-    margin_w = (tile_size * w_size) * 0.95
-    margin_h = (tile_size * h_size) * 0.95
-    offsets = [(0, 0), 
-               (margin_w, 0), 
-               (0, margin_h), 
-               (margin_w, margin_h)
+    # # On définit les coins du rectangle
+    # margin_w = (tile_size * w_size) * 0.95
+    # margin_h = (tile_size * h_size) * 0.95
+    # offsets = [(0, 0), 
+    #            (margin_w, 0), 
+    #            (0, margin_h), 
+    #            (margin_w, margin_h)
+    # ]
+    
+    
+    half_w = (tile_size * w_size) * 0.9 / 2.0
+    half_h = (tile_size * h_size) * 0.9 / 2.0
+    
+    offsets = [
+        (-half_w, -half_h),  # Haut-Gauche
+        (half_w, -half_h),   # Haut-Droite
+        (-half_w, half_h),   # Bas-Gauche
+        (half_w, half_h)     # Bas-Droite
     ]
     
     for i in range(steps + 1):
@@ -153,8 +164,17 @@ def astar(grid, start_pos, goal_pos, tile_size, w_size, h_size):
     height = len(grid)
     width = len(grid[0])
 
-    start_tile = _pixel_to_tile(start_pos[0], start_pos[1], tile_size)
-    goal_tile = _pixel_to_tile(goal_pos[0], goal_pos[1], tile_size)
+    # start_tile = _pixel_to_tile(start_pos[0], start_pos[1], tile_size)
+    # goal_tile = _pixel_to_tile(goal_pos[0], goal_pos[1], tile_size)
+    
+    # Retrouve la tuile de coin "Top-Left" pour l'analyse de zone de la grille discrète
+    start_tl_x = start_pos[0] - (w_size * tile_size) / 2.0 + tile_size / 2.0
+    start_tl_y = start_pos[1] - (h_size * tile_size) / 2.0 + tile_size / 2.0
+    start_tile = _pixel_to_tile(start_tl_x, start_tl_y, tile_size)
+
+    goal_tl_x = goal_pos[0] - (w_size * tile_size) / 2.0 + tile_size / 2.0
+    goal_tl_y = goal_pos[1] - (h_size * tile_size) / 2.0 + tile_size / 2.0
+    goal_tile = _pixel_to_tile(goal_tl_x, goal_tl_y, tile_size)
 
     if not is_area_walkable(grid, goal_tile[0], goal_tile[1], w_size, h_size, width, height):
         return None

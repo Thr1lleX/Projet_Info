@@ -241,16 +241,17 @@ class ScreenManager:
 
     def open_pause(self):
         """Met le jeu en pause et joue la musique de pause avec le sfx (joue musique 600ms apres)."""
-        if self._scene is None:
+        if self.scene is None:
             return
-        if hasattr(self._scene, 'player'):
-            self._scene.player.stop_movement()
+        if hasattr(self.scene, 'player'):
+            self.scene.player.stop_movement()
         
-        self._scene.game_paused = True
-        if hasattr(self._scene, 'music_manager'):
+        self.scene.game_paused = True
+        if hasattr(self.scene, 'music_manager'):
             self.music_manager.stop()
         if hasattr(self._scene, 'sfx_manager'):
-            self._scene.sfx_manager.play("snd_sys_pause")
+            self.scene.sfx_manager.stop_all_except()
+            self.scene.sfx_manager.play("snd_sys_pause")
         # fonction labma pour check si on est toujours en pause avant de jouer (empeche spam)
         QTimer.singleShot(200, lambda: self._play_music_if_state("mus_pause", self.STATE_PAUSED))
             

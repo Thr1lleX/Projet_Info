@@ -84,6 +84,7 @@ class SFXManager:
                 print(f"[SFX] Erreur lors de l'initialisation du mixer : {e}")
 
         self.sounds = {}
+        self.channels = {}
         self.base_path = "sound_effect"
         self.default_volume = settings.sfx_volume
         
@@ -122,17 +123,42 @@ class SFXManager:
         if DEBUG:
             print(f"[SFX] Total : {len(self.sounds)} sons chargés.")
 
-    def play(self, name):
-        """Joue son par son nom"""
+    def play(self, name, loops=0,pan=0.0):
+        """Joue un son et retourne le canal"""
         if name in self.sounds:
-            # Joue sur le premier canal disponible (ne bloque jamais le CPU)
-            # Si le son est déjà en cours, pygame peut le superposer ou le relancer
-            self.sounds[name].play()
+            sound = self.sounds[name]
+            channel = pygame.mixer.find_channel()
+            if channel:
+                left_vol = 1.0 - max(0.0, pan)
+                right_vol = 1.0 + min(0.0, pan)
+                
+                channel.set_volume(left_vol, right_vol)
+                channel.play(sound, loops=loops)
+                return channel
+            # return self.sounds[name].play(loops=loops)
         elif DEBUG:
             print(f"[SFX] Erreur : Le son '{name}' n'existe pas dans le dictionnaire.")
+        return None
 
     def set_volume(self, volume):
         """Ajuste le volume global des bruitages (0.0 à 1.0)."""
         self.default_volume = max(0.0, min(1.0, volume))
         for sound in self.sounds.values():
             sound.set_volume(self.default_volume)
+            
+    def stop_all_except(self, excluded_name=None):
+            """stoppe les sfx sauf celui specifie."""
+            if excluded_name is None:
+                pygame.mixer.stop()
+            if not isinstance(excluded_name,list):
+                excluded_sounds = [self.sounds.get(excluded_name)]
+            else:
+                excluded_sounds = [self.sounds.get(i) for i in excluded_name]
+            
+            if excluded_sounds:
+                for i in range(pygame.mixer.get_num_channels()):
+                    channel = pygame.mixer.Channel(i)
+                    if channel.get_busy() and channel.get_sound() not in excluded_sounds:
+                        channel.stop()
+            else:
+                pygame.mixer.stop()    
