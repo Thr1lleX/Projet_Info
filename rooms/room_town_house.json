@@ -13,7 +13,7 @@
     [3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3]
   ],
   "biome": "village",
-  "music": "mus_town",
+  "music": "mus_house",
   "transitions": {
     "left": null,
     "right": null,

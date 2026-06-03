@@ -20,5 +20,20 @@
     "right": "room_ocean20",
     "up": "room_ocean2",
     "down": "room_ocean6"
-  }
+  },
+  "enemies": [
+    {
+      "id": "tralalero_4056",
+      "type": "tralalero",
+      "x": 7,
+      "y": 3
+    },
+    {
+      "id": "fly_9056",
+      "type": "fly",
+      "x": 11,
+      "y": 6,
+      "spawn_if": "open_passage"
+    }
+  ]
 }
