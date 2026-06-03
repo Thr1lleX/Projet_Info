@@ -1,0 +1,128 @@
+# -*- coding: utf-8 -*-
+# Auteur : essentiellement Ryan
+import sys
+
+from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QApplication
+from PyQt5.QtCore import Qt, QCoreApplication
+
+from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT, DEBUG
+from game.settings import settings
+
+class GameWindow(QGraphicsView):
+    """
+    Fenetre principale du jeu (QGraphicsView).
+
+    Responsabilites :
+      - Dimensionner la fenetre.
+      - Router les evenements clavier vers le ScreenManager (si un ecran est actif)
+        ou vers la scene de jeu (sinon).
+      - Router les clics souris vers le ScreenManager si un ecran est actif.
+      - Fermer proprement l'application.
+
+    La scene de jeu (GameScene) est injectee par le ScreenManager via setScene(),
+    et non plus creee ici. Cela permet de swapper la scene en cours de session.
+    """
+
+    def __init__(self):
+        super().__init__()
+        # + 2 car ajoute un pixel de chaque coté (sinon y'a un decalage et fenetre peut bouger)
+        width  = GRID_WIDTH  * settings.tile_size + 2
+        height = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size + 2
+        self.setFixedSize(width, height)
+
+        # scene vide en attendant l'initialisation par ScreenManager
+        self.setScene(QGraphicsScene())
+
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        # defini par main.py apres construction
+        self.screen_manager = None
+
+    # ------------------------------------------------------------------
+    # clavier
+    # ------------------------------------------------------------------
+
+    def keyPressEvent(self, event):
+        # si un ecran de menu est actif, il consomme la touche
+        if self.screen_manager and self.screen_manager.route_key_press(event.key()):
+            return
+
+        # comportement normal pendant le jeu
+        scene = self.scene()
+        if hasattr(scene, 'keyPressEvent'):
+            scene.keyPressEvent(event)
+        if hasattr(scene, 'player'):
+            scene.player.key_press(event.key())
+
+    def keyReleaseEvent(self, event):
+        # si un ecran est actif, absorber le key_release pour eviter les fuites
+        if self.screen_manager and self.screen_manager.route_key_release(event.key()):
+            return
+
+        scene = self.scene()
+        if hasattr(scene, 'keyReleaseEvent'):
+            scene.keyReleaseEvent(event)
+        if hasattr(scene, 'player'):
+            scene.player.key_release(event.key())
+
+    # ------------------------------------------------------------------
+    # souris
+    # ------------------------------------------------------------------
+
+    def mousePressEvent(self, event):
+        if self.screen_manager:
+            scene_pos = self.mapToScene(event.pos())
+            if self.screen_manager.route_mouse_press(scene_pos):
+                return
+        super().mousePressEvent(event)
+
+    # ------------------------------------------------------------------
+    # fermeture
+    # ------------------------------------------------------------------
+
+    def closeEvent(self, event):
+        scene = self.scene()
+        if hasattr(scene, 'timer'):
+            scene.timer.stop()
+        if hasattr(scene, 'music_manager'):
+            scene.music_manager.stop()
+        event.accept()
+
+    def quitter_jeu(self):
+        if DEBUG:
+            print("Fermeture de l'application...")
+
+        scene = self.scene()
+        if hasattr(scene, 'timer'):
+            scene.timer.stop()
+        if hasattr(scene, 'music_manager'):
+            scene.music_manager.stop()
+        if hasattr(scene,'sfx_manager'):
+            scene.sfx_manager.stop_all_except()
+
+        self.close()
+        QCoreApplication.quit()
+    
+    # ------------------------------------------------------------------
+    # application des parametres
+    # ------------------------------------------------------------------
+
+        
+    def update_window_size(self):
+        from game.settings import settings
+        from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
+        from PyQt5.QtWidgets import QDesktopWidget
+        
+        # Recalcule la taille en pixels
+        w = GRID_WIDTH * settings.tile_size
+        h = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
+        
+        self.setFixedSize(int(w), int(h))
+        
+        # recentrage sur ecran
+        screen_geo = QDesktopWidget().availableGeometry(self)
+        center_point = screen_geo.center()
+        frame_geo = self.frameGeometry()
+        frame_geo.moveCenter(center_point)
+        self.move(frame_geo.topLeft())
