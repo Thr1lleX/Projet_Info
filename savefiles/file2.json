@@ -1,43 +1,16 @@
 {
-  "current_room": "room3",
-  "current_health": 4,
-  "player_x": 8.78,
-  "player_y": 5.3,
+  "current_room": "roomdialoguetests",
+  "current_health": 6,
+  "player_x": 6.07,
+  "player_y": 2.78,
   "flags": {
-    "opened_chest_roommurstests_9_9": true,
-    "has_boomerang": true,
-    "boss_vaincu": true,
-    "broken_roommurstests_6_4": true,
-    "broken_roommurstests_7_4": true
+    "met_oldman_test": true,
+    "has_spawned_farmer_roomdialoguetests_4_2": true,
+    "parlation": true
   },
   "inventory": {
-    "slots": [
-      {
-        "slot": 0,
-        "item_id": "pomme",
-        "count": 5
-      },
-	  {
-        "slot": 1,
-        "item_id": "potion",
-        "count": 5
-      },
-      {
-        "slot": 2,
-        "item_id": "bombe",
-        "count": 5
-      },
-      {
-        "slot": 3,
-        "item_id": "boomerang",
-        "count": 1
-      },
-	  {
-		  "slot":5,
-		  "item_id" :"spear",
-		  "count":1
-	  }
-    ],
-    "equipped_item": "boomerang"
+    "slots": [],
+    "collectibles": {},
+    "equipped_item": null
   }
 }

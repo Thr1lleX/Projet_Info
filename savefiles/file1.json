@@ -1,27 +1,22 @@
 {
-  "current_room": "roomdialoguetests",
-  "current_health": 6,
-  "player_x": 8.02,
-  "player_y": 2.77,
+  "current_room": "room_ocean_poseidon (prefight)",
+  "current_health": 6.0,
+  "player_x": 10.65,
+  "player_y": 4.4,
   "flags": {
-    "boss_vaincu": true,
-    "sword_upgrade": true,
-    "magic_poofed_roomswitchtest": true,
-    "opened_chest_roommurstests_9_9": true,
-    "has_boomerang": true,
-    "magic_poofed_roomfighttest": true,
-    "opened_chest_roommurstests_13_6": true,
-    "broken_roommurstests_6_4": true,
-    "broken_roommurstests_7_4": true,
-    "magic_poofed_roommurstests": true,
-    "blue_switch": false
+    "met_oldman_test": true,
+    "has_spawned_farmer_roomdialoguetests_4_2": true,
+    "parlation": true,
+    "jesus": true,
+    "opened_chest_room_riverB1_6_6": true,
+    "has_boomerang": true
   },
   "inventory": {
     "slots": [
       {
-        "slot": 2,
-        "item_id": "bombe",
-        "count": 9
+        "slot": 0,
+        "item_id": "pomme",
+        "count": 1
       },
       {
         "slot": 3,
@@ -30,6 +25,6 @@
       }
     ],
     "collectibles": {},
-    "equipped_item": "bombe"
+    "equipped_item": null
   }
 }
