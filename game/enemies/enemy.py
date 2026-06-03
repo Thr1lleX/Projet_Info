@@ -33,11 +33,7 @@ class Enemy(Entity):
         self.recoil_distance = 0.5 #distance qu'ils recoient lorsquent frappent joueur
         
         # loot
-        self.loot = [
-            ("pomme",  0.10),
-            ("potion", 0.10),
-            ("bombe",  0.10)
-        ]
+        self.loot = []
 
 
         # Pathfinding
