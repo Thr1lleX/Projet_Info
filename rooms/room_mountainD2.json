@@ -20,5 +20,13 @@
     "right": null,
     "up": "room_mountainD1",
     "down": null
-  }
+  },
+  "enemies": [
+    {
+      "id": "fly_3072",
+      "type": "fly",
+      "x": 6,
+      "y": 4
+    }
+  ]
 }

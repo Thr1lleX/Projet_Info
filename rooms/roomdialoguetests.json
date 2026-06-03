@@ -24,7 +24,13 @@
 	  "npc_type": "old_man",
 	  "x": 4,
       "y": 8,
-	  "dialogue": ["oldman_intro","oldman_intro2","oldman_intro3","oldman_intro4"]
+	  "dialogue": ["oldman_intro","oldman_intro2","oldman_intro3","oldman_intro4"],
+	  "despawn_if": "parlation",
+	  "despawn_transition": {
+		"type": "slide",
+		"direction": "left",
+		"speed": 1.2
+	  }
     },    
 	{
       "type": "npc",
@@ -37,7 +43,21 @@
 		  "flag" : "met_oldman_test",
 		  "dialogue": ["farmer_test2","farmer_test3","farmer_test4"]
 	  }
-	  ]
+	  ],
+	  "spawn_if": "met_oldman_test",
+	  "despawn_if": "parlation",
+
+	  "spawn_transition": {
+		"type": "slide",
+		"direction": "left",
+		"speed": 1.2
+	  },
+
+	  "despawn_transition": {
+		"type": "slide",
+		"direction": "down",
+		"speed": 1.2
+	  }
     },  
 	{
       "type": "npc",

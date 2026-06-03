@@ -18,7 +18,7 @@
   "fade_in": 1,
   "transitions": {
     "left": "room_mountainC1",
-    "right": null,
+    "right": "room_hellA2",
     "up": null,
     "down": "room_mountainD2"
   },
