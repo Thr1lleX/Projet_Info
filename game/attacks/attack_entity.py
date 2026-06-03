@@ -342,6 +342,8 @@ class PersistentAttack(AttackEntity):
         self.anim_speed = 0.1 # en frame par seconde
         self.setPixmap(self.frames[self.current_frame])
         
+        self.die_sfx = "snd_woodhit"
+        
         self.current_dt = 0
 
     def update(self, dt, scene):
@@ -400,7 +402,7 @@ class PersistentAttack(AttackEntity):
         limit_top = (2 * settings.tile_size) - marge
         limit_bottom = (13 * settings.tile_size) + marge
         if (hx < limit_left) or (hx + hw > limit_right) or (hy < limit_top) or (hy + hh > limit_bottom):
-            scene.sfx_manager.play("snd_woodhit")
+            scene.sfx_manager.play(self.die_sfx)
             self.die()
             return
         
@@ -412,7 +414,7 @@ class PersistentAttack(AttackEntity):
                     item.take_damage(scene, self.damage, self)
                     item.stun(self.do_stun)
                     self.targets_hit.add(item)
-                    scene.sfx_manager.play("snd_woodhit")
+                    scene.sfx_manager.play(self.die_sfx)
                     self.die() 
                     return
 
@@ -424,17 +426,10 @@ class PersistentAttack(AttackEntity):
                 hitbox_zone.height(),
                 entity = self
         ):
-            scene.sfx_manager.play("snd_woodhit")
+            scene.sfx_manager.play(self.die_sfx)
             self.die()
             return
 
-                
-    # def die(self):
-    #     """ 
-    #     suppression du projectile du jeu 
-    #     """
-    #     if self.scene():
-    #         self.scene().removeItem(self)
     def die(self):
         """
         joue une animation de fin puis supprime le projectile
