@@ -67,4 +67,4 @@ class TestPathfinder(unittest.TestCase):
         self.assertLessEqual(len(res), len(pts))
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    unittest.main()
