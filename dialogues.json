@@ -53,7 +53,7 @@
   "panneau_histoire": {
 	"font" : "font2",
     "lines": [
-      "* Cette salle est remplie d'histoire."
+      "Cette salle est remplie d'histoire."
     ]
   },
   "farmer_intro2": {
@@ -71,8 +71,8 @@
   },
   "minou2": {
     "lines": [
-      "mais nan, tu lui as parlé",
-	  "tu sais pas de quoi il est capable"
+      "* mais nan, tu lui as parlé",
+	  "* tu sais pas de quoi il est capable"
     ]
   },
   "minou_parlation": {
@@ -103,41 +103,60 @@
   },
   "farmer_desert1": {
     "lines": [
-      "Salut mec. Comment ça va ?"
+      "* Salut mec. Comment ça va ?"
     ]
   },
   "farmer_desert2": {
     "lines": [
-      "Moi perso, j'me détends.",
-	  "Je sais pas pourquoi les monstres ne m'attaquent pas.",
-	  "Sûrement les developpeurs qui avaient la flemme de donner des points de vie aux pnjs."
+      "* Moi perso, j'me détends.",
+	  "* Je sais pas pourquoi les monstres ne m'attaquent pas.",
+	  "* Sûrement les developpeurs qui avaient la flemme de donner des points de vie aux pnjs."
     ]
   },
   "farmer_desert3": {
     "lines": [
-      "Du coup j'me détends.",
-	  "C'est plutôt bien ici."
+      "* Du coup j'me détends.",
+	  "* C'est plutôt bien ici."
     ]
   },
   "farmer_desert4": {
     "lines": [
-      "Dis donc, t'es plutôt opiniâtre toi.",
-	  "Si tu veux, je vais te dire un secret.",
-	  "À ce qu'il paraît, on raconte qu'une clef cachée se trouve vers le nord-est de la rivière.",
-	  "Tu devrais tenter d'y faire péter des trucs ;)"
+      "* Dis donc, t'es plutôt opiniâtre toi.",
+	  "* Si tu veux, je vais te dire un secret.",
+	  "* À ce qu'il paraît, on raconte qu'une clef cachée se trouve vers le nord-est de la rivière.",
+	  "* Tu devrais tenter d'y faire péter des trucs ;)"
     ]
   },
   "farmer_desert_secret_key": {
     "lines": [
-      "Ah? Alors apparemment y'avait pas de clef ?",
-	  "J'me suis p'tet trompé.",
-	  "Je pense pas pourtant. Ah! Mais, vous les jeunots vous êtes bien impatients."
+      "* Ah? Alors apparemment y'avait pas de clef ?",
+	  "* J'me suis p'tet trompé.",
+	  "* Je pense pas pourtant. Ah! Mais, vous les jeunots vous êtes bien impatients."
     ]
   },
   "farmer_desert_secret_key2": {
     "lines": [
-      "Pourquoi tu cherchais cette clef à la base ?",
-	  "Bahahaha! Va savoir!"
+      "* Pourquoi tu cherchais cette clef à la base ?",
+	  "* Bahahaha! Va savoir!"
     ]
+  },
+  "poseidon_entree": {
+	  "font" : "font3",
+	  "lines": [
+	  "* Loipon, mikre kakopoie, o Iusoy~ soy empisteytuke tu dynamu Toy.",
+	  "* Fainetai oti ayto~ o adynamo~ empisteyetai ton opoiondupote.",
+	  "* Alla aytu den einai u periptwsu moy!",
+	  "* Esei~ oi Hnutoi den eiste tipota allo para mia omada deilwn!",
+	  "* Den Ha eqete kamia elpida enantia sti~ dynamei~ toy kakoy...",
+	  "* An pragmatika epiHymei~ na taxidecei~ sta boreia boyna, tote akoloyHuse me kai apodeixe me se mia monomaqia!"
+	 ],
+	 "set_flag" : "parle_poseidon"
+  },
+  "panneau_entree_hell": {
+	  "font" : "font2",
+	  "lines": [
+		"C'est une longue descente...",
+		"Es-tu sûr de vouloir continuer ?"
+	]
   }
 }
