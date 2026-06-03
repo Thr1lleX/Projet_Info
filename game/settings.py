@@ -51,11 +51,11 @@ class Settings:
 
     @property
     def tile_size(self):
-        return BASE_TILE_SIZE * self.scale
+        return round(BASE_TILE_SIZE * self.scale)
 
     @property
     def base_speed(self):
-        return BASE_SPEED_pxl * self.scale
+        return round(BASE_SPEED_pxl * self.scale)
         
 
     def load(self):
