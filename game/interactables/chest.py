@@ -89,3 +89,5 @@ class Chest(Interactable):
 
         if hasattr(scene, "dialogue_manager") and scene.dialogue_manager:
             scene.dialogue_manager.start_text(f"Vous obtenez : {item_display_name}!", font="font2")
+            if hasattr(scene, "player"):
+                scene.player.obtain_item(self.loot_id)
