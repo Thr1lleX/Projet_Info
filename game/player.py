@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-
+import os
 import sys
-from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem, QApplication, QGraphicsTextItem
+from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem, QApplication, QGraphicsTextItem, QGraphicsItem
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import Qt, QTimer
 #from PyQt5.QtWidgets import QGraphicsRectItem, QApplication
@@ -24,6 +24,7 @@ from game.attacks.boomerang import Boomerang
 from game.animspr import load_animation_sequence
 import random
 from game.settings import settings
+from game.item_registry import ITEM_CATALOG
 
 class Player(Entity):
     def __init__(self, scale):
@@ -54,7 +55,7 @@ class Player(Entity):
         self.attack_delay = 0.2   # s entre attaques, doit etre supp a anim
         self.attack_pressed = False
 
-        self.damage = 1 # degats qu'inflinge le joueur
+        self.damage = 100 # degats qu'inflinge le joueur
         
         # -- Dammaged--
         self.invuln_duration = 0.60 #en s
@@ -165,6 +166,14 @@ class Player(Entity):
         
         # update graphics
         self.update_graphics()
+        
+        # gestion de l'obtenion de l'item
+        self.is_obtaining_item = False
+        self.obtain_timer = 0.0
+        self.obtain_duration = 0.0
+        self.obtain_item_graphic = QGraphicsPixmapItem(self)
+        self.obtain_item_graphic.setZValue(110)
+        self.obtain_item_graphic.setVisible(False)
 
     def key_press(self, key):
         
@@ -205,12 +214,26 @@ class Player(Entity):
             - tout ce qui est lie au deplacement
             - follow logic, en l'occurence les armes suivent le joueur lors de knockback
         """
+        
+        if getattr(self, 'is_obtaining_item', False):
+            if self.obtain_duration > 0:
+                self.obtain_timer += dt
+                if self.obtain_timer >= self.obtain_duration:
+                    self.end_obtain_item()
+            else:
+                if not scene.dialogue_manager.active:
+                    self.end_obtain_item()
+            
+            return
+        
         # ---
         self.get_flags_state(scene)
         # ---
         self.update_damage_state(dt) # invuln, clignot etc.
         self.update_stun_animation(dt)
         self.update_buff_animation(dt)
+        
+
         
         if self.attack_cooldown > 0:
             self.attack_cooldown = max(0, self.attack_cooldown - dt)
@@ -326,7 +349,6 @@ class Player(Entity):
             self.stun_item.setVisible(True)
             self.stun_item.setOpacity(1.0)
             
-            from PyQt5.QtWidgets import QGraphicsItem
             self.stun_item.setFlag(QGraphicsItem.ItemIgnoresParentOpacity, True)
             
             self.stun_item.setZValue(200)
@@ -342,7 +364,6 @@ class Player(Entity):
             self.buff_item.setVisible(True)
             self.buff_item.setOpacity(1.0)
         
-            from PyQt5.QtWidgets import QGraphicsItem
             self.buff_item.setFlag(QGraphicsItem.ItemIgnoresParentOpacity, True)
         
             self.buff_item.setZValue(200)
@@ -352,6 +373,22 @@ class Player(Entity):
         
             self.buff_item.setPos(self.x, self.y - settings.tile_size)
         # --- FIN DU HACK BUFF ---
+        
+        # --- SPAGHETTI CODE ITEM OBTAIN!!!!! ---
+        if getattr(self, 'is_obtaining_item', False) and hasattr(self, 'obtain_item_graphic') and self.obtain_item_graphic:
+            self.obtain_item_graphic.setVisible(True)
+            self.obtain_item_graphic.setOpacity(1.0)
+            
+            self.obtain_item_graphic.setFlag(QGraphicsItem.ItemIgnoresParentOpacity, True)
+            
+            self.obtain_item_graphic.setZValue(200)
+            
+            if self.obtain_item_graphic.scene() is None:
+                scene.addItem(self.obtain_item_graphic)
+
+            # Ajuste le multiplicateur (ici -1.5) pour le caler à la hauteur désirée au-dessus de la tête
+            self.obtain_item_graphic.setPos(self.x, self.y - (settings.tile_size * 1.5))
+        # --- FIN DU HACK ITEM ---
 
     def update_held_weapons(self, dt, scene):
         """
@@ -679,6 +716,75 @@ class Player(Entity):
                 length,
                 width
             )
+
+    
+    def obtain_item(self, item_id, duration=None):
+        """
+        Si duration est spécifie (ex: 2.0), l'etat dure ce temps (en secondes).
+        Sinon (None), l'etat dure tant que le dialogue est actif.
+        """
+        self.is_obtaining_item = True
+        self.obtain_timer = 0.0
+        self.obtain_duration = duration if duration is not None else 0.0
+
+        if getattr(self, "current_outfit", "") == "gilet_jaune":
+            chara_path = "assets/player/move/chara_obtain_gilet_jaune.png"
+        else:
+            chara_path = "assets/player/move/chara_obtain.png"
+
+        chara_pixmap = QPixmap(chara_path)
+        if not chara_pixmap.isNull():
+            scaled_chara = chara_pixmap.scaled(
+                settings.tile_size,
+                settings.tile_size,
+                Qt.KeepAspectRatio
+            )
+            self.setPixmap(scaled_chara)
+
+        
+        item_pixmap = None
+        if 'ITEM_CATALOG' in globals() and item_id in ITEM_CATALOG:
+            item_pixmap = QPixmap(ITEM_CATALOG[item_id]["icon_path"])
+        else:
+            fallback_path = f"assets/items/{item_id}.png"
+            if os.path.exists(fallback_path):
+                item_pixmap = QPixmap(fallback_path)
+
+        if item_pixmap and not item_pixmap.isNull():
+            scaled_item = item_pixmap.scaled(
+                settings.tile_size,
+                settings.tile_size,
+                Qt.KeepAspectRatio
+            )
+            self.obtain_item_graphic.setPixmap(scaled_item)
+            
+            self.obtain_item_graphic.setVisible(True)
+            self.obtain_item_graphic.setOpacity(1.0)
+            
+            self.obtain_item_graphic.setFlag(QGraphicsItem.ItemIgnoresParentOpacity, True)
+            self.obtain_item_graphic.setZValue(200)
+            
+            scene = self.scene()
+            if scene and self.obtain_item_graphic.scene() is None:
+                scene.addItem(self.obtain_item_graphic)
+                
+            # Position initiale brute
+            self.obtain_item_graphic.setPos(self.x, self.y - settings.tile_size * 1)
+        else:
+            self.obtain_item_graphic.setVisible(False)
+
+    
+    def end_obtain_item(self):
+        self.is_obtaining_item = False
+        
+        if hasattr(self, 'obtain_item_graphic') and self.obtain_item_graphic:
+            self.obtain_item_graphic.setVisible(False)
+            scene = self.scene()
+            if scene and self.obtain_item_graphic.scene() is not None:
+                scene.removeItem(self.obtain_item_graphic)
+                
+        self.visual_dir = "down"
+        self.update_graphics()
         
     
     def rects_overlap(self, a, b): 

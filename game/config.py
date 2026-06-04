@@ -2,7 +2,7 @@
 
 # --- CONFIG 
 
-DEBUG = False
+DEBUG = True
 
 BASE_TILE_SIZE = 16
 
