@@ -202,6 +202,8 @@ class Poseidon(Enemy):
                 self.phase = "charging"
                 self.state_timer = 1.5
                 self.current_frame_index = 0
+                sfx_charge = random.choice(["snd_charge_poseidon","snd_charge_poseidon2"])
+                scene.sfx_manager.play(sfx_charge)
 
         elif self.phase == "charging":
             self._play_animation(dt, self._get_anim_list("idle"), forward=True, loop=True)
@@ -477,6 +479,8 @@ class Poseidon(Enemy):
                 # On appelle le VRAI die() de la classe parente pour nettoyer l'entité et dropper le loot
                 super().die()
                 scene.sfx_manager.play("snd_sword_tungsten")
+                if hasattr(scene, "player"):
+                    scene.player.obtain_item("sword_tungsten",duration=4.5)
 
                 
             return True
