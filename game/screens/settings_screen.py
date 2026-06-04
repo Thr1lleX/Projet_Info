@@ -120,7 +120,7 @@ class CheckboxRow(BaseSettingRow):
 
     def _update_pixmap(self):
         path = "assets/hud/box_checked.png" if self.checked else "assets/hud/box.png"
-        pixmap = QPixmap(path).scaled(self.size, self.size, Qt.IgnoreAspectRatio, Qt.FastTransformation)
+        pixmap = QPixmap(path).scaled(int(self.size), int(self.size), Qt.IgnoreAspectRatio, Qt.FastTransformation)
         self.box_item.setPixmap(pixmap)
 
     def handle_left_right(self, direction):
