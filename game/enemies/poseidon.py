@@ -19,7 +19,7 @@ class Poseidon(Enemy):
         super().__init__(scale, x, y)
 
         # --- STATS DE BASE ---
-        self._pv_max = 12
+        self._pv_max = 30
         self.pv_main = self._pv_max
         self.aggro_range = settings.tile_size * 16
         self.speed = 0 # Ne se deplace pas classiquement
@@ -209,7 +209,7 @@ class Poseidon(Enemy):
             if self.state_timer <= 0:
                 self._execute_attack(scene)
                 self.phase = "idle_pause"
-                self.state_timer = 3.0 # self.pause
+                self.state_timer = 1.0 # self.pause
                 self.current_frame_index = 0
 
         elif self.phase == "idle_pause":
@@ -291,7 +291,7 @@ class Poseidon(Enemy):
             else:
                 direction = "down" if dy > 0 else "up"
             
-            trident = Trident(source=self, direction=direction, damage=3, speed=12.0* self.speed_multiplier)
+            trident = Trident(source=self, direction=direction, damage=3, speed=12.0* self.speed_multiplier,target = self.target)
             trident.setPos(self.x + settings.tile_size / 2, self.y + settings.tile_size / 2)
             
             scene.addItem(trident)
@@ -405,7 +405,7 @@ class Poseidon(Enemy):
             "* En revanche, tu es toujours très faible, surtout comparé à ce qui t'attend.",
             "* Si tu comptes réellement t'attaquer à la source du problème, eh bien je consens à te laisser passer.",
             "* Mais... sache que devant toi se dresse un ennemi redoutable.",
-            "* Thung Thung Thung Sahur n'est qu'un pion dans son échiquier, l'homme à la tête de ça est bien plus fort qu'un simple général.",
+            "* Tung Tung Tung Sahur n'est qu'un pion dans son échiquier, l'homme à la tête de ça est bien plus fort qu'un simple général.",
             "* Écoute-moi bien, celui que tu cherches a déjà rameuté ses troupes dans le Sanctuaire du Nord.",
             "* Il y a bien longtemps, ce sanctuaire servait à prier les dieux (les vrais, pas moi).",
             "* Cependant, il a depuis longtemps été abandonné.",
@@ -468,7 +468,7 @@ class Poseidon(Enemy):
                 
                 if hasattr(scene, "music_manager"):
                     # On force la durée à 2 secondes juste pour cette fois, puis on lance le fade_out
-                    scene.music_manager.fade_out_duration = 2.0
+                    scene.music_manager.fade_out_duration = 0.1
                     scene.music_manager.start_fade_out()
                     
                 if self.target:
@@ -476,6 +476,8 @@ class Poseidon(Enemy):
                     
                 # On appelle le VRAI die() de la classe parente pour nettoyer l'entité et dropper le loot
                 super().die()
+                scene.sfx_manager.play("snd_sword_tungsten")
+
                 
             return True
             
