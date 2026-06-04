@@ -242,6 +242,8 @@ class NPC(Interactable):
             if DEBUG: print(f"[NPC] Changement de dialogue détecté pour {self.npc_type}")
 
     def interact(self, scene, player=None):
+        if self.slide_direction is not None or self.is_despawning:
+            return #bloque interaction si slide
         self.check_conditions(scene)
         
         # gestion du son
