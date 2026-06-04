@@ -66,13 +66,13 @@ class DialogueManager:
 
         pix = QPixmap("assets/hud/dialogue_box.png")
 
-        width = GRID_WIDTH * settings.tile_size
-        height = 5 * settings.tile_size
+        self.width = GRID_WIDTH * settings.tile_size
+        self.height = 5 * settings.tile_size
 
         self.box.setPixmap(
             pix.scaled(
-                width,
-                height,
+                self.width,
+                self.height,
                 Qt.IgnoreAspectRatio,
                 Qt.FastTransformation
             )
@@ -81,11 +81,11 @@ class DialogueManager:
         Zvalue = 1010
         self.box.setZValue(Zvalue)
 
-        # position en bas ecran
-        self.box.setPos(
-            0,
-            (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size - height
-        )
+        # # position en bas ecran
+        # self.box.setPos(
+        #     0,
+        #     (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size - self.height
+        # )
 
         # -------------------------
         # texte
@@ -101,12 +101,35 @@ class DialogueManager:
 
         # largeur max du texte
         self.text_item.setTextWidth(
-            width - (2 * settings.tile_size)
+            self.width - (2 * settings.tile_size)
         )
 
+        # self.text_item.setPos(
+        #     settings.tile_size,
+        #     self.box.y() + settings.tile_size * 0.65
+        # )
+    
+    # ==========================================================
+    # Calcul dynamique de la position
+    # ==========================================================
+    def update_position(self):
+        """Ajuste la position de la boite et du texte selon la position du joueur"""
+        tile_size = settings.tile_size
+        
+        # Par defaut position en bas
+        box_y = (GRID_HEIGHT + HUD_HEIGHT) * tile_size - self.height
+
+        if hasattr(self.scene, 'player'):
+            player_tile_y = self.scene.player.y / tile_size
+            
+            if player_tile_y >= 8:
+                box_y = 2 * tile_size
+
+        # Application des positions
+        self.box.setPos(0, box_y)
         self.text_item.setPos(
-            settings.tile_size,
-            self.box.y() + settings.tile_size * 0.65
+            tile_size,
+            box_y + tile_size * 0.65
         )
 
     # ==========================================================
@@ -135,6 +158,8 @@ class DialogueManager:
         # vitesse texte
         chars_per_second = self.current_dialogue.get("speed", self.base_text_speed)
         self.text_speed_delay = 1.0 / chars_per_second
+        
+        self.update_position()
 
 
         # ajout scene
@@ -145,6 +170,7 @@ class DialogueManager:
             self.scene.addItem(self.text_item)
 
         self._load_current_line()
+        
 
     # ==========================================================
     # chargement ligne
@@ -313,6 +339,8 @@ class DialogueManager:
 
         chars_per_second = self.current_dialogue.get("speed", self.base_text_speed)
         self.text_speed_delay = 1.0 / chars_per_second
+        
+        self.update_position()
 
         if self.box.scene() is None:
             self.scene.addItem(self.box)
@@ -321,3 +349,4 @@ class DialogueManager:
             self.scene.addItem(self.text_item)
 
         self._load_current_line()
+
