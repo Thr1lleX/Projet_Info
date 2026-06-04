@@ -44,6 +44,10 @@ class GameWindow(QGraphicsView):
     # ------------------------------------------------------------------
 
     def keyPressEvent(self, event):
+        #on supprime l'auto repeat natig de pyqt5 pour la touche d'interaction (eviter spam dialogues)
+        if event.isAutoRepeat() and event.key() == settings.keys["INTERACT"]:
+            return
+        
         # si un ecran de menu est actif, il consomme la touche
         if self.screen_manager and self.screen_manager.route_key_press(event.key()):
             return
@@ -56,6 +60,9 @@ class GameWindow(QGraphicsView):
             scene.player.key_press(event.key())
 
     def keyReleaseEvent(self, event):
+        if event.isAutoRepeat() and event.key() == settings.keys["INTERACT"]:
+            return
+        
         # si un ecran est actif, absorber le key_release pour eviter les fuites
         if self.screen_manager and self.screen_manager.route_key_release(event.key()):
             return

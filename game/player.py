@@ -170,6 +170,11 @@ class Player(Entity):
         
         if self.is_sliding:
             return
+        
+        if key == settings.keys["INTERACT"]:
+            if self.interact_pressed:
+                return
+            self.interact_pressed = True
     
         self.keys.add(key)
         
@@ -186,6 +191,9 @@ class Player(Entity):
 
     def key_release(self, key):
         self.keys.discard(key)
+        
+        if key == settings.keys["INTERACT"]:
+            self.interact_pressed = False
  
 
     def update(self, dt, scene):
@@ -547,6 +555,7 @@ class Player(Entity):
         """
         self.keys.clear()
         self.attack_pressed = False
+        self.interact_pressed = False
         
     ##### ATTAQUES ####
 
