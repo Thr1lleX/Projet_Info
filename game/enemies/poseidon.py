@@ -418,6 +418,7 @@ class Poseidon(Enemy):
             "* Tu as de la force dans tes petits bras, c'est pourquoi je vais te confier une arme.",
             "* Cette épée de pur tungstène est certes lourde mais extrêmement tranchante,",
             "et comme tu es goatesque, tu sauras la manier.",
+            "* Marche en direction du nord et tu trouveras les montagnes sacrées.",
             "* Bonne chance mon enfant.."
         ]
         scene.dialogue_manager.start_text(dialogues)
