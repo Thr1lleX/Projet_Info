@@ -19,7 +19,8 @@ class NPC(Interactable):
                  despawn_if=None,
                  spawn_transition=None,
                  despawn_transition=None,
-                 scene = None
+                 scene = None,
+                 size = None
         ):
         super().__init__(scale)
 
@@ -29,6 +30,10 @@ class NPC(Interactable):
 
         self.x = x
         self.y = y
+
+        self.size = size or (1, 1)
+        self.hitbox_width = self.size[0] * settings.tile_size
+        self.hitbox_height = self.size[1] * settings.tile_size
         
         self.target_x = x
         self.target_y = y
@@ -88,10 +93,11 @@ class NPC(Interactable):
         if self.npc_type:
             sprite_path = f"assets/npc/{self.npc_type}"
             # on charge la sequence (identique au SavePoint)
-            self.frames = load_animation_sequence(sprite_path, size=(1, 1))
+            self.frames = load_animation_sequence(sprite_path, size=self.size)
 
             if self.frames:
                 self.setPixmap(self.frames[0])
+        self.was_auto_interact = False
         
         self.update_graphics()
         self.init_slide()
@@ -136,6 +142,10 @@ class NPC(Interactable):
         # despawn
         if (scene and self.despawn_if and scene.get_flag(self.despawn_if) and not self.is_despawning):
             self.is_despawning = True
+        
+            transition = self.despawn_transition
+            if getattr(self, "was_auto_interact", False) and hasattr(scene, "player") and scene.player:
+                scene.player.is_cinematic = False
         
             transition = self.despawn_transition
         
@@ -199,8 +209,13 @@ class NPC(Interactable):
                     if self.x >= self.target_x:
                         self.x = self.target_x
                         self.slide_direction = None
+        if not self.slide_direction and not self.is_despawning:
+            if getattr(self, "auto_interact", False):
+                self.was_auto_interact = True
+                self.interact(scene)
+                self.auto_interact = False
         
-            self.update_graphics()
+        self.update_graphics()
         
         # NPC NON STATIQUE
         if not self.frames or len(self.frames) <= 1:

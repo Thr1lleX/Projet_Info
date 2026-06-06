@@ -920,6 +920,7 @@ class GameScene(QGraphicsScene):
     
     def spawn_interactables(self, room):
         self.interactables = []
+        self.pending_npcs = []
         current_biome = room.get("biome", "default")
         for data in room.get("interactables", []):
             interactable_type = data.get("type")
@@ -955,7 +956,9 @@ class GameScene(QGraphicsScene):
                     data.get("spawn_transition"),
                     data.get("despawn_transition"),
                     scene = self,
+                    size = data.get("size", [1, 1])
                 )
+                interactable.auto_interact = data.get("auto_interact", False)
             
             elif interactable_type == "sign":
                 interactable = interactable_class(settings.scale, x, y, data.get("dialogue"),data.get("conditional_dialogue"),scene = self)
@@ -1010,10 +1013,12 @@ class GameScene(QGraphicsScene):
                 data.get("despawn_if"),
                 data.get("spawn_transition"),
                 data.get("despawn_transition"),
-                self
+                self,
+                size = data.get("size", [1, 1])
             )
     
             interactable.interactable_id = data.get("id")
+            interactable.auto_interact = data.get("auto_interact", False)
     
             self.interactables.append(interactable)
             self.addItem(interactable)

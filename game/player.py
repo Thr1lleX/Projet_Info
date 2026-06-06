@@ -43,8 +43,9 @@ class Player(Entity):
         # -- STATS --
 
         self.speed = settings.base_speed
-
+        
         self._pv_max = 6
+            
         self.pv_main = self._pv_max
         
         self.defense = 1
@@ -818,7 +819,7 @@ class Player(Entity):
             # disparition auto apres 0.1s
             temps_hitbox = 0.1 #en s
             QTimer.singleShot(
-                temps_hitbox*1000,
+                int(temps_hitbox*1000),
                 self.interact_debug_rect.hide
             )
     
