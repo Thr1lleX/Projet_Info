@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from game.enemies.enemy import Enemy
 from game.config import BASE_TILE_SIZE, HUD_HEIGHT, DEBUG
 from game.settings import settings
-from game.pathfinder import get_walkable_grid, line_of_sight, is_area_walkable, astar, _pixel_to_tile
+from game.pathfinder import get_walkable_grid, line_of_sight, is_area_walkable, astar, _pixel_to_tile, are_connected
 from game.attacks.fireball import Fireball
 
 class Wizmount(Enemy):
@@ -342,16 +342,20 @@ class Wizmount(Enemy):
         
         start_pos_astar = (self.x + settings.tile_size / 2.0, self.y + settings.tile_size / 2.0)
         
-        new_path = astar(grid, start_pos_astar, final_destination, settings.tile_size, w_tiles, h_tiles)
-        
-        if new_path is not None:
-            # Si on est en fallback (joueur caché), on s'arrête à une distance respectueuse (~3 cases)
-            if best_target_pixel is None and len(new_path) > 3:
-                self.path = new_path[:-3]
-            else:
-                self.path = new_path
-        else:
+        # Verification rapide de connexite avant A* couteux
+        if not are_connected(grid, start_pos_astar, final_destination, settings.tile_size):
             self.path = []
+        else:
+            new_path = astar(grid, start_pos_astar, final_destination, settings.tile_size, w_tiles, h_tiles)
+            
+            if new_path is not None:
+                # Si on est en fallback (joueur caché), on s'arrête à une distance respectueuse (~3 cases)
+                if best_target_pixel is None and len(new_path) > 3:
+                    self.path = new_path[:-3]
+                else:
+                    self.path = new_path
+            else:
+                self.path = []
             
         if self.show_path:
             self.draw_debug_path(scene)

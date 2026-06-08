@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 
 from game.entity import Entity
 from game.config import DEBUG, HUD_HEIGHT
-from game.pathfinder import astar, get_walkable_grid
+from game.pathfinder import astar, get_walkable_grid, are_connected
 import math
 import random
 from game.dropped_item import DroppedItem
@@ -109,14 +109,17 @@ class Enemy(Entity):
                 
                 grid = get_walkable_grid(scene.room_data)
                 
-                # On passe les deux dimensions
-                new_path = astar(grid, start_pos, goal_pos, settings.tile_size, w_tiles, h_tiles)
-                
-                
-                if new_path is not None:
-                    self.path = new_path
-                else:
+                # Verification rapide de connexite avant A* couteux
+                if not are_connected(grid, start_pos, goal_pos, settings.tile_size):
                     self.path = []
+                else:
+                    # On passe les deux dimensions
+                    new_path = astar(grid, start_pos, goal_pos, settings.tile_size, w_tiles, h_tiles)
+                    
+                    if new_path is not None:
+                        self.path = new_path
+                    else:
+                        self.path = []
                     
                 if self.show_path:
                     self.draw_debug_path(scene)
