@@ -6,7 +6,7 @@ sys.path.insert(0, PROJECT_ROOT)
 for m in ("PyQt5", "PyQt5.QtCore", "PyQt5.QtGui", "PyQt5.QtWidgets", "PyQt5.QtMultimedia"):
     sys.modules.setdefault(m, mock.MagicMock())
 
-from game.pathfinder import heuristic, get_walkable_grid, astar, smooth_path
+from game.pathfinder import heuristic, get_walkable_grid, astar, smooth_path, flood_fill
 from game.config import HUD_HEIGHT
 
 TILE = 32
@@ -65,6 +65,31 @@ class TestPathfinder(unittest.TestCase):
         pts = [px(c,3) for c in range(1,6)]
         res = smooth_path(pts, open_grid(), TILE, 1, 1)
         self.assertLessEqual(len(res), len(pts))
+
+    #  flood_fill (recursif) 
+    def test_flood_fill_open_grid(self):
+        """Sur une grille entierement ouverte, toutes les cases sont atteignables."""
+        grid = open_grid()
+        result = flood_fill(grid, 0, 0)
+        self.assertEqual(len(result), ROWS * COLS)
+
+    def test_flood_fill_blocked_cell(self):
+        """Une case bloquante ne doit pas figurer dans le resultat."""
+        grid = open_grid()
+        grid[5][5] = False  # on bloque une case
+        result = flood_fill(grid, 0, 0)
+        self.assertNotIn((5, 5), result)
+
+    def test_flood_fill_isolated_zones(self):
+        """Deux zones separees par un mur ne sont pas connectees."""
+        grid = open_grid()
+        # mur vertical complet en colonne 8
+        for r in range(ROWS):
+            grid[r][8] = False
+        zone_left  = flood_fill(grid, 0, 0)
+        zone_right = flood_fill(grid, COLS - 1, 0)
+        # les deux zones ne doivent pas se chevaucher
+        self.assertEqual(len(zone_left & zone_right), 0)
 
 if __name__ == "__main__":
     unittest.main()
