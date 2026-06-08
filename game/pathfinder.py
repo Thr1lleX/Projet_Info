@@ -24,6 +24,67 @@ def get_walkable_grid(room_data):
         grid.append(grid_row)
     return grid
 
+def flood_fill(grid, col, row, visited=None):
+    """
+    Parcours recursif en profondeur (DFS) pour trouver l'ensemble des cases
+    accessibles depuis la position (col, row) sur la grille.
+
+    Parametres :
+        grid    : grille 2D de booleens (True = accessible)
+        col     : colonne de depart
+        row     : ligne de depart
+        visited : ensemble de cases deja visitees (usage interne)
+
+    Retourne un ensemble de tuples (col, row) representant toutes les cases
+    atteignables depuis le point de depart.
+    """
+    if visited is None:
+        visited = set()
+
+    height = len(grid)
+    width = len(grid[0]) if height > 0 else 0
+
+    # conditions d'arret : hors limites, deja visite, ou case bloquante
+    if not (0 <= row < height and 0 <= col < width):
+        return visited
+    if (col, row) in visited:
+        return visited
+    if not grid[row][col]:
+        return visited
+
+    visited.add((col, row))
+
+    # appels recursifs dans les 4 directions cardinales
+    flood_fill(grid, col + 1, row, visited)
+    flood_fill(grid, col - 1, row, visited)
+    flood_fill(grid, col, row + 1, visited)
+    flood_fill(grid, col, row - 1, visited)
+
+    return visited
+
+
+def are_connected(grid, pos_a, pos_b, tile_size):
+    """
+    Verifie si deux positions pixel sont dans la meme zone accessible
+    de la grille, en utilisant le flood fill recursif.
+
+    Permet d'eviter un appel A* couteux lorsque la cible est inatteignable.
+
+    Parametres :
+        grid      : grille 2D de booleens
+        pos_a     : coordonnees pixel (x, y) du premier point
+        pos_b     : coordonnees pixel (x, y) du second point
+        tile_size : taille d'une case en pixels
+
+    Retourne True si les deux points sont connectes, False sinon.
+    """
+    col_a, row_a = _pixel_to_tile(pos_a[0], pos_a[1], tile_size)
+    col_b, row_b = _pixel_to_tile(pos_b[0], pos_b[1], tile_size)
+
+    reachable = flood_fill(grid, col_a, row_a)
+    return (col_b, row_b) in reachable
+
+
 def heuristic(a, b):
     """Distance euclidienne entre deux cases de la grille."""
     return math.hypot(a[0] - b[0], a[1] - b[1])
