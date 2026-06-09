@@ -1,8 +1,8 @@
 {
-  "current_room": "room_shrine_entrance",
+  "current_room": "room_mountainD1",
   "current_health": 6,
-  "player_x": 9.85,
-  "player_y": 5.63,
+  "player_x": 10.76,
+  "player_y": 5.32,
   "flags": {
     "open_passage": true,
     "jesus": true,
@@ -14,13 +14,7 @@
     "opened_chest_room4_7_9": true,
     "broken_room_riverG1_14_0": true,
     "opened_chest_room_cave_secretkey2_10_4": true,
-    "magic_poofed_room_mountainD1": true,
-    "broken_room_mountainB1_8_0": true,
-    "polasu_cave_vaincu": true,
-    "magic_poofed_room_mountain_cave": true,
-    "opened_chest_room_mountain_cave2_8_4": true,
-    "has_gilet_jaune": true,
-    "door_open_room_mountainD1_15_0": true
+    "magic_poofed_room_mountainD1": true
   },
   "inventory": {
     "slots": [
@@ -32,7 +26,7 @@
       {
         "slot": 2,
         "item_id": "bombe",
-        "count": 3
+        "count": 4
       },
       {
         "slot": 3,
@@ -43,17 +37,11 @@
         "slot": 4,
         "item_id": "fireball",
         "count": 1
-      },
-      {
-        "slot": 6,
-        "item_id": "gilet_jaune",
-        "count": 1
       }
     ],
     "collectibles": {
-      "mana": 5,
-      "key": 0
-    },
-    "equipped_item": "boomerang"
+		"mana":5
+	},
+    "equipped_item": "fireball"
   }
 }

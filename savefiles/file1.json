@@ -1,18 +1,30 @@
 {
-  "current_room": "room_townA5",
+  "current_room": "room_ocean_poseidon (prefight)",
   "current_health": 6.0,
-  "player_x": 11,
-  "player_y": 5,
-  "flags": {},
+  "player_x": 10.65,
+  "player_y": 4.4,
+  "flags": {
+    "met_oldman_test": true,
+    "has_spawned_farmer_roomdialoguetests_4_2": true,
+    "parlation": true,
+    "jesus": true,
+    "opened_chest_room_riverB1_6_6": true,
+    "has_boomerang": true
+  },
   "inventory": {
     "slots": [
       {
         "slot": 0,
         "item_id": "pomme",
-        "count": 5
+        "count": 1
+      },
+      {
+        "slot": 3,
+        "item_id": "boomerang",
+        "count": 1
       }
     ],
     "collectibles": {},
-    "equipped_item": "pomme"
+    "equipped_item": null
   }
 }

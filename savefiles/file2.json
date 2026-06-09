@@ -1,13 +1,9 @@
 {
-  "current_room": "roomdialoguetests",
+  "current_room": "room_townA5",
   "current_health": 6,
-  "player_x": 6.07,
-  "player_y": 2.78,
-  "flags": {
-    "met_oldman_test": true,
-    "has_spawned_farmer_roomdialoguetests_4_2": true,
-    "parlation": true
-  },
+  "player_x": 11.36,
+  "player_y": 3.97,
+  "flags": {},
   "inventory": {
     "slots": [],
     "collectibles": {},
