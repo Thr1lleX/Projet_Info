@@ -40,6 +40,13 @@
       "type": "placeholder2",
       "x": 10,
       "y": 3
+    },
+    {
+      "id": "placeholder2_7526",
+      "type": "placeholder2",
+      "x": 4,
+      "y": 3,
+      "spawn_if": "\"jesus\""
     }
   ]
 }

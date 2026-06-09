@@ -15,6 +15,11 @@
   "biome": "desert",
   "music": "mus_mini_boss",
   "fade_in": 1,
+  "conditional_music": {
+    "flag": "open_passage",
+    "music": "mus_boss_clear",
+    "fade_in": 2
+  },
   "transitions": {
     "left": null,
     "right": null,

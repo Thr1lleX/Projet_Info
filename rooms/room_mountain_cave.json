@@ -12,6 +12,7 @@
     [2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
     [2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2]
   ],
+  "magic_wall": "polasu_cave_vaincu",
   "biome": "default",
   "music": "mus_cave",
   "transitions": {
@@ -19,5 +20,15 @@
     "right": null,
     "up": "room_mountain_cave2",
     "down": "room_mountainB1"
-  }
+  },
+  "enemies": [
+    {
+      "id": "polasu_8990",
+      "type": "polasu",
+      "x": 7,
+      "y": 5,
+      "despawn_if": "polasu_cave_vaincu",
+      "set_flag": "polasu_cave_vaincu"
+    }
+  ]
 }
