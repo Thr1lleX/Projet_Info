@@ -7,6 +7,7 @@ from game.config import DEBUG
 from game.settings import settings
 
 class SavePoint(Interactable):
+    """Point de sauvegarde interactif anime."""
     def __init__(self, scale=settings.scale, x=0, y=0):
         super().__init__()
 
@@ -45,10 +46,7 @@ class SavePoint(Interactable):
 
 
     def update(self, dt,scene):
-        """
-        animation du savepoint
-        """
-
+        """Gere l'animation du point de sauvegarde."""
         if not self.frames:
             return
 
@@ -67,10 +65,7 @@ class SavePoint(Interactable):
 
 
     def interact(self, scene, player=None):
-        """
-        Interaction avec le joueur.
-        """
-
+        """Ouvre le menu de sauvegarde du jeu."""
         if DEBUG:
             print("Interaction : SavePoint")
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Gestion du chargement et du redimensionnement dynamique des polices."""
 # Auteur : essentiellement Mateo
 from PyQt5.QtGui import QFont, QFontDatabase
 from PyQt5.QtWidgets import QApplication
@@ -12,10 +13,7 @@ SYSTEM_SCALE = None
 
 
 def get_system_scale():
-    """
-    on recupere directement ici car sinon q application pas encore cree
-    (sous spyder, conserve les variables apres fermeture du programme, mais pas autres ide)
-    """
+    """Calcule le ratio DPI de l'ecran pour adapter la taille du texte."""
     global SYSTEM_SCALE
 
     if SYSTEM_SCALE is not None:
@@ -43,9 +41,7 @@ def get_system_scale():
 
 
 def get_font(path, size=10, bold=False):
-    """
-    charger la police lorsque invoquee. 
-    """
+    """Charge une police (avec mise en cache) et ajuste sa taille en fonction du DPI."""
     if path not in _fonts:
         # On vérifie si une QApplication existe, sinon on ne peut pas charger de police
         if not QApplication.instance():

@@ -89,6 +89,7 @@ ITEM_CATALOG = {
 
 
 def get_item_data(item_id):
+    """Renvoie les donnees associees a un identifiant d'objet."""
     return ITEM_CATALOG.get(item_id)
 
 

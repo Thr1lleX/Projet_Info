@@ -11,6 +11,7 @@ import random
 
 
 class Tralalero(Enemy):
+    """Ennemi rapide ecoutant et reagissant avec un cri (Tralala)."""
     def __init__(self, scale, x, y):
         super().__init__(scale, x, y)
 
@@ -52,6 +53,7 @@ class Tralalero(Enemy):
         
 
     def update(self, dt, scene):
+        """Met a jour la logique de deplacement et emet un son periodiquement."""
         self.sfx_timer -= dt
         
         if self.sfx_timer < 0:

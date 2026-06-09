@@ -63,6 +63,7 @@ from game.settings import settings
 from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
 
 class Trident(PersistentAttack):
+    """Projectile trident avec suivi vers une cible."""
     def __init__(self, source, direction, damage, speed, target=None):
         super().__init__(
             source=source,
@@ -101,6 +102,7 @@ class Trident(PersistentAttack):
         self.update_hitbox()
 
     def update_position(self):
+        """Met a jour la position avec une trajectoire courbe vers la cible."""
         rect = self.pixmap().rect()
         
         if self.target and self.tracking_timer > 0:
@@ -145,6 +147,7 @@ class Trident(PersistentAttack):
         self.setRotation(rotation_deg)
         
     def check_collisions(self, scene):
+        """Gere les collisions du trident (ignore les murs)."""
         hitbox_zone = self.debug_rect.mapToScene(self.debug_rect.rect()).boundingRect()
         hx, hy = hitbox_zone.x(), hitbox_zone.y()
         hw, hh = hitbox_zone.width(), hitbox_zone.height()
@@ -171,5 +174,6 @@ class Trident(PersistentAttack):
                     return
 
     def die(self):
+        """Supprime le trident de la scene."""
         if self.scene():
             self.scene().removeItem(self)   

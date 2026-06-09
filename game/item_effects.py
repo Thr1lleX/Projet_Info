@@ -1,11 +1,12 @@
 # auteur : essentiellement Ryan
-
+"""Definit les effets declenches lors de l'utilisation d'objets ou d'armes."""
 from game.settings import settings
 from game.item_registry import get_item_data
 from game.attacks.bomb import Bomb
 from game.attacks.boomerang import Boomerang
 
 def use_item(player, scene):
+    """Execute l'effet de l'objet equipe et le consomme si necessaire."""
     inventory = scene.screen_manager.inventory
     item_id = inventory._equipped_item_id
     if item_id is None:

@@ -12,6 +12,7 @@ from game.attacks.trident import Trident
 from game.animspr import load_animation_sequence
 
 class Poseidon(Enemy):
+    """Boss Poseidon : combat en phases avec plongees et dialogues."""
     def __init__(self, scale, x, y):
         self._x = 0
         self._y = 0
@@ -83,18 +84,13 @@ class Poseidon(Enemy):
         self._y = max(min_y, min(value, max_y))
 
     def take_damage(self, scene, damage, source=None):
-        """ 
-        Surcharge pour gerer l'insensibilite sous l'eau. 
-        """
+        """Surcharge pour gerer l'insensibilite sous l'eau."""
         if self.is_invulnerable:
             return
         super().take_damage(scene, damage, source)
     
     def _update_visual_direction(self):
-        """
-        il regarde vers le haut si le joueur l'a complètement dépasse
-        idem vers le bas
-        """
+        """Adapte la direction visuelle si le joueur l'a completement depasse."""
         if not self.target:
             return
 
@@ -115,7 +111,7 @@ class Poseidon(Enemy):
                 self.visual_dir = "down"
                 
     def setPixmap(self, pixmap):
-        """ Intercepte les textures d'animations pour appliquer les effets visuels à la volee """
+        """Intercepte les textures d'animations pour appliquer les effets visuels a la volee."""
         if not pixmap or pixmap.isNull():
             super().setPixmap(pixmap)
             return
@@ -344,14 +340,14 @@ class Poseidon(Enemy):
     # --- GESTION DES ANIMATIONS MANUELLES ---
 
     def _get_anim_list(self, action):
-        """ Retourne la bonne liste de QPixmap selon l'action et la direction """
+        """Retourne la bonne liste de QPixmap selon l'action et la direction."""
         if action == "idle":
             return self.anim_idle_up if self.visual_dir == "up" else self.anim_idle_down
         elif action == "sortie":
             return self.anim_sortie_up if self.visual_dir == "up" else self.anim_sortie_down
 
     def _play_animation(self, dt, frame_list, forward=True, loop=True):
-        """ Gère la progression d'une liste de frames à 9 fps avec garde-fous anti-IndexError """
+        """Gere la progression d'une liste de frames a 9 fps avec garde-fous anti-IndexError."""
         if not frame_list:
             return
 
@@ -433,7 +429,7 @@ class Poseidon(Enemy):
         self.current_frame_index = 0
         
     def _update_death_sequence(self, dt, scene):
-        """ Gere la machine a etats de la mort. Retourne True si la sequence est en cours. """
+        """Gere la machine a etats de la mort. Retourne True si la sequence est en cours."""
         if self.phase == "dying_dialogue":
             # Animation d'idle pendant qu'il parle
             self._play_animation(dt, self._get_anim_list("idle"), forward=True, loop=True)

@@ -50,9 +50,7 @@ class Boomerang(PersistentAttack):
         self.update_hitbox()
 
     def f_exp(self, x):
-        """ 
-        vitesse du boomerang suit loi expoentielle decroissante
-        """
+        """Vitesse du boomerang suivant une loi exponentielle decroissante."""
         return self.base_speed * (1 - math.exp(self.k * x))
 
     def update_position(self):
@@ -99,9 +97,7 @@ class Boomerang(PersistentAttack):
         self.setPos(self.x + self.anim_offset[0], self.y + self.anim_offset[1]) 
         
     def check_collisions(self, scene):
-        """
-        surcharge du systeme de collision pour gerer les items
-        """
+        """Surcharge du systeme de collision pour pouvoir ramasser les items."""
         hitbox_zone = self.debug_rect.mapToScene(self.debug_rect.rect()).boundingRect()
 
         for item in scene.items(hitbox_zone):

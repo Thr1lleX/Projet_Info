@@ -11,6 +11,7 @@ from game.save_manager import SaveManager
 
 
 class TitleScreen(BaseScreen):
+    """Ecran titre principal du jeu proposant de demarrer, continuer ou regler les parametres."""
 
     _menu_start_ratio = 0.50
     _menu_spacing     = 4
@@ -25,6 +26,7 @@ class TitleScreen(BaseScreen):
         ]
 
     def _build(self):
+        """Cree le fond, le titre, le menu et lance la musique d'ambiance."""
         self._build_background()
         self._build_title()
         self._build_menu()
@@ -32,6 +34,7 @@ class TitleScreen(BaseScreen):
         self._play_title_music()
 
     def _build_background(self):
+        """Cree l'arriere-plan de l'ecran titre a partir d'une image ou d'une couleur unie."""
         pix = QPixmap(TITLE_BG_PATH)
         if not pix.isNull():
             bg = QGraphicsPixmapItem(
@@ -45,6 +48,7 @@ class TitleScreen(BaseScreen):
         self._items.append(bg)
 
     def _build_title(self):
+        """Cree et centre le titre du jeu."""
         title = QGraphicsTextItem(GAME_TITLE)
         title.setFont(get_font0(size=16))
         title.setDefaultTextColor(QColor(255, 215, 0))
@@ -54,6 +58,7 @@ class TitleScreen(BaseScreen):
         self._items.append(title)
 
     def _activate(self):
+        """Joue un son de validation ou de demarrage puis execute l'action."""
         action = self._menu[self._selected]["action"]
         if action == "new_game":
             self._play_sfx("snd_start")
@@ -62,6 +67,7 @@ class TitleScreen(BaseScreen):
         self._dispatch(action)
 
     def _dispatch(self, action):
+        """Dispatche l'action selectionnee vers le gestionnaire d'ecran."""
         sm = self.screen_manager
         if action == "new_game":
             sm.start_new_game()
@@ -73,6 +79,7 @@ class TitleScreen(BaseScreen):
             sm.quit_game()
 
     def _play_title_music(self):
+        """Lance la musique de l'ecran titre en boucle."""
         sm = self.screen_manager
         if hasattr(sm, 'music_manager'):
             sm.music_manager.play("mus_title", fade_in=0)

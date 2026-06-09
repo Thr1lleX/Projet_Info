@@ -381,6 +381,7 @@ class HUD:
 
 
     def update_hud(self, player, inventory, scene):
+        """Met a jour les elements du HUD (coeurs, mana, objets equipes et inventaire)."""
         
         self.update_hearts(player.pv_main, player._pv_max)
         

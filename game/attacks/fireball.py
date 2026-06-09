@@ -3,6 +3,7 @@ from game.attacks.attack_entity import PersistentAttack
 from game.enemies.enemy import Enemy 
 
 class Fireball(PersistentAttack):
+    """Projectile de type boule de feu (utilisable par le joueur et les ennemis)."""
     def __init__(self, source, direction):
         if isinstance(source, Enemy):
             img_spr = "enemies/wizmount/fireball"
@@ -34,5 +35,6 @@ class Fireball(PersistentAttack):
         self.update_hitbox()
 
     def die(self):
+        """Supprime le projectile sans effet d'explosion special."""
         if self.scene():
             self.scene().removeItem(self)

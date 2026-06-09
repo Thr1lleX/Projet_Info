@@ -23,6 +23,7 @@ from PyQt5.QtCore import QTimer
 
 
 class Tungtungsahur(Enemy):
+    """Boss Tung Tung Sahur : combat de charges, sauts de zone et invocations."""
     def __init__(self, scale, x, y):
         self._x = 0
         self._y = 0
@@ -124,10 +125,7 @@ class Tungtungsahur(Enemy):
         self._y = max(min_y, min(value, max_y))
 
     def _update_visual_direction(self):
-        """
-        il regarde vers le haut si le joueur l'a complètement dépasse
-        idem vers le bas
-        """
+        """Adapte la direction visuelle si le joueur l'a completement depasse."""
         if not self.target:
             return
 
@@ -148,8 +146,7 @@ class Tungtungsahur(Enemy):
                 self.visual_dir = "down"
                 
     def setPixmap(self, pixmap):
-        """ Intercepte les textures d'animations pour appliquer les 
-        effets visuels à la volee """
+        """Intercepte les textures d'animations pour appliquer les effets visuels a la volee."""
         if not pixmap or pixmap.isNull():
             super().setPixmap(pixmap)
             return
@@ -185,10 +182,7 @@ class Tungtungsahur(Enemy):
         super().setPixmap(pixmap)
         
     def update_graphics(self):
-        """ 
-        Surcharge essentielle : empeche la classe parente (Enemy/Entity) 
-        d'ecraser le pixmap de triple T avec son sprite de placeholder standard.
-        """
+        """Surcharge essentielle : empeche la classe parente d'ecraser le pixmap."""
         pass
 
     def update(self, dt, scene):
@@ -246,6 +240,7 @@ class Tungtungsahur(Enemy):
     # Differentes methodes des comportments:
 
     def _update_idle_menace(self, dt, scene):
+        """Gere la phase d'attente menacante."""
         self.setPixmap(self.spr_idle)
         self.is_invulnerable = False
         if self.state_timer<=0:
@@ -258,6 +253,7 @@ class Tungtungsahur(Enemy):
 
 
     def _update_pre_charge(self, dt, scene):
+        """Gere la phase de preparation de charge ou de saut."""
         self.setPixmap(self.spr_prejump)
         self.is_invulnerable = True
         
@@ -322,6 +318,7 @@ class Tungtungsahur(Enemy):
             
 
     def _update_charging(self, dt, scene):
+        """Gere le mouvement de charge et les collisions."""
         if self.current_attack == "charge":
             self._play_animation_list(dt,self.anim_charge, loop = True)
 
@@ -373,6 +370,7 @@ class Tungtungsahur(Enemy):
 
 
     def _update_recovery(self, dt, scene):
+        """Gere la deceleration post-charge (glide) et la transition de phase."""
         self.setPixmap(self.spr_idle)
         self.is_invulnerable = False
 
@@ -402,6 +400,7 @@ class Tungtungsahur(Enemy):
             
 
     def _update_spawn_summon(self, dt, scene):
+        """Gere l'invocation d'ennemis sbires en phase 2."""
         self.setPixmap(self.spr_idle)
         self.is_invulnerable = True
 
@@ -416,6 +415,7 @@ class Tungtungsahur(Enemy):
             self.state_timer = 1.0
 
     def _play_animation_list(self, dt, frame_list, loop=True):
+        """Joue une sequence d'animation a vitesse fixe."""
         # Avance dans une liste de frames à self.fps
         if not frame_list:
             return
@@ -432,12 +432,14 @@ class Tungtungsahur(Enemy):
 #  Utilitaires
 
     def _enter_recovery(self, scene):
+        """Passe le boss en phase de recuperation."""
         self.phase = "recovery"
         self.state_timer = 0.5
         self.current_frame_index = 0
 
 
     def _check_charge_hit(self,scene):
+        """Verifie si la charge touche le joueur et inflige des degats."""
         #  inglige des degats au joueur si la hitbox
         # touche le joueur pdt la charge
         bx = self.x
@@ -457,6 +459,7 @@ class Tungtungsahur(Enemy):
 
 
     def _create_zone_marker(self,scene,center_x,center_y):
+        """Cree un marqueur visuel au sol pour l'attaque de saut de zone."""
         # faire le marker pour le jump zone pr indiquer le joueur
         ts = settings.tile_size
         marker = QGraphicsEllipseItem(
@@ -473,6 +476,7 @@ class Tungtungsahur(Enemy):
         
         
     def _on_zone_jump_land(self, scene):
+        """Gere l'atterrissage du saut et declenche les degats de zone."""
         # supprime le marker et fait l'AOE
         if self.zone_marker and self.zone_marker.scene():
             scene.removeItem(self.zone_marker)
@@ -488,6 +492,7 @@ class Tungtungsahur(Enemy):
         self._apply_zone_damage(scene,target_col,target_row)
 
     def _apply_zone_damage(self, scene, center_col, center_row):
+        """Inflige des degats de zone (3x3 tuiles) au joueur."""
         # inflige des dgts si le joueur est dans la zone 3*3
         px,py,pw,ph =  scene.player.get_hitbox()
         player_rect = QRectF(px,py,pw,ph)
@@ -505,6 +510,7 @@ class Tungtungsahur(Enemy):
                     return
                 
     def _spawn_minions(self, scene):
+        """Fait apparaitre des ennemis secondaires autour du boss."""
         ts = settings.tile_size
         min_x = 1 * ts
         max_x = (GRID_WIDTH-2) * ts
@@ -533,6 +539,7 @@ class Tungtungsahur(Enemy):
     
     
     def die(self):
+        """Gere la mort du boss (dialogues, chute, musique)."""
         scene = self.scene()
         # Si on est deja en train de mourir, on ignore pour eviter les boucles
         if not scene or self.phase in ["dying_dialogue", "dying_fall", "dead"]:
@@ -588,7 +595,7 @@ class Tungtungsahur(Enemy):
         self.current_frame_index = 0
         
     def _update_death_sequence(self, dt, scene):
-        """ Gere la machine a etats de la mort. Retourne True si la sequence est en cours. """
+        """Gere la sequence de mort (dialogue puis chute)."""
         if self.phase == "dying_dialogue":
             # Animation d'idle pendant qu'il parle
             # self._play_animation(dt, self._get_anim_list("idle"), forward=True, loop=True)
@@ -639,6 +646,7 @@ class Tungtungsahur(Enemy):
         return False
 
     def trigger_jesus_spawn(self, scene):
+        """Declenche l'apparition de Jesus apres la defaite."""
         scene.session_flags["spawn_jesus"] = True
         scene.check_pending_npcs()
 

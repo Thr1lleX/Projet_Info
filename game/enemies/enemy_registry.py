@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Charge et reference automatiquement toutes les classes d'ennemis du dossier."""
 
 import pkgutil
 import importlib
@@ -8,13 +9,12 @@ from game.enemies.enemy import Enemy
 import game.enemies as enemies_pkg
 
 
-"""
-NOTE, il faut que le nom du fichier matche avec le nom de la classe (1e majuscule pres)
-"""
+# NOTE, il faut que le nom du fichier matche avec le nom de la classe (1e majuscule pres)
 
 
 
 def load_enemy_types():
+    """Parcourt le dossier et retourne un dictionnaire des types d'ennemis trouves."""
     enemy_types = {}
 
     for _, module_name, _ in pkgutil.iter_modules(enemies_pkg.__path__):

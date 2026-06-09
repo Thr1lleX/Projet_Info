@@ -11,10 +11,7 @@ from game.animspr import load_animation_sequence
 from game.settings import settings
 
 class Bomb(QGraphicsPixmapItem):
-    """
-    gere uniquement la bombe posee au son, son timer et son clignetement
-    cette entite n'a ni hitbox ni degats
-    """
+    """Gere uniquement la bombe posee au sol, son chronometre et son clignotement."""
     def __init__(self, source, x, y):
         super().__init__()
         self.source = source
@@ -73,9 +70,7 @@ class Bomb(QGraphicsPixmapItem):
             self.explode(scene)
 
     def explode(self, scene):
-        """
-        invoque attaque explosion et clean la bombe
-        """
+        """Invoque l'attaque d'explosion et supprime la bombe."""
         explosion = Explosion(self.source, self.x, self.y)
         scene.addItem(explosion)
         
@@ -93,10 +88,7 @@ class Bomb(QGraphicsPixmapItem):
 
 
 class Explosion(TemporaryAttack):
-    """
-    herite de temporary attack (voir def de classe)
-    3x3, centre en (1,1)
-    """
+    """Entite d'explosion infligeant des degats sur une zone 3x3."""
     def __init__(self, source, x, y):
         # on force down pour la direction meme si pas d'importance
         super().__init__(source, direction="down", damage=2, duration=0.8)

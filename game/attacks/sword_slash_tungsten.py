@@ -3,6 +3,7 @@
 from game.attacks.sword_slash import SwordSlash
 
 class SwordSlashTungsten(SwordSlash):
+    """Attaque de type coup d'epee en tungstene (degats doubles)."""
     def __init__(self, player, direction):
         
         super().__init__(player, direction,spr_path = "player/attack/sword_tungsten")

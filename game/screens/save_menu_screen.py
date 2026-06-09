@@ -14,6 +14,7 @@ from game.fonts import get_font0
 
 
 class SaveMenuScreen(BaseScreen):
+    """Menu interactif permettant de choisir un emplacement de sauvegarde (slot) depuis le jeu."""
 
     _menu_start_ratio = 0.50
     _menu_spacing = 4
@@ -52,14 +53,14 @@ class SaveMenuScreen(BaseScreen):
         self._selected = 0
 
     def _build(self):
-
+        """Cree les elements graphiques : fond, titre et options de sauvegarde."""
         self._build_background()
         self._build_title()
         self._build_menu()
         self._refresh_highlight()
 
     def _build_background(self):
-
+        """Cree un fond semi-transparent pour assombrir le jeu en arriere-plan."""
         bg = QGraphicsRectItem(
             0,
             0,
@@ -78,7 +79,7 @@ class SaveMenuScreen(BaseScreen):
         self._items.append(bg)
 
     def _build_title(self):
-    
+        """Cree et centre le titre du menu de sauvegarde."""
         title = QGraphicsTextItem("Choisir un\nemplacement")
     
         title.setFont(get_font0(size=11))
@@ -98,6 +99,7 @@ class SaveMenuScreen(BaseScreen):
         self._items.append(title)
 
     def _activate(self):
+        """Joue un son specifique (sauvegarde ou annulation) et declenche l'action."""
         action = self._menu[self._selected]["action"]
         if action.startswith("slot"):
             self._play_sfx("snd_save")
@@ -109,6 +111,7 @@ class SaveMenuScreen(BaseScreen):
 
 
     def _dispatch(self, action):
+        """Effectue la sauvegarde dans l'emplacement choisi ou ferme le menu."""
         sm = self.screen_manager
         if action == "slot1":
             sm.scene.save_game(1)

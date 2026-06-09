@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Gere les transitions visuelles et sonores entre les salles."""
 # Auteur : essentiellement Mateo
 
 from PyQt5.QtWidgets import QGraphicsRectItem
@@ -42,6 +43,7 @@ class TransitionManager:
         self.music_freeze_duration = DURATION_FADE_IN_ROOM
 
     def start(self, room_name, direction):
+        """Initialise et lance une transition vers une nouvelle salle."""
         if self.state != "idle":
             return
     
@@ -59,17 +61,7 @@ class TransitionManager:
             self.scene.music_manager.start_fade_out()
 
     def update(self, dt):
-        """
-        permet de gerer transitions entre salles
-        on fait dans cet ordre:
-            fade out
-            changement de salle - freeze
-            fade in
-            load musique
-            
-        on ne peut pas load la musique avant le fade in, sinon freeze le jeu trop long
-
-        """
+        """Met a jour l'etat de la transition (fondu sortant, changement de salle, fondu entrant)."""
         if self.state == "idle":
             return
     

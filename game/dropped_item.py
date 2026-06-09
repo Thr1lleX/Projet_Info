@@ -1,4 +1,5 @@
 # Auteur : essentiellement Ryan
+"""Representation graphique d'un objet tombe au sol."""
 
 from PyQt5.QtWidgets import QGraphicsPixmapItem
 from PyQt5.QtGui import QPixmap
@@ -8,6 +9,7 @@ from game.item_registry import get_item_data
 from game.settings import settings
 
 class DroppedItem(QGraphicsPixmapItem):
+    """Element visuel et physique d'un objet present dans la scene."""
     def __init__(self, item_id, x, y):
         super().__init__()
         self.item_id = item_id

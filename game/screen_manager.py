@@ -1,37 +1,13 @@
 # -*- coding: utf-8 -*-
 # Auteur : essentiellement Ryan
-"""
-Gestionnaire d'ecrans (ScreenManager).
+"""Gestionnaire d'ecrans (ScreenManager).
 
 Role :
-  - Connaitre l'etat global de l'application (titre / jeu / pause / inventaire /
-    game over / parametres).
-  - Afficher ou masquer les ecrans (BaseScreen) sur la scene courante.
+  - Connaitre l'etat global de l'application (titre / jeu / pause / inventaire / game over / parametres).
+  - Afficher ou masquer les ecrans sur la scene courante.
   - Router les evenements clavier et souris vers l'ecran actif.
   - Creer une nouvelle GameScene propre lors d'un reset ou d'un retour au menu.
-  - Gerer la pause (freeze jeu + baisse du volume musique).
-  - Gerer l'inventaire (freeze jeu + affichage overlay).
-
-Attributs publics injectes depuis main.py :
-  sm.settings  = SettingsManager
-  sm.inventory = Inventory
-
-Utilisation typique (main.py) :
-    sm = ScreenManager(window)
-    sm.settings  = SettingsManager()
-    sm.inventory = Inventory(30)
-    sm.register_screen("title",     TitleScreen(sm))
-    sm.register_screen("game_over", GameOverScreen(sm))
-    sm.register_screen("settings",  SettingsScreen(sm))
-    sm.register_screen("pause",     PauseScreen(sm))
-    sm.register_screen("inventory", InventoryScreen(sm))
-    sm.go_to_title()
-
-Pour ajouter un nouvel ecran :
-    1. Creer une sous-classe de BaseScreen.
-    2. sm.register_screen("mon_ecran", MonEcran(sm)).
-    3. Appeler sm.show_screen("mon_ecran") au moment voulu.
-"""
+  - Gerer la pause et l'inventaire """
 
 
 from PyQt5.QtCore import Qt, QTimer, QPropertyAnimation
@@ -80,10 +56,7 @@ class ScreenManager:
         scene.screen_manager = self
 
     def _create_fresh_scene(self):
-        """
-        Arrete proprement l'ancienne scene et en cree une nouvelle.
-        Retourne la nouvelle GameScene (deja installee dans la fenetre).
-        """
+        """Arrete l'ancienne scene, en cree une nouvelle et la retourne."""
         from game.scene import GameScene   # import tardif pour eviter les imports circulaires
 
         old = self._scene
@@ -105,11 +78,10 @@ class ScreenManager:
         self._screens[name] = screen
 
     def show_screen(self, name):
-        """
-        Masque l'ecran actif (s'il y en a un) et affiche le nouvel ecran.
+
+        """ Masque l'ecran actif (s'il y en a un) et affiche le nouvel ecran.
         Les items de l'ancien ecran sont retires via item.scene() (sur-place),
-        ce qui fonctionne meme si la scene a ete remplacee.
-        """
+        ce qui fonctionne meme si la scene a ete remplacee. """
         if self._active_screen is not None:
             self._active_screen.hide()
         self._active_screen = self._screens[name]
@@ -126,11 +98,10 @@ class ScreenManager:
     # ------------------------------------------------------------------
 
     def route_key_press(self, key):
-        """
-        Transmet la touche a l'ecran actif s'il y en a un.
+
+        """ Transmet la touche a l'ecran actif s'il y en a un.
         Sinon, intercepte Echap (→ pause) et Tab (→ inventaire) pendant le jeu.
-        Retourne True si l'evenement est consomme (ne doit pas atteindre le jeu).
-        """
+        Retourne True si l'evenement est consomme (ne doit pas atteindre le jeu)."""
         if self._active_screen is not None:
             self._active_screen.key_press(key)
             return True
@@ -157,10 +128,9 @@ class ScreenManager:
         return False
 
     def route_mouse_press(self, scene_pos):
-        """
-        Transmet le clic (QPointF en coordonnees scene) a l'ecran actif.
-        Retourne True si consomme.
-        """
+
+        """Transmet le clic (QPointF en coordonnees scene) a l'ecran actif.
+        Retourne True si consomme."""
         if self._active_screen is not None:
             self._active_screen.mouse_press(scene_pos)
             return True
@@ -171,10 +141,9 @@ class ScreenManager:
     # ------------------------------------------------------------------
     
     def go_to_title(self):
-        """
-        Retourne a l'ecran titre.
-        Cree une scene fraiche (en pause) et affiche le menu principal.
-        """
+
+        """Retourne a l'ecran titre.
+        Cree une scene fraiche (en pause) et affiche le menu principal. """
         self.hide_current_screen()
         self._create_fresh_scene()       # game_paused = True par defaut dans GameScene
         
@@ -198,12 +167,10 @@ class ScreenManager:
         self.state = self.STATE_SETTINGS
 
     def back_from_settings(self):
-        """
-        Retourne a l'ecran precedent depuis les parametres.
+        """ Retourne a l'ecran precedent depuis les parametres.
           - Depuis le titre   : reaffiche le titre.
           - Depuis le jeu     : reprend le jeu.
-          - Depuis la pause   : reaffiche le menu pause.
-        """
+          - Depuis la pause   : reaffiche le menu pause."""
         prev = self._prev_state or self.STATE_TITLE
         if prev == self.STATE_TITLE:
             self.show_screen("title")
@@ -219,10 +186,9 @@ class ScreenManager:
             self.state = self.STATE_TITLE
 
     def on_game_over(self):
-        """
-        Appele par player.die() quand le joueur meurt.
-        Stoppe le gameplay via scene.game_over() et affiche l'ecran de fin.
-        """
+        
+        """ Appele par player.die() quand le joueur meurt.
+        Stoppe le gameplay via scene.game_over() et affiche l'ecran de fin."""
         self.state = self.STATE_GAME_OVER
         if self._scene is not None:
             self._scene.game_over()
@@ -240,7 +206,7 @@ class ScreenManager:
 
 
     def open_pause(self):
-        """Met le jeu en pause et joue la musique de pause avec le sfx (joue musique 600ms apres)."""
+        """Met le jeu en pause et affiche le menu correspondant."""
         if self.scene is None:
             return
         if hasattr(self.scene, 'player'):
@@ -334,9 +300,7 @@ class ScreenManager:
         
     
     def start_new_game(self):
-        """
-        initialise la session mais affiche l'ecran de controles d'abord
-        """
+        """Initialise une nouvelle partie et affiche l'ecran des controles."""
     
         self.hide_current_screen()
     
@@ -368,9 +332,7 @@ class ScreenManager:
 
             
     def finalize_new_game(self, wipe_item):
-        """
-        affiche la scene lors d'une nouvelle partie
-        """
+        """Affiche la scene de jeu avec un effet de transition."""
         
         if self._scene is not None:
             self._scene.game_paused = False
@@ -436,9 +398,7 @@ class ScreenManager:
 
     
     def rebuild_display(self):
-        """
-        Reconstruit tout l'affichage lors d'un changement de résolution (SCALE).
-        """
+        """Reconstruit tout l'affichage lors d'un changement de resolution."""
         # cacher ecran actuel
         self.hide_current_screen()
         

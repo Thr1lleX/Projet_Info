@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Registre global associant les identifiants d'objets interactifs a leurs classes respectives."""
 
 from game.interactables.savepoint import SavePoint
 from game.interactables.npc import NPC

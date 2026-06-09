@@ -9,6 +9,7 @@ from game.settings import settings
 
 
 class Placeholder1(Enemy):
+    """Ennemi de test basique."""
     def __init__(self, scale, x, y):
         super().__init__(scale, x, y)
 

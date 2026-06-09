@@ -7,6 +7,7 @@ from PyQt5.QtCore import Qt
 from game.settings import settings
 
 class Sign(NPC):
+    """Panneau interactif affichant un texte statique lors de l'interaction."""
     def __init__(self, 
                  scale, 
                  x, 
@@ -32,5 +33,5 @@ class Sign(NPC):
         self.update_graphics()
 
     def update(self, dt,scene):
-        # ecrase methode car image statique
+        """Ecrase la methode parente car l'image du panneau est statique."""
         pass

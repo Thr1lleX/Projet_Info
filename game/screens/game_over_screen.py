@@ -10,6 +10,7 @@ from game.fonts import get_font0
 
 
 class GameOverScreen(BaseScreen):
+    """Ecran de fin de partie proposant de recommencer, charger une sauvegarde ou quitter."""
 
     _menu_start_ratio = 0.52
     _menu_spacing     = 4
@@ -24,6 +25,7 @@ class GameOverScreen(BaseScreen):
         ]
 
     def _build(self):
+        """Cree le fond assombri, le titre et le menu de l'ecran de fin."""
         self._build_overlay()
         self._build_title()
         self._build_menu()
@@ -46,6 +48,7 @@ class GameOverScreen(BaseScreen):
         self._items.append(title)
 
     def _activate(self):
+        """Execute l'action du bouton selectionne et joue un son."""
         action = self._menu[self._selected]["action"]
         if action == "restart":
             self._play_sfx("snd_start")
@@ -54,6 +57,7 @@ class GameOverScreen(BaseScreen):
         self._dispatch(action)
 
     def _dispatch(self, action):
+        """Dispatche l'action selectionnee vers le gestionnaire d'ecran."""
         sm = self.screen_manager
         
         # remettre la boucle de musique
@@ -72,9 +76,7 @@ class GameOverScreen(BaseScreen):
             sm.quit_game()
 
     def show(self, scene):
-        """
-        cette fonction permet de recharger ecran lorsqu'on l'ouvre
-        """
+        """Met a jour la disponibilite du bouton de sauvegarde puis affiche l'ecran."""
         has_slot = scene.current_save is not None and scene.current_save.slot is not None
         
         # mise a jour du slot

@@ -9,6 +9,7 @@ from game.settings import settings
 from game.attacks.lightning import Lightning
 
 class Polasu(Enemy):
+    """Ennemi bloquant les attaques de face et attaquant avec des eclairs."""
     def __init__(self, scale, x, y):
         super().__init__(scale, x, y)
 
@@ -59,6 +60,7 @@ class Polasu(Enemy):
         self.lightning_sequence = []
 
     def take_damage(self, scene, damage, source=None):
+        """Surcharge pour annuler les degats si l'attaque vient de face."""
         if self.is_invulnerable:
             return
 
@@ -103,9 +105,7 @@ class Polasu(Enemy):
 
 
     def stun(self, duration):
-        """
-        empeche stun si coup a ete bloque (boomerang doit venir de derriere)
-        """
+        """Empeche le stun si le coup a ete bloque (le boomerang doit venir de derriere)."""
         if getattr(self, "_coup_bloque_actuel", False):
             self._coup_bloque_actuel = False
             return
@@ -114,6 +114,7 @@ class Polasu(Enemy):
 
 
     def update(self, dt, scene):
+        """Met a jour la logique de Polasu (blocage, attaque eclair en sequence)."""
         # --- GESTION DU TIMER DE BLOCAGE ---
         if self.is_blocking:
             self.block_timer -= dt
@@ -156,6 +157,7 @@ class Polasu(Enemy):
         
         
     def start_lightning_attack(self):
+        """Initialise et prepare la sequence d'attaque electrique."""
         self.is_attacking = True
         self.lightning_step = 0
         self.lightning_timer = 0.0
@@ -191,6 +193,7 @@ class Polasu(Enemy):
         self.lightning_sequence = [first] + others
     
     def try_hit_player(self, scene):
+        """Verifie la distance pour declencher l'attaque eclair ou infliger des degats au contact."""
         # degats de contact si joueur lui fonce dessus
         super().try_hit_player(scene)
         

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Gestionnaire de sauvegarde (chargement, ecriture, drapeaux et position)."""
 # Auteur : essentiellement Mateo
 
 import json
@@ -47,9 +48,7 @@ class SaveManager:
 
     @classmethod
     def write_save(cls, slot, data):
-        """
-        Ecrit une sauvegarde dans un slot.
-        """
+        """Ecrit une sauvegarde dans le slot specifie."""
     
         os.makedirs(cls.SAVE_DIR, exist_ok=True)
     
@@ -67,9 +66,7 @@ class SaveManager:
                 ensure_ascii=False
             )
     def save(self):
-        """
-        sauvegarde les donnees dans le slot defini, utilise pr load derniere save
-        """
+        """Sauvegarde les donnees courantes dans le fichier associe au slot."""
         if self.slot is not None:
             SaveManager.write_save(self.slot, self.data)
 

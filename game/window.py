@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Contient la fenetre principale gerant l'affichage et les entrees utilisateur."""
 # Auteur : essentiellement Ryan
 import sys
 
@@ -10,17 +11,8 @@ from game.settings import settings
 
 class GameWindow(QGraphicsView):
     """
-    Fenetre principale du jeu (QGraphicsView).
-
-    Responsabilites :
-      - Dimensionner la fenetre.
-      - Router les evenements clavier vers le ScreenManager (si un ecran est actif)
-        ou vers la scene de jeu (sinon).
-      - Router les clics souris vers le ScreenManager si un ecran est actif.
-      - Fermer proprement l'application.
-
-    La scene de jeu (GameScene) est injectee par le ScreenManager via setScene(),
-    et non plus creee ici. Cela permet de swapper la scene en cours de session.
+    Fenetre principale du jeu.
+    Responsabilites : Dimensionnement, routage des evenements, fermeture propre.
     """
 
     def __init__(self):
@@ -44,6 +36,7 @@ class GameWindow(QGraphicsView):
     # ------------------------------------------------------------------
 
     def keyPressEvent(self, event):
+        """Route l'evenement clavier a l'ecran actif ou a la scene."""
         #on supprime l'auto repeat natig de pyqt5 pour la touche d'interaction (eviter spam dialogues)
         if event.isAutoRepeat() and event.key() == settings.keys["INTERACT"]:
             return
@@ -60,6 +53,7 @@ class GameWindow(QGraphicsView):
             scene.player.key_press(event.key())
 
     def keyReleaseEvent(self, event):
+        """Route le relachement de touche a l'ecran actif ou a la scene."""
         if event.isAutoRepeat() and event.key() == settings.keys["INTERACT"]:
             return
         
@@ -78,6 +72,7 @@ class GameWindow(QGraphicsView):
     # ------------------------------------------------------------------
 
     def mousePressEvent(self, event):
+        """Route le clic souris a l'ecran actif."""
         if self.screen_manager:
             scene_pos = self.mapToScene(event.pos())
             if self.screen_manager.route_mouse_press(scene_pos):
@@ -89,6 +84,7 @@ class GameWindow(QGraphicsView):
     # ------------------------------------------------------------------
 
     def closeEvent(self, event):
+        """Arrete proprement les composants (timers, musique) a la fermeture native."""
         scene = self.scene()
         if hasattr(scene, 'timer'):
             scene.timer.stop()
@@ -97,6 +93,7 @@ class GameWindow(QGraphicsView):
         event.accept()
 
     def quitter_jeu(self):
+        """Ferme l'application en arretant explicitement les sons et la boucle de jeu."""
         if DEBUG:
             print("Fermeture de l'application...")
 
@@ -117,6 +114,7 @@ class GameWindow(QGraphicsView):
 
         
     def update_window_size(self):
+        """Recalcule la taille de la fenetre en pixels et la recentre."""
         from game.settings import settings
         from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
         from PyQt5.QtWidgets import QDesktopWidget

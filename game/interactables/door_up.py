@@ -6,6 +6,7 @@ from game.config import DEBUG, HUD_HEIGHT
 from game.settings import settings
 
 class LockedDoorUp(Interactable):
+    """Porte verrouillee orientee vers le haut (2 tuiles)."""
     def __init__(self, scale, x, y, room_name, biome):
         super().__init__(scale)
         self.type = "locked_door_up"
@@ -31,6 +32,7 @@ class LockedDoorUp(Interactable):
         self.update_graphics()
 
     def update_graphics(self):
+        """Met a jour l'affichage de la porte et desactive les collisions si ouverte."""
         if self.is_open:
             self.setPixmap(self.pix_open)
             self.collision = 0
@@ -41,6 +43,7 @@ class LockedDoorUp(Interactable):
         super().update_graphics()
 
     def interact(self, scene, player=None):
+        """Tente de deverrouiller la porte avec une cle de l'inventaire."""
         if self.is_open:
             return 
 
@@ -55,12 +58,13 @@ class LockedDoorUp(Interactable):
             self.update_graphics()
             scene.sfx_manager.play("snd_opendoor")
             
-            if DEBUG: print("Porte dévérouillée.")
+            if DEBUG: print("Porte deverouillee.")
 
         else:
             scene.sfx_manager.play("snd_locked")
             
     def _load_biome_pixmap(self, name):
+        """Charge la texture specifique au biome (taille double), ou la texture par defaut."""
         path = f"assets/{self.biome}/{name}.png"
         pix = QPixmap(path)
         

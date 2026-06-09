@@ -16,6 +16,7 @@ _BASE_SLOT_PX = 32
 _COLS = 6
 
 class InventoryScreen(BaseScreen):
+    """Ecran d'inventaire affichant les objets du joueur dans une grille."""
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
         self._slot_positions = []
@@ -59,6 +60,7 @@ class InventoryScreen(BaseScreen):
     
 
     def _build(self):
+        """Cree les elements de l'interface : fond, panneau, titre, slots, curseur et textes."""
         # Overlay Noir
         overlay = QGraphicsRectItem(0, 0, self.scene_w, self.scene_h)
         overlay.setBrush(QBrush(QColor(0, 0, 0, 180)))
@@ -109,6 +111,7 @@ class InventoryScreen(BaseScreen):
         self._items.append(hint)
 
     def _build_slots(self):
+        """Place les emplacements vides de l'inventaire."""
         slot_pix = QPixmap("assets/hud/item_slot.png").scaled(
             int(self.slot_size), int(self.slot_size), Qt.IgnoreAspectRatio, Qt.FastTransformation
         )
@@ -125,6 +128,7 @@ class InventoryScreen(BaseScreen):
             self._slot_positions.append((x, slot_y))
 
     def _build_picker(self):
+        """Cree le curseur de selection de l'inventaire."""
         picker_pix = QPixmap("assets/hud/item_slot_picker.png").scaled(
             int(self.slot_size), int(self.slot_size), Qt.IgnoreAspectRatio, Qt.FastTransformation
         )
@@ -133,18 +137,21 @@ class InventoryScreen(BaseScreen):
         self._items.append(self._picker_item)
 
     def show(self, scene):
+        """Met a jour les icones et le curseur avant l'affichage."""
         super().show(scene)
         self._refresh_icons(scene)
         self._refresh_cursor()
         self._refresh_equip_marker(scene)
 
     def hide(self):
+        """Nettoie les icones lors de la fermeture de l'inventaire."""
         for icon in self._icon_items:
             if icon and icon.scene():
                 icon.scene().removeItem(icon)
         super().hide()
 
     def _refresh_icons(self, scene):
+        """Met a jour l'affichage des objets contenus dans l'inventaire."""
         for i, icon in enumerate(self._icon_items):
             if icon and icon.scene():
                 icon.scene().removeItem(icon)
@@ -168,6 +175,7 @@ class InventoryScreen(BaseScreen):
                 self._icon_items[i] = icon_item
 
     def _refresh_cursor(self):
+        """Deplace le curseur et met a jour le texte descriptif de l'objet survole."""
         x, y = self._slot_positions[self._cursor]
         self._picker_item.setPos(x, y)
         
@@ -185,6 +193,7 @@ class InventoryScreen(BaseScreen):
             self._info_text.setPlainText("---")
 
     def key_press(self, key):
+        """Gere la navigation, l'equipement et la fermeture de l'inventaire."""
         if key in (settings.keys["LEAVE"], settings.keys["INVENTORY"], settings.keys["PAUSE"]):
             self.screen_manager.close_inventory()
         elif key == settings.keys["LEFT"]:
@@ -200,6 +209,7 @@ class InventoryScreen(BaseScreen):
         self._play_sfx("snd_choice")
 
     def _equip_selected(self):
+        """Equipe l'objet selectionne s'il est equipable."""
         inventory = self.screen_manager.inventory
         slot = inventory.get_slot(self._cursor)
         if slot and slot.category in ("consumable", "permanent"):
@@ -210,6 +220,7 @@ class InventoryScreen(BaseScreen):
             self._play_sfx("snd_false")
 
     def _refresh_equip_marker(self, scene=None):
+        """Met a jour la position du marqueur signalant l'objet equipe."""
         inventory = self.screen_manager.inventory
         equipped_id = inventory._equipped_item_id
 

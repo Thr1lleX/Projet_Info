@@ -24,6 +24,7 @@ _PANEL_H_TILES = 11
 # =====================================================================
 
 class BaseSettingRow:
+    """Ligne de base pour les parametres (label gauche, valeur a droite)."""
     def __init__(self, label_text, x_label, x_center_val, y,enabled=True):
         self.y = y
         self.x_center_val = x_center_val
@@ -58,9 +59,7 @@ class BaseSettingRow:
         return self.items
 
     def handle_left_right(self, direction):
-        """
-        return True si un changement a eu lieu
-        """
+        """Traite les inputs gauche/droite. Retourne True si un changement a eu lieu."""
         return False
 
     def handle_confirm(self):
@@ -68,6 +67,7 @@ class BaseSettingRow:
 
 
 class TextChoiceRow(BaseSettingRow):
+    """Ligne de parametrage pour des choix multiples textuels (ex: resolution, volume)."""
     def __init__(self, label_text, options, x_label, x_center_val, y, bounded=True,enabled=True):
         super().__init__(label_text, x_label, x_center_val, y,enabled)
         self.options = options
@@ -83,9 +83,7 @@ class TextChoiceRow(BaseSettingRow):
         self._update_text_and_pos()
 
     def _update_text_and_pos(self):
-        """
-        mettre a jour le texte et le centrer
-        """
+        """Mettre a jour le texte et le centrer."""
         self.val_item.setPlainText(self.options[self.index][0])
         text_w = self.val_item.boundingRect().width()
         self.val_item.setPos(self.x_center_val - (text_w / 2), self.y)
@@ -107,6 +105,7 @@ class TextChoiceRow(BaseSettingRow):
 
 
 class CheckboxRow(BaseSettingRow):
+    """Ligne de parametrage pour une option binaire (case a cocher, ex: CRT)."""
     def __init__(self, label_text, x_label, x_center_val, y):
         super().__init__(label_text, x_label, x_center_val, y)
         self.checked = False
@@ -138,7 +137,7 @@ class CheckboxRow(BaseSettingRow):
 # =====================================================================
 
 class SettingsScreen(BaseScreen):
-
+    """Ecran des parametres permettant de configurer l'affichage, les controles et le son."""
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
         self._rows       = []   
@@ -148,6 +147,7 @@ class SettingsScreen(BaseScreen):
         self._rescale_allowed = True
 
     def show(self, scene):
+        """Affiche l'ecran des parametres en synchronisant l'interface avec les reglages actuels."""
         if not self._built:
             self._build()
             self._built = True
@@ -156,9 +156,7 @@ class SettingsScreen(BaseScreen):
         self._refresh_all()
 
     def sync_ui_with_settings(self):
-        """
-        Force chaque ligne à afficher la valeur actuelle stockée dans settings.py
-        """
+        """Force chaque ligne a afficher la valeur actuelle stockee dans settings.py."""
         # resolution (Index 0)
         self._rows[0].index = settings.resolution_index
         self._rows[0]._update_text_and_pos()
@@ -423,9 +421,7 @@ class SettingsScreen(BaseScreen):
             self.screen_manager.rebuild_display()
             
     def _apply_audio(self):
-        """
-        met à jour les volumes sans redemarrer le jeu
-        """
+        """Met a jour les volumes sans redemarrer le jeu."""
         self.screen_manager.music_manager.set_volume(settings.music_volume)
         
         if self.screen_manager.scene and hasattr(self.screen_manager.scene, 'sfx_manager'):

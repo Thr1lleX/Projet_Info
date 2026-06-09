@@ -91,11 +91,7 @@ class SFXManager:
         self._preload_all_sounds()
 
     def _preload_all_sounds(self):
-        """
-        charge automatiquement tous les sons au lancement du jeu
-        car sinon probleme lorsque son se joue car est cherche a chaque fois et freeze
-        moins pb pour musiques car invoquees moins souvent
-        """
+        """Charge tous les sons au lancement pour eviter les freezes en jeu."""
         if not os.path.exists(self.base_path):
             if DEBUG:
                 print(f"[SFX] Erreur : Le dossier '{self.base_path}' est introuvable.")
@@ -124,7 +120,7 @@ class SFXManager:
             print(f"[SFX] Total : {len(self.sounds)} sons chargés.")
 
     def play(self, name, loops=0,pan=0.0):
-        """Joue un son et retourne le canal"""
+        """Joue un son et retourne le canal."""
         if name in self.sounds:
             sound = self.sounds[name]
             channel = pygame.mixer.find_channel()
@@ -147,7 +143,7 @@ class SFXManager:
             sound.set_volume(self.default_volume)
             
     def stop_all_except(self, excluded_name=None):
-            """stoppe les sfx sauf celui specifie."""
+            """Stoppe les effets sonores sauf ceux specifies."""
             if excluded_name is None:
                 pygame.mixer.stop()
             if not isinstance(excluded_name,list):

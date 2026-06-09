@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Sat Apr 25 12:25:20 2026
-
-@author: mateo
-"""
+"""Point d'entrée principal du jeu."""
 import sys
 
 from PyQt5.QtWidgets import QApplication
@@ -26,6 +22,7 @@ from game.config import GAME_TITLE, LOGO
 
 
 def main():
+    """Initialise PyQt5, configure le gestionnaire d'écrans et lance le jeu."""
     app = QApplication(sys.argv)
 
     window = GameWindow()

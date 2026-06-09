@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 # Auteur : essentiellement Ryan
 
-'''
-Implementation d'une intelligence artificielle aux ennemis, basee sur l'algorithme A*
-'''
+"""Implementation du pathfinding des ennemis base sur l'algorithme A*."""
 
 import heapq
 import math
@@ -11,10 +9,7 @@ from game.tileset import TILE_TYPES
 from game.config import HUD_HEIGHT
 
 def get_walkable_grid(room_data,can_go_on_black=False, can_go_on_water=False):
-    """
-    Construit une grille 2D de booleens a partir des donnees de la salle.
-    True = case accessible, False = case bloquante.
-    """
+    """Construit une grille 2D booleenne (True = accessible) a partir des donnees de la salle."""
     grid = []
     for row in room_data.get("tiles", []):
         grid_row = []
@@ -188,7 +183,7 @@ def smooth_path(path_pixels, grid, tile_size, w_size, h_size):
     Lisse un chemin par elagage de ficelle (String Pulling) :
     si le point C est visible depuis le point A, le point intermediaire B est supprime.
 
-    Prend une liste de coordonnees pixel et retourne une version allégée.
+    Prend une liste de coordonnees pixel et retourne une version allegee.
     """
     if len(path_pixels) <= 2:
         return path_pixels
@@ -219,8 +214,8 @@ def astar(grid, start_pos, goal_pos, tile_size, w_size, h_size):
         goal_pos  : coordonnees pixel d'arrivee (x, y)
         tile_size : taille d'une case en pixels
 
-    Retourne une liste de coordonnees pixel (x, y) représentant le chemin
-    lissé, ou None si aucun chemin n'est trouvé.
+    Retourne une liste de coordonnees pixel (x, y) representant le chemin
+    lisse, ou None si aucun chemin n'est trouve.
 
     Details :
         - Deplacement en 8 directions avec cout 1 (cardinal) ou 1.414 (diagonal)

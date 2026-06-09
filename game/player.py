@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Definit la classe Player gerant les deplacements, etats, et actions du joueur."""
 import os
 import sys
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem, QApplication, QGraphicsTextItem, QGraphicsItem
@@ -27,6 +28,7 @@ from game.settings import settings
 from game.item_registry import ITEM_CATALOG
 
 class Player(Entity):
+    """Represente le joueur (deplacements, statistiques, attaques, interactions)."""
     def __init__(self, scale):
         super().__init__(scale)
         
@@ -206,14 +208,7 @@ class Player(Entity):
  
 
     def update(self, dt, scene):
-        """
-        Cette fonction va s'occuper de charger logique au fur et a mesure en gros
-        
-        On divise ca en 3:
-            - les systemes globaux qui doivent toujours etre updates
-            - tout ce qui est lie au deplacement
-            - follow logic, en l'occurence les armes suivent le joueur lors de knockback
-        """
+        """Met a jour la logique du joueur (etats, deplacements, animations, armes)."""
         
         if getattr(self, 'is_obtaining_item', False):
             if self.obtain_duration > 0:
@@ -391,9 +386,7 @@ class Player(Entity):
         # --- FIN DU HACK ITEM ---
 
     def update_held_weapons(self, dt, scene):
-        """
-        mise a jour de position et animation des armes bound au joueur
-        """
+        """Met a jour la position et l'animation des armes equipees."""
         if self.is_attacking and self.current_sword:
             self.current_sword.update(dt, scene)
             
@@ -401,9 +394,7 @@ class Player(Entity):
             self.current_spear.update(dt, scene)
 
     def handle_inputs(self, dt, scene):
-        """
-        Gestion des touches
-        """
+        """Gere les entrees clavier (deplacement, attaque, projectiles)."""
         
         #bloque mouvements du joueur si dialogue
         if scene.dialogue_manager.active or self.is_cinematic:
@@ -524,10 +515,7 @@ class Player(Entity):
     """
     
     def handle_exit_logic(self, dt, scene):
-        """
-        gere maintien de l'echap et affichage du texte EXIT
-        utilise dans update
-        """
+        """Gere le maintien de la touche Echap pour afficher le texte EXIT et quitter."""
         # -- gestion de la sortie (echap)---
         if settings.keys["LEAVE"] not in self.keys:
             if self.echap > 0:
@@ -570,9 +558,7 @@ class Player(Entity):
             self.trigger_quit(scene)
 
     def trigger_quit(self, scene):
-        """
-        trigger de fermeture de fenetre
-        """
+        """Declenche la fermeture de la fenetre de jeu."""
         # on arrête le Timer de la scene
         if hasattr(scene, 'timer'):
             scene.timer.stop()
@@ -587,9 +573,7 @@ class Player(Entity):
                 window.close()
 
     def stop_movement(self):
-        """
-        vide les touches actives pour eviter mvts faantomes 
-        """
+        """Vide les touches actives pour stopper tout mouvement."""
         self.keys.clear()
         self.attack_pressed = False
         self.interact_pressed = False
@@ -720,8 +704,8 @@ class Player(Entity):
     
     def obtain_item(self, item_id, duration=None):
         """
-        Si duration est spécifie (ex: 2.0), l'etat dure ce temps (en secondes).
-        Sinon (None), l'etat dure tant que le dialogue est actif.
+        Active l'animation d'obtention d'un objet.
+        Si duration est specifie, l'etat dure ce temps. Sinon, dure selon le dialogue.
         """
         self.is_obtaining_item = True
         self.obtain_timer = 0.0
@@ -800,9 +784,8 @@ class Player(Entity):
         
     
     def try_interact(self, scene):
-        """
-        tente interaction avec objet (uniquement avec plus proche si plusieurs)
-        """
+        
+        """Tente interaction avec objet (uniquement avec plus proche si plusieurs)"""
     
         interact_rect = self.get_interaction_hitbox()
     

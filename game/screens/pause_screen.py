@@ -11,6 +11,7 @@ from game.settings import settings
 
 
 class PauseScreen(BaseScreen):
+    """Ecran de pause s'affichant en superposition pendant une partie."""
 
     _menu_start_ratio = 0.38
     _menu_spacing     = 3
@@ -26,6 +27,7 @@ class PauseScreen(BaseScreen):
         ]
 
     def _build(self):
+        """Cree le fond assombri, le titre et le menu de pause."""
         self._build_overlay()
         self._build_title()
         self._build_menu()
@@ -48,23 +50,27 @@ class PauseScreen(BaseScreen):
         self._items.append(title)
 
     def key_press(self, key):
+        """Gere les raccourcis pour reprendre la partie ou naviguer dans le menu."""
         if key in (settings.keys["PAUSE"], settings.keys["LEAVE"]):
             self.screen_manager.resume_game()
         else:
             super().key_press(key)
 
     def key_release(self, key):
+        """Evite les comportements indesirables lors du relachement des touches de pause."""
         if key in (settings.keys["PAUSE"], settings.keys["LEAVE"]):
             return
         super().key_release(key)
 
     def _activate(self):
+        """Joue un son de validation (sauf exceptions) puis execute l'action selectionnee."""
         action = self._menu[self._selected]["action"]
         if action not in ("resume", "quit"):
             self._play_sfx("snd_accept")
         self._dispatch(action)
 
     def _dispatch(self, action):
+        """Dispatche l'action selectionnee vers le gestionnaire d'ecran."""
         sm = self.screen_manager
         if action == "resume":
             sm.resume_game()
@@ -82,9 +88,7 @@ class PauseScreen(BaseScreen):
             sm.quit_game()
 
     def show(self, scene):
-        """
-        cette fonction permet de recharger ecran lorsqu'on l'ouvre
-        """
+        """Met a jour la disponibilite du bouton de sauvegarde puis affiche l'ecran."""
         has_slot = scene.current_save is not None and scene.current_save.slot is not None
         
         # mise a jour du slot

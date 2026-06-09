@@ -10,6 +10,7 @@ from game.pathfinder import get_walkable_grid, line_of_sight, is_area_walkable, 
 from game.attacks.fireball import Fireball
 
 class Wizmount(Enemy):
+    """Ennemi mage lancant des boules de feu et fuyant au contact."""
     def __init__(self, scale, x, y):
         super().__init__(scale, x, y)
 
@@ -92,7 +93,7 @@ class Wizmount(Enemy):
         self.try_hit_player(scene)
 
     def _update_projectiles_and_timers(self, dt, scene):
-        """ Gère le timer d'attaque et met à jour les boules de feu en mouvement """
+        """Gere le timer d'attaque et met a jour les boules de feu en mouvement."""
         if self.attack_timer > 0:
             self.attack_timer -= dt
 
@@ -103,7 +104,7 @@ class Wizmount(Enemy):
                 p.update(dt, scene)
 
     def _handle_priority_states(self, dt, scene):
-        """ Gère les interruptions absolues (Stun / Knockback). Retourne True si actif. """
+        """Gere les interruptions absolues (Stun / Knockback). Retourne True si actif."""
         if self.kb_active:
             self.apply_knockback(dt, scene)
             super().update_graphics()
@@ -123,7 +124,7 @@ class Wizmount(Enemy):
         return False
 
     def _check_aggro_range(self, dt, scene):
-        """ Vérifie la distance avec le joueur. Si trop loin, passe en mode errance. """
+        """Verifie la distance avec le joueur. Si trop loin, passe en mode errance."""
         wx, wy = self.get_center()
         px, py = self.target.get_center()
         dist = math.hypot(px - wx, py - wy)
@@ -136,7 +137,7 @@ class Wizmount(Enemy):
         return False
 
     def _execute_ai_behavior(self, dt, scene):
-        """ Coeur de l'IA : Arbitre entre le tir statique ou la recherche de chemin """
+        """Coeur de l'IA : Arbitre entre le tir statique ou la recherche de chemin."""
         
         
         wx, wy = self.get_center()
@@ -191,8 +192,7 @@ class Wizmount(Enemy):
         self.update_damage_state(dt)
 
     def _check_continuous_shooting_alignment(self, scene):
-        """ LOGIQUE CONTINUE : Vérifie si une boule de feu de 0.5 tile de large lancée 
-            depuis notre centre peut intercepter une partie de la hitbox réelle du joueur. """
+        """Verifie l'alignement pour lancer une boule de feu interdisant le passage du joueur."""
         wx, wy = self.get_center()
         px, py = self.target.get_center()
         
@@ -364,10 +364,7 @@ class Wizmount(Enemy):
             self.draw_debug_path(scene)
     
     def _handle_flee_state(self, dt, scene, wx, wy, px, py):
-        """
-        Fuite prioritaire si le joueur est trop proche
-        Retourne True si l'état fuite est actif, sinon False.
-        """
+        """Fuite prioritaire si le joueur est trop proche."""
         flee_distance = 3 * settings.tile_size
         dist = math.hypot(px - wx, py - wy)
     
@@ -404,7 +401,7 @@ class Wizmount(Enemy):
     
 
     def _follow_computed_path(self, dt):
-        """ Fait avancer le monstre le long du chemin A* calculé. Retourne le vecteur (dx, dy). """
+        """Fait avancer le monstre le long du chemin A* calcule. Retourne le vecteur (dx, dy)."""
         dx, dy = 0, 0
         if not self.path:
             return dx, dy
@@ -434,7 +431,7 @@ class Wizmount(Enemy):
         return dx, dy
 
     def _fire_projectile(self, scene):
-        """ Instancie et centre parfaitement le projectile au milieu du monstre 2x2 """
+        """Instancie et centre parfaitement le projectile au milieu du monstre 2x2."""
         new_fireball = Fireball(self, self.direction)
         
         # Calcul des dimensions réelles de la boule de feu

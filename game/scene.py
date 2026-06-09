@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Definit la scene principale du jeu, gerant l'affichage, les entites et la boucle de jeu."""
 from PyQt5.QtWidgets import QGraphicsScene, QGraphicsPixmapItem, QGraphicsRectItem
 from PyQt5.QtGui import QPixmap, QBrush, QColor, QPen
 from PyQt5.QtCore import Qt, QRectF, QTimer
@@ -30,6 +31,8 @@ from game.dialogue_manager import DialogueManager
 
 # --- SCENE ---
 class GameScene(QGraphicsScene):
+class GameScene(QGraphicsScene):
+    """Scene de jeu contenant la logique principale (entites, decor, transitions)."""
     def __init__(self, screen_manager=None):
         super().__init__()
 
@@ -137,9 +140,7 @@ class GameScene(QGraphicsScene):
                     
 
     def game_loop(self):
-        """
-        toutes les updates de la scene
-        """
+        """Boucle principale declenchee a chaque frame (mise a jour entites, HUD, salle)."""
         # last_time est mis a jour en premier pour eviter un grand dt au depause
         current_time = time.time()
         dt = min(current_time - self.last_time, 0.1)
@@ -195,7 +196,7 @@ class GameScene(QGraphicsScene):
 
     
     def _check_pickups(self):
-        """Ramasse les items au sol si le joueur les touche."""
+        """Ramasse les objets au sol si le joueur les touche."""
         px, py, pw, ph = self.player.get_hitbox()
         inventory = self.screen_manager.inventory
 
@@ -211,9 +212,7 @@ class GameScene(QGraphicsScene):
     
 
     def update_crt(self, is_enabled=None):
-        """
-        gere a la fois l'activation/desactivation via le menu et l'animation via le game_loop
-        """
+        """Gere l'activation et l'animation de l'effet visuel CRT."""
         if is_enabled is not None:
             if is_enabled:
                 if not hasattr(self, 'crt_overlay'):
@@ -231,9 +230,7 @@ class GameScene(QGraphicsScene):
                 self.crt_overlay.setY((y + 1 * settings.scale) % 2)
 
     def _create_crt_overlay(self):
-        """
-        cree l'image CRT uniquement si on en a besoin
-        """
+        """Cree l'overlay CRT si necessaire."""
         width = GRID_WIDTH * settings.tile_size
         height = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
         
@@ -246,17 +243,7 @@ class GameScene(QGraphicsScene):
         self.persistent_items.add(self.crt_overlay)
 
     def is_blocking_rect(self, x, y, w, h, entity=None):
-        """
-        Parameters
-        ----------
-        x,y : coordonées sur personnage(en haut a gauche)
-        w,h : largeur et hauteur pour definir hitbox
-        Returns
-        -------
-        bool
-            y a t il collision ou non.
-
-        """
+        """Verifie si le rectangle specifie entre en collision avec un element bloquant."""
         # if isinstance(entity, Player) and DEBUG:
         #     return False
         # coins du rectangle
@@ -321,9 +308,7 @@ class GameScene(QGraphicsScene):
     
     
     def is_tile_blocking(self, tile_x, tile_y, entity=None):
-        """
-        check si case (tile_x,tile_y) de la grille est bloquante en prenant en compte "size"
-        """
+        """Verifie si la case (tile_x, tile_y) de la grille est bloquante."""
         if not (0 <= tile_x < GRID_WIDTH and 0 <= tile_y < GRID_HEIGHT):
             return True
 
@@ -361,9 +346,7 @@ class GameScene(QGraphicsScene):
 
 
     def load_biome_tileset(self, biome_name):
-        """
-        Fonction qui recupere le biome de la salle et update current_loaded_biome
-        """
+        """Charge et met a jour les textures associees au biome actuel."""
         # si le biome en chargement les le meme que current biome, on ne fait rien
         if hasattr(self, 'current_loaded_biome') and self.current_loaded_biome == biome_name:
             return 
@@ -427,14 +410,11 @@ class GameScene(QGraphicsScene):
 
     
     def draw_room(self, room):
-        """
-        invoquee par _change_room_internal et prend en parametre la room
+        """ Invoquee par _change_room_internal et prend en parametre la room
         dessine salle suivante avec ses tiles
-        
         On rempli la room du sol (ground.png id = 0)
-        on place par dessus les autres assets en fonction du biome
-        On a pas securite biome default
-        """
+        On place par dessus les autres assets en fonction du biome
+        On a pas securite biome default """
     
         biome_actuel = room.get("biome", "default")
         self.load_biome_tileset(biome_actuel)
@@ -558,6 +538,7 @@ class GameScene(QGraphicsScene):
         
                 
     def update_animations(self, dt):
+        """Met a jour l'affichage des tuiles animees et des effets globaux (ex: neige)."""
         self.animation_timer += dt
         frame_index = int(self.animation_timer / self.frame_duree)
     
@@ -578,21 +559,7 @@ class GameScene(QGraphicsScene):
     # --- CHARGEMENT DES SALLES ---
         
     def _change_room_internal(self, room_name, direction):
-        """
-        Fonction de changement de salle
-        On load la room suivante,
-        met la scene en etat de transition pour freeze,
-        nettoie la scene,
-        reddessine la scene avec draw_room
-        
-        utilisee lors de transition.update()
-
-        Parameters
-        ----------
-        room_name : voir fichier json
-        direction : str, direction de la transition - voir check_room_transition()
-
-        """
+        """Charge une salle, nettoie la precedente et repositionne le joueur."""
         room = load_room(f"rooms/{room_name}.json")
         room = self.apply_conditional_transitions(room)
         self.current_room = room_name
@@ -622,6 +589,7 @@ class GameScene(QGraphicsScene):
         if DEBUG: print(f"> Current Room : {room_name}")
     
     def check_room_transition(self):
+        """Verifie si le joueur sort de l'ecran pour declencher une transition."""
         if self.is_transitioning: #check pour empecher transitions multiples
             return 
         
@@ -654,9 +622,7 @@ class GameScene(QGraphicsScene):
                 self.transition.start(target, "down")
 
     def apply_conditional_transitions(self, room):
-        """
-        modifie les transitions selon les flags
-        """
+        """Modifie les transitions de la salle selon les drapeaux actifs."""
         
         transitions = room.get("transitions", {}).copy()
     
@@ -681,9 +647,7 @@ class GameScene(QGraphicsScene):
     """
         
     def start_room_music(self):
-        """
-        Fonction pour start musique, avec gestion fade in et de flags
-        """
+        """Lance la musique de la salle avec gestion des fondus et conditions."""
         music = self.room_data.get("music")
         
         fade_in_value = self.room_data.get("fade_in", 0)
@@ -701,11 +665,7 @@ class GameScene(QGraphicsScene):
             self.music_manager.play(name, fade_in=fade_in_value)
     
     def room_music_changed(self):
-        """
-        Fonciton pour changer le chemin de la musique a jouer, 
-        ne joue rien en tant que tel
-        Sert après changement de salle
-        """
+        """Compare la musique de la salle avec la musique actuellement jouee."""
         music = self.room_data.get("music")
     
         if "conditional_music" in self.room_data:
@@ -723,10 +683,7 @@ class GameScene(QGraphicsScene):
         return self.music_manager.current_music != new_name
 
     def next_room_music_changed(self, room_name):
-        """
-        compare la musique de la future salle avec la musique actuelle
-        Sert avant transition
-        """
+        """Verifie si la salle suivante possede une musique differente."""
 
         room = load_room(f"rooms/{room_name}.json")
         
@@ -751,12 +708,10 @@ class GameScene(QGraphicsScene):
     """
     
     def toggle_crystal_blocks(self):
-        """
-        met a jour toutes les tiles bleues/rouges de la salle courante
         
+        """Met a jour toutes les tiles bleues/rouges de la salle courante
         si blue_switch == True : Bleu baisse (6.2), Rouge se leve (7.1)
-        si blue_switch == False : Bleu se lève (6.1), Rouge baisse (7.2)
-        """
+        si blue_switch == False : Bleu se lève (6.1), Rouge baisse (7.2)"""
         if not self.room_data:
             return
             
@@ -790,6 +745,7 @@ class GameScene(QGraphicsScene):
                             
 
     def _update_deferred_collisions(self):
+        """Re-active les collisions temporairement desactivees si le joueur n'est plus dessus."""
         if not self.deferred_collision_tiles:
             return
 
@@ -815,17 +771,7 @@ class GameScene(QGraphicsScene):
                 print(f"[COLLISION] Tuile {target} réactivée, le joueur est sorti.")
 
     def reposition_player(self, direction):
-        """
-        Repositionne le joueur en fonciton de la direction a laquelle il est arrive
-        on repositionne par rapport aux tiles,
-        avec un OFFSET de quelques pixels pour eviter transitions en boucle
-        on prend en compte la hitbox du joueur (en pratique ne change rien si = 1 tile)
-
-        Parameters
-        ----------
-        direction : str
-
-        """
+        """Repositionne le joueur aux limites de l'ecran apres une transition."""
         if direction == "left":
             self.player.x = GRID_WIDTH * settings.tile_size - self.player.hitbox_width - OFFSET - self.player.hitbox_offset_x * settings.tile_size
     
@@ -842,10 +788,7 @@ class GameScene(QGraphicsScene):
         
 
     def get_tile_id_at(self, x, y):
-        """
-        renvoie l'ID de la tile aux coordonnees pixel (x, y)
-        utilisee pour gestion des tiles de glace
-        """
+        """Renvoie l'ID de la case aux coordonnees pixel specifiees."""
         tile_x = int(x // settings.tile_size)
         tile_y = int((y - HUD_HEIGHT * settings.tile_size) // settings.tile_size)
     
@@ -854,10 +797,7 @@ class GameScene(QGraphicsScene):
         return -1
 
     def spawn_enemies(self, room):
-        """
-        Fonctionne comme les fonctions de generation de salle
-        Cherche pour les ennemis dans le json et les fait spawn
-        """
+        """Genere les ennemis de la salle s'ils ne sont pas morts ou desactives."""
         self.enemies = []
         
         # on recupere ennemis tues dans la session
@@ -917,6 +857,7 @@ class GameScene(QGraphicsScene):
                     print(f"[SCENE] Salle vide au chargement, flag kill_all validé : {kill_all_flag}")
                 
     def game_over(self):
+        """Declenche la sequence de fin de partie."""
         if hasattr(self, "game_over_triggered") and self.game_over_triggered:
             return
 
@@ -936,6 +877,7 @@ class GameScene(QGraphicsScene):
         
 
     def load_current_save(self):
+        """Charge, dessine la salle et positionne le joueur selon la sauvegarde."""
     
         room_name = self.current_save.get_current_room()
     
@@ -973,9 +915,7 @@ class GameScene(QGraphicsScene):
         self.screen_manager.inventory.sync_permanent_items(flags)
             
     def try_break_tile(self, tile_x, tile_y):
-        """
-        detruit une tile aux coordonnes de la grille
-        """
+        """Detruit une case destructible aux coordonnees specifiees."""
         if not (0 <= tile_x < GRID_WIDTH and 0 <= tile_y < GRID_HEIGHT):
             return
 
@@ -993,9 +933,7 @@ class GameScene(QGraphicsScene):
             self.refresh_single_tile(tile_x, tile_y, 2.2)
             
     def poof_all_magic_walls(self):
-        """
-        dans une meme piece
-        """
+        """Fait disparaitre tous les murs magiques de la salle avec un effet."""
         poofed_room_flag = f"magic_poofed_{self.current_room}"
         is_ocean_room = self.current_room.startswith("room_ocean")
         for y, row in enumerate(self.room_data["tiles"]):
@@ -1017,9 +955,7 @@ class GameScene(QGraphicsScene):
         self.sfx_manager.play("snd_poof")
     
     def check_magic_wall_condition(self, magic_flag_data):
-        """
-        verifie si la condition du magic_wall est remplie
-        """
+        """Verifie si la condition de disparition d'un mur magique est remplie."""
         if not magic_flag_data:
             return False
 
@@ -1030,9 +966,7 @@ class GameScene(QGraphicsScene):
         return self.get_flag(magic_flag_data)
 
     def refresh_single_tile(self, tx, ty, new_id):
-        """
-        supprime l'ancien sprite a (tx, ty) et place le nouveau
-        """
+        """Met a jour visuellement une seule case de la grille."""
         px = tx * settings.tile_size
         py = (ty + HUD_HEIGHT) * settings.tile_size
         ground_z = TILE_TYPES[0].get("z", 0) if 0 in TILE_TYPES else 0
@@ -1057,12 +991,14 @@ class GameScene(QGraphicsScene):
 
         
     def load_save(self, slot=1):
+        """Charge une sauvegarde specifique en nettoyant la session active."""
         self.session_flags.clear()
         self.current_save = SaveManager(slot)
         self.load_current_save()
         
     
     def spawn_interactables(self, room):
+        """Place les objets interactifs (PNJ, coffres, portes) dans la salle."""
         self.interactables = []
         self.pending_npcs = []                     
         current_biome = room.get("biome", "default")
@@ -1136,11 +1072,7 @@ class GameScene(QGraphicsScene):
                 interactable.debug_rect.show()
 
     def check_pending_npcs(self):
-        """
-        cette fonction permet de checker si un npc possede une 
-        propriete de spawn et si son flag est rempli
-        appelee dans game_loop()
-        """
+        """Verifie si des PNJ en attente doivent apparaitre suite a un changement."""
         for data in self.pending_npcs[:]:
             spawn_if = data.get("spawn_if")
     
@@ -1180,9 +1112,7 @@ class GameScene(QGraphicsScene):
             
             
     def save_game(self, slot):
-        """
-        sauvegarde la partie dans un slot
-        """
+        """Sauvegarde l'etat actuel (position, salle, drapeaux) dans un slot."""
         flags_to_save = self.current_save.data.get("flags", {}).copy()
         flags_to_save.update(self.session_flags)
     
@@ -1213,9 +1143,7 @@ class GameScene(QGraphicsScene):
             print(f"Sauvegarde écrite : slot {slot}")
 
     def get_flag(self, flag_name):
-        """
-        verifie si un flag est actif en session ou en sauvegarde avec priorite sur session
-        """
+        """Verifie l'etat d'un drapeau (session prioritaire sur sauvegarde)."""
         if flag_name in self.session_flags:
             return self.session_flags[flag_name]
         return self.current_save.get_flag(flag_name)

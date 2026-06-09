@@ -9,6 +9,7 @@ from game.config import BASE_TILE_SIZE
 from game.pathfinder import get_walkable_grid, _pixel_to_tile, _tile_center
 
 class Arakwa(Enemy):
+    """Ennemi araignee capable de sauter par-dessus les obstacles."""
     def __init__(self, scale, x, y):
         super().__init__(scale, x, y)
 
@@ -70,9 +71,7 @@ class Arakwa(Enemy):
         }
 
     def _get_line_tiles(self, x0, y0, x1, y1):
-        """
-        Algorithme de pour recuperer les cases entre deux points
-        """
+        """Algorithme de Bresenham pour recuperer les cases entre deux points."""
         points = []
         dx = abs(x1 - x0)
         dy = abs(y1 - y0)
@@ -95,10 +94,7 @@ class Arakwa(Enemy):
     
     
     def check_for_jump(self, dt, scene,forced = False):
-        """
-        verifie si detour trop long ou si arakwa est bloque
-        forced est true si l'ennemi est coince
-        """
+        """Verifie si un detour est trop long ou si l'ennemi est bloque pour declencher un saut."""
         if not self.target:
             return
 
@@ -132,9 +128,7 @@ class Arakwa(Enemy):
             self.try_execute_jump(scene)
 
     def try_execute_jump(self, scene,bypass_ratio=False):
-        """
-        analyse si un saut est physiquement possible au dessus d'un obstacle
-        """
+        """Analyse si un saut est physiquement possible au-dessus d'un obstacle."""
         grid = get_walkable_grid(scene.room_data)
         h = len(grid)
         w = len(grid[0]) if h > 0 else 0

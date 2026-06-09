@@ -8,6 +8,7 @@ import random
 from game.settings import settings
 
 class NPC(Interactable):
+    """Personnage non-joueur interactif avec dialogues conditionnels et animations."""
     def __init__(self, 
                  scale, 
                  x, 
@@ -102,7 +103,7 @@ class NPC(Interactable):
         self.init_slide()
     
     def init_slide(self):
-        
+        """Initialise le deplacement d'apparition du NPC depuis l'exterieur de l'ecran."""
         if self.scene.get_flag(self.spawn_memory_flag):
             return
     
@@ -133,11 +134,7 @@ class NPC(Interactable):
         self.scene.current_save.data["flags"][self.spawn_memory_flag] = True
         
     def update(self, dt,scene=None):
-        """
-        gere le defilement des images de l'animation.
-        cette methode est appelee à chaque frame par la GameScene.
-        """
-        
+        """Gere le defilement de l'animation, les deplacements (slide) et les disparitions."""
         # despawn
         if (scene and self.despawn_if and scene.get_flag(self.despawn_if) and not self.is_despawning):
             self.is_despawning = True
@@ -232,10 +229,7 @@ class NPC(Interactable):
             self.setPixmap(self.frames[self.current_frame])
             
     def check_conditions(self, scene):
-        """
-        fonction qui verifie si les conditions de flags sont verifiees 
-        afin de lancer dialogue correspondant
-        """
+        """Verifie les conditions de flags pour lancer le dialogue approprie."""
         dialogue = self.base_dialogue
         #new_list = list(self.base_dialogue) # Par défaut, on revient à la base
 
@@ -258,6 +252,7 @@ class NPC(Interactable):
             if DEBUG: print(f"[NPC] Changement de dialogue détecté pour {self.npc_type}")
 
     def interact(self, scene, player=None):
+        """Declenche le dialogue et joue un son aleatoire specifique au NPC."""
         if self.slide_direction is not None or self.is_despawning:
             return #bloque interaction si slide
         self.check_conditions(scene)
@@ -295,7 +290,7 @@ class NPC(Interactable):
                 self.current_dialogue_index += 1
 
     def start_slide(self, origin_direction, speed=1.0):
-    
+        """Demarre un deplacement glisse dans une direction donnee."""
         self.slide_speed = speed * settings.scale
     
         movement_map = {

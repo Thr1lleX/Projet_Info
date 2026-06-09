@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+"""Parametres globaux et constantes du jeu."""
 
-# --- CONFIG 
+# --- CONFIG
 
 DEBUG = False
 

@@ -3,9 +3,7 @@
 # Auteur : essentiellement Matéo
 
 
-"""
-gestion de la transition en wipe d'abord puis après de l'ecran en tant que tel
-"""
+"""Gestion de la transition d'ecran puis affichage des controles."""
 
 from PyQt5.QtWidgets import QGraphicsObject
 from PyQt5.QtGui import QLinearGradient, QPainter, QColor, QBrush
@@ -66,6 +64,7 @@ from game.fonts import get_font0
 from game.settings import settings
 
 class ControlsScreen(BaseScreen):
+    """Ecran affichant les touches de controle du jeu avant le lancement d'une partie."""
     def __init__(self, screen_manager):
         super().__init__(screen_manager)
         self.actions = [
@@ -79,6 +78,7 @@ class ControlsScreen(BaseScreen):
         ]
 
     def _build(self):
+        """Cree les elements graphiques (fond, cadre, icones et textes des touches)."""
         # Background noir
         bg_black = QGraphicsRectItem(0, 0, self.scene_w, self.scene_h)
         bg_black.setBrush(QColor(0, 0, 0))
@@ -148,6 +148,7 @@ class ControlsScreen(BaseScreen):
             
     
     def show(self, scene):
+        """Affiche l'ecran et lance l'animation de transition (wipe) a l'ouverture."""
         super().show(scene)
         
         # recreation du wipe (cas ou plusieurs parties lancees)
@@ -179,6 +180,7 @@ class ControlsScreen(BaseScreen):
 
 
     def key_press(self, key):
+        """Gere la validation pour fermer l'ecran et demarrer la partie avec une transition."""
         # empeche spam durant animation
         if self.is_closing: return 
         
@@ -199,6 +201,7 @@ class ControlsScreen(BaseScreen):
             self.anim.start()
 
     def _on_close_finished(self):
+        """Finalise la fermeture de l'ecran apres l'animation de transition."""
         # s'assurer que bien noir avant de switcher
         self.wipe_item.progress = -0.15
         # Une fois l'écran noir, on lance la partie avec le fondu final de 0.2s

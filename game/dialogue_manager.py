@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Gestionnaire de dialogues (affichage, animation du texte, lecture JSON)."""
 # Auteur : essentiellement Mateo
 
 import json
@@ -17,14 +18,7 @@ from game.settings import settings
 
 
 class DialogueManager:
-    """
-    Gestionnaire principal des dialogues:
-        - charger dialogues.json
-        - afficher boite de dialogue
-        - afficher texte lettre par lettre avec son
-        - gerer les lignes
-        - gerer fermeture dialogue
-    """
+    """Gere l'affichage dynamique des boites de dialogues et l'animation du texte."""
 
     def __init__(self, scene):
 
@@ -113,7 +107,7 @@ class DialogueManager:
     # Calcul dynamique de la position
     # ==========================================================
     def update_position(self):
-        """Ajuste la position de la boite et du texte selon la position du joueur"""
+        """Ajuste la position de la boite et du texte selon la position du joueur."""
         tile_size = settings.tile_size
         
         # Par defaut position en bas
@@ -137,6 +131,7 @@ class DialogueManager:
     # ==========================================================
 
     def start(self, dialogue_id):
+        """Demarre un dialogue a partir de son identifiant JSON."""
         if dialogue_id not in self.dialogues and DEBUG:
             print(f"Dialogue introuvable : {dialogue_id}")
             return
@@ -177,6 +172,7 @@ class DialogueManager:
     # ==========================================================
 
     def _load_current_line(self):
+        """Charge la ligne de dialogue courante et reinitialise l'animation."""
 
         lines = self.current_dialogue["lines"]
 
@@ -199,6 +195,7 @@ class DialogueManager:
 
 
     def update(self, dt):
+        """Met a jour l'animation du texte affiche caractere par caractere."""
         if not self.active:
             return
     
@@ -240,9 +237,7 @@ class DialogueManager:
     # ==========================================================
 
     def advance(self):
-        """
-        appelee quand joueur appuie sur INTERACT
-        """
+        """Avance le texte ou passe a la ligne suivante (appele lors d'une interaction)."""
 
         if not self.active:
             return
@@ -291,6 +286,7 @@ class DialogueManager:
     # ==========================================================
 
     def close(self):
+        """Ferme la boite de dialogue et nettoie la scene."""
 
         self.active = False
         
@@ -310,10 +306,7 @@ class DialogueManager:
     # ==========================================================
 
     def start_text(self, text, font="font0", speed=None):
-        """
-        Demarre un dialogue a partir d'une chaine de caracteres (ou liste de lignes)
-        sans avoir beosin de l'enregistrer dans dialogues.json
-        """
+        """Demarre un dialogue a partir d'une chaine sans passer par le fichier JSON."""
         self.active = True
         self.current_dialogue_id = "dynamic_text" # ID temporaire
 

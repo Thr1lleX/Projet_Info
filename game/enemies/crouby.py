@@ -9,6 +9,7 @@ from game.settings import settings
 
 
 class Crouby(Enemy):
+    """Ennemi lent avec beaucoup de points de vie (tank)."""
     def __init__(self, scale, x, y):
         super().__init__(scale, x, y)
 

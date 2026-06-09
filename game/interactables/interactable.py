@@ -10,15 +10,8 @@ from game.settings import settings
 
 
 class Interactable(QGraphicsPixmapItem):
-    """
-    Classe mere de tous les objets interactifs du jeu.
+    """Classe mere de tous les objets interactifs du jeu (coffres, portes, pnj, etc.)."""
 
-    Exemples :
-        - SavePoint
-        - NPC
-        - Coffre
-        - Panneau
-    """
 
     def __init__(self, scale=1):
         super().__init__()
@@ -54,9 +47,7 @@ class Interactable(QGraphicsPixmapItem):
         return settings.tile_size
             
     def get_hitbox(self, x=None, y=None):
-        """
-        renvoie les coordonnees de la hitbox d'interaction
-        """
+        """Renvoie les coordonnees de la hitbox d'interaction."""
         if x is None: x = self.x
         if y is None: y = self.y
 
@@ -68,9 +59,7 @@ class Interactable(QGraphicsPixmapItem):
         )
     
     def set_grid_position(self, x, y, tile_size, hud_offset=0):
-        """
-        positionne l'objet sur la grille et met a jour le visuel
-        """
+        """Positionne l'objet sur la grille et met a jour le visuel."""
         self.x = x * tile_size
         self.y = (y + hud_offset) * tile_size
         self.update_graphics()
@@ -88,16 +77,11 @@ class Interactable(QGraphicsPixmapItem):
             )
             
     def distance_to(self, other):
-        """
-        Utilitaire optionnel pour interactions avancees.
-        """
+        """Calcule la distance de Manhattan entre cet objet et un autre."""
         return (self.pos() - other.pos()).manhattanLength()
 
-    @abstractmethod
     def interact(self, scene, player=None):
-        """
-        appelee lorsque joueur interagit avec objet
-        """
+        """Appelee lorsque le joueur interagit avec l'objet."""
         pass
 
     def update(self, dt,scene):

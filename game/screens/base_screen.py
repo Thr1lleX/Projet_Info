@@ -21,10 +21,7 @@ from game.config import GRID_WIDTH, GRID_HEIGHT, HUD_HEIGHT
 from game.settings import settings
 
 class BaseScreen:
-    """
-    Classe abstraite dont heritent tous les ecrans.
-    Ne pas instancier directement.
-    """
+    """Classe abstraite dont heritent tous les ecrans. Gere le layout, la navigation et l'affichage."""
   # --- Parametres de layout (surchageables par les sous-classes) ---
     _menu_start_ratio = 0.50   # position Y du 1er bouton (fraction de la hauteur scene)
     _menu_spacing     = 4      # ecart entre boutons en pixels base (multiplie par SCALE)
@@ -71,17 +68,13 @@ class BaseScreen:
         self._visible = False
         
     def reset_build(self):
-        """Vide le cache pour forcer un nouveau _build() au prochain show()"""
+        """Vide le cache pour forcer une nouvelle construction au prochain affichage."""
         self._items = []
         self._btns = []
         self._built = False
 
     def _build(self):
-        """
-        Cree les QGraphicsItems de l'ecran et les ajoute dans self._items.
-        N'ajoute PAS les items a une scene : c'est le role de show().
-        A reimplementer dans chaque sous-classe.
-        """
+        """Cree les elements graphiques de l'ecran. A reimplementer dans les sous-classes."""
         raise NotImplementedError
 
     # ------------------------------------------------------------------
@@ -89,6 +82,7 @@ class BaseScreen:
     # ------------------------------------------------------------------
 
     def _build_menu(self):
+        """Construit les boutons interactifs du menu a partir de la configuration."""
         from game.ui.sprite_button import SpriteButton
 
         self._btns = []
@@ -114,6 +108,7 @@ class BaseScreen:
     # ------------------------------------------------------------------
 
     def _refresh_highlight(self):
+        """Met a jour l'etat visuel (selectionne/normal) des boutons du menu."""
         for i, btn in enumerate(self._btns):
             if i == self._selected:
                 btn.set_state("selected")
@@ -125,6 +120,7 @@ class BaseScreen:
     # ------------------------------------------------------------------
 
     def key_press(self, key):
+        """Gere les entrees clavier pour la navigation (haut/bas) et la validation."""
         if key == settings.keys["DOWN"]:
             self._move(+1)
         elif key == settings.keys["UP"]:
@@ -171,6 +167,7 @@ class BaseScreen:
     # ------------------------------------------------------------------
 
     def mouse_press(self, scene_pos):
+        """Gere les clics de souris sur les boutons interactifs."""
         for i, btn in enumerate(self._btns):
             if not self._menu[i].get("enabled", True):
                 continue

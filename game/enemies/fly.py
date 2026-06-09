@@ -11,6 +11,7 @@ from game.settings import settings
 from game.config import BASE_TILE_SIZE
 
 class Fly(Enemy):
+    """Ennemi volant tournant autour du joueur et foncant sur lui."""
     def __init__(self, scale, x, y):
         super().__init__(scale, x, y)
 

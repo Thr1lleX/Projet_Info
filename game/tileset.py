@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Definit le dictionnaire des types de cases (tiles) et leurs proprietes."""
 
 # --- TILESET --
 TILE_TYPES = {

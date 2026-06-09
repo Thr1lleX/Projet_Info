@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Gestion des animations et des sprites orientes."""
 # Auteur : essentiellement Mateo
 
 from PyQt5.QtGui import QPixmap, QTransform
@@ -8,15 +9,16 @@ from game.settings import settings
 
 def load_animation_sequence(folder_path, size, frame_count=None):
     """
-    charge une suite d'images et scale a TILE_SIZE
+    Charge une suite d'images et les redimensionne selon la taille specifiee.
     
     Parameters
-    -----
+    ----------
     folder_path : str
-        "assets/player/attack/sword" et le code cherchera pour les sword1.png, sword2.png
-    frame_count : int
-    size : int*int
-        taille en tiles
+        Dossier contenant les images (ex: "assets/player/attack/sword" pour sword1.png)
+    size : tuple
+        Taille en tiles (largeur, hauteur)
+    frame_count : int, optional
+        Nombre de frames a charger
     """
     # on recupere les tailles en pixels scaled
     width = size[0]*settings.tile_size

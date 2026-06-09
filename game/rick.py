@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Auteur : essentiellement Mateo
-
+""" Pour plus d'informations : https://youtu.be/dQw4w9WgXcQ?si=KK4ZIYHeGSX5DTJu """
 from PyQt5.QtWidgets import QWidget, QLabel, QVBoxLayout
 from PyQt5.QtGui import QMovie, QIcon
 from PyQt5.QtCore import Qt
@@ -38,6 +38,7 @@ class RickWindow(QWidget):
         self.music_manager.play("mus_rick")
 
     def closeEvent(self, event):
+        """Arrete la musique a la fermeture de la fenetre."""
         # stop musique quand on ferme
         self.music_manager.stop()
         event.accept()

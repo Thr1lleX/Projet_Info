@@ -25,10 +25,7 @@ _TXT_PRESSED  = QColor(255, 255, 255)
 _TXT_DISABLED = QColor(80, 80, 80)
 
 class SpriteButton:
-    """
-    Bouton de menu avec sprite hud_select.
-    Gere 3 etats visuels : normal, selected, pressed.
-    """
+    """Bouton de menu interactif base sur un sprite, gerant 3 etats visuels."""
 
     def __init__(self, label, x, y, z=Z_SCREEN + 1, enabled=True):
         # --- Dimensions finales en pixels (scalees avec tile_size) ---
@@ -60,7 +57,7 @@ class SpriteButton:
         self.set_state("normal")
 
     def _load_scaled(self, path):
-        """Charge un PNG et le scale a la taille finale du bouton."""
+        """Charge une image PNG et la redimensionne a la taille finale du bouton."""
         pix = QPixmap(path)
         return pix.scaled(
             self.width, self.height,
@@ -69,7 +66,7 @@ class SpriteButton:
         )
 
     def _center_text(self):
-        """Centre le texte horizontalement et verticalement dans le bouton."""
+        """Centre le texte horizontalement et verticalement sur le bouton."""
         tw = self.text.boundingRect().width()
         th = self.text.boundingRect().height()
         self.text.setPos(
@@ -78,7 +75,7 @@ class SpriteButton:
         )
 
     def set_state(self, state):
-        """Change l'etat visuel : 'normal', 'selected', ou 'pressed'."""
+        """Change l'etat visuel du bouton ('normal', 'selected' ou 'pressed')."""
         self.sprite.setPixmap(self._pixmaps[state])
 
         if not self.enabled:
@@ -91,11 +88,11 @@ class SpriteButton:
             self.text.setDefaultTextColor(_TXT_NORMAL)
 
     def contains(self, scene_pos):
-        """Teste si un point (clic souris) est dans la zone du bouton."""
+        """Teste si des coordonnees donnees (clic souris) sont dans la zone du bouton."""
         return QRectF(self.x, self.y, self.width, self.height).contains(scene_pos)
 
     def get_items(self):
-        """Renvoie la liste des QGraphicsItems a ajouter a la scene."""
+        """Renvoie le sprite et le texte du bouton a ajouter a la scene."""
         return [self.sprite, self.text]
 
 if __name__ == "__main__":

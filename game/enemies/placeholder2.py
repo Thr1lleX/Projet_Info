@@ -9,6 +9,7 @@ from game.settings import settings
 import random
 
 class Placeholder2(Enemy):
+    """Ennemi de test avance declenchant un evenement special a sa mort."""
     def __init__(self, scale, x, y):
         super().__init__(scale, x, y)
 
@@ -54,11 +55,13 @@ class Placeholder2(Enemy):
         }
 
     def die(self):
+        """Mort de l'ennemi (chance de declencher la fonction rick)."""
         if random.randint(0, 10) == 0:
             self.rick()
         super().die()
 
     def rick(self):
+        """Affiche une fenetre speciale (easter egg)."""
         self.rick_window = RickWindow(self.scene().music_manager)
         self.rick_window.show()
 

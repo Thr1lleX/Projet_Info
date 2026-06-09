@@ -13,6 +13,7 @@ from game.dropped_item import DroppedItem
 from game.settings import settings
 
 class Enemy(Entity):
+    """Classe de base pour tous les ennemis."""
     def __init__(self, scale, x, y):
         super().__init__(scale)
 
@@ -56,9 +57,11 @@ class Enemy(Entity):
             self.debug_rect.setPen(QPen(QColor("red"), 1))
 
     def set_target(self, target):
+        """Definit la cible de l'ennemi (generalement le joueur)."""
         self.target = target
 
     def update(self, dt, scene):
+        """Met a jour la logique de l'ennemi (deplacement, pathfinding, stun, degats)."""
         
         
         # priorite knockback pour bloquer mvmt
@@ -178,6 +181,7 @@ class Enemy(Entity):
         self.try_hit_player(scene)
 
     def die(self):
+        """Gere la mort de l'ennemi (flags, nettoyage, loot)."""
         scene = self.scene()
     
         if scene:
@@ -223,6 +227,7 @@ class Enemy(Entity):
 
 # drop loot        
     def _drop_loot(self,scene):
+        """Lache des objets au sol selon les probabilites definies."""
         offset = int(0.3 * settings.tile_size)
         for item_id, chance in self.loot:
             if random.random() < chance:
@@ -233,6 +238,7 @@ class Enemy(Entity):
                 scene.dropped_items.append(drop)
         
     def try_hit_player(self,scene):
+        """Verifie les collisions et inflige des degats/recul a la cible."""
         #n'attque que cible et peut pas attquer si stun
         if not self.target or self.is_stunned:
             return
@@ -262,6 +268,7 @@ class Enemy(Entity):
             self.target.knockback = old_player_kb
 
     def draw_debug_path(self, scene):
+        """Dessine le chemin de pathfinding pour le debogage."""
         # Clear old items
         for item in self.path_rects + self.path_lines:
             if item.scene() == scene:
@@ -301,9 +308,7 @@ class Enemy(Entity):
             current_x, current_y = px, py
             
     def wander(self,dt,scene):
-        """
-        fonction qui gere le mouvement aleatoire des ennemis. appelee lorsque joueur hors range
-        """
+        """Gere le mouvement aleatoire de l'ennemi (errance)."""
         self.idle_timer -= dt
 
         # si le timer est termine, on choisit une nouvelle action
@@ -335,20 +340,4 @@ class Enemy(Entity):
                 self.idle_timer = 0.0
         
             
-        
-"""
-selon type d'entite redefinir
-ennemie random 
-def die(self):
-    drop_gold()
-    super().die()
-
-boss 
-def die(self):
-    open_door()
-    play_animation()
-    
-joueur 
-def die(self):
-    game_over()
-"""
+        

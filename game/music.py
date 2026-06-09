@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+"""Gestionnaire de musique avec effets de fondu (fade_in, fade_out)."""
 # Auteur : essentiellement Mateo
 
 from PyQt5.QtMultimedia import QSoundEffect
@@ -38,10 +39,8 @@ class MusicManager:
         elif status == QSoundEffect.Error:
             print("[MUSIC] Error loading sound")
 
-    def play(self, music_name, fade_in = 0):
-        """
-        joue musique wav avec fide_in suivant le nom de la musique dans dossier mus
-        """
+    def play(self, music_name, fade_in=0):
+        """Joue une musique (.wav) avec un effet de fondu en ouverture optionnel."""
         music_path = os.path.join(self.base_path, f"{music_name}.wav")
 
         if not os.path.exists(music_path):
@@ -102,6 +101,7 @@ class MusicManager:
         self.current_music = music_name
 
     def update(self, dt):
+        """Met a jour progressivement le volume selon les effets de fondu en cours."""
     
         if self.state == "fade_out":
     

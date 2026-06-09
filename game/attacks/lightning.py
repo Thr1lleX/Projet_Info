@@ -4,6 +4,7 @@ from game.animspr import load_animation_sequence
 from game.settings import settings
 
 class Lightning(TemporaryAttack):
+    """Attaque electrique temporaire utilisee par l'ennemi Polasu."""
     def __init__(self, source, x, y):
         # L'attaque dure 0.75s au total (15 frames * 0.05s)
         super().__init__(source=source, direction="down", damage=1.5, duration=0.75)
@@ -39,6 +40,7 @@ class Lightning(TemporaryAttack):
         self.update_hitbox()
 
     def update_hitbox(self):
+        """Surcharge pour garantir une hitbox nulle si l'animation n'a pas de collisions."""
         super().update_hitbox()
         # Correction du "hitbox persistante" : on force un rectangle nul si pas de hitbox sur cette frame
         data = self.raw_hitbox_data.get(self.current_frame + 1)

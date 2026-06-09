@@ -12,16 +12,12 @@ _C_SELECTED = QColor(255, 215, 0)
 
 
 class OptionRow:
-    """
-    Ligne d'option pour ecran parametres.
-    Affiche un label a gauche et une valeur cyclable < Valeur > a droite.
-    """
+    """Ligne d'option pour l'ecran des parametres affichant un label et une valeur cyclable."""
 
     def __init__(self, label, options, x_label, x_value, y, value_width, z=Z_SCREEN + 2):
         """
         label       : texte du label ("Volume musique")
         options     : liste de tuples (nom_affiche, valeur_interne)
-                      ex: [("Bas", 0.25), ("Moyen", 0.50), ("Élevé", 0.75)]
         x_label     : position X du label
         x_value     : position X de la zone de valeur
         y           : position Y de la ligne
@@ -50,7 +46,7 @@ class OptionRow:
         self._update_display()
 
     def _update_display(self):
-        """Met a jour le texte affiche et le recentre."""
+        """Met a jour le texte affiche pour la valeur et le recentre."""
         name = self.options[self.current][0]
         self.value_item.setPlainText(f"<  {name}  >")
         tw = self.value_item.boundingRect().width()
@@ -61,16 +57,16 @@ class OptionRow:
         )
 
     def cycle(self, direction):
-        """Passe a l'option suivante (+1) ou precedente (-1)."""
+        """Passe a l'option suivante (+1) ou precedente (-1) de maniere circulaire."""
         self.current = (self.current + direction) % len(self.options)
         self._update_display()
 
     def get_value(self):
-        """Renvoie la valeur interne de l'option selectionnee."""
+        """Renvoie la valeur interne de l'option actuellement selectionnee."""
         return self.options[self.current][1]
 
     def set_value(self, value):
-        """Selectionne l'option dont la valeur est la plus proche."""
+        """Selectionne l'option dont la valeur est la plus proche de celle fournie."""
         best = 0
         best_diff = float("inf")
         for i, (_, v) in enumerate(self.options):
@@ -86,11 +82,11 @@ class OptionRow:
         self._update_display()
 
     def set_selected(self, selected):
-        """Change l'apparence selon que la ligne est selectionnee ou non."""
+        """Change la couleur de l'option selon qu'elle est selectionnee ou non."""
         color = _C_SELECTED if selected else _C_NORMAL
         self.label_item.setDefaultTextColor(color)
         self.value_item.setDefaultTextColor(color)
 
     def get_items(self):
-        """Renvoie les QGraphicsItems a ajouter a la scene."""
+        """Renvoie les elements graphiques (label et valeur) a ajouter a la scene."""
         return [self.label_item, self.value_item]

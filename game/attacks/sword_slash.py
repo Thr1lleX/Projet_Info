@@ -7,6 +7,7 @@ from game.sfx import SFXManager
 from game.attacks.attack_entity import MeleeAttack
 
 class SwordSlash(MeleeAttack):
+    """Attaque de type coup d'epee (melee) de base."""
     def __init__(self, player, direction, spr_path=None):
         
         # --- PARAMETRES DE DEFINITION POUR APPEL A CLASSES ANTERIEURES ---
@@ -46,20 +47,7 @@ class SwordSlash(MeleeAttack):
 
         
         # --- PARAMETRES D'ATTAQUE ---
-        """
-        Pour definir la hitbox:
-            Toutes les hitboxes seront rectangulaires,(logique avec reste du code)
-            Il s'agit d'un dictionnaire, qui pour chaque frame va nous indiquer la hitbox.
-            On commence a 1, comme pour le loading des sprites car asesprite commence 
-            a compter par 1, et on va utiliser aseprite pour definir les boxes.
-            sur ton sprite loaded sur aseprite on va pouvoir delimiter les coins de la hitbox
-            pour mieux visualer le rectangle on peut utiliser touche m, et dans les stats
-            en bas tu as les coordonnes de ton 1er point, et ensuite du 2e
-            
-            PERSO JE FAIS EN BAS A DROITE PUIS EN HAUT A GAUCHE
-            j'ai fait update_hitbox pour que ca marche pour tout format mtn (tant que points opposes ofc)
-        """
-        
+        # Hitboxes rectangulaires definies pour chaque frame (1 a n)
         self.raw_hitbox_data = {
             1: ((23, 28), (45, 19)),
             2: ((23, 25), (40, 9)),
@@ -73,11 +61,8 @@ class SwordSlash(MeleeAttack):
 
         self.update_hitbox()
         
-    # ------
-    # mdr il reste le def die a la fin, j'arrive pas a le mettre dans AttackEntity
-    # sans faire 50 disjonctions de cas
-
     def die(self):
+        """Supprime l'epee et libere l'etat d'attaque du joueur."""
         if self.scene():
             self.scene().removeItem(self)
 

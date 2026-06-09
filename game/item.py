@@ -12,6 +12,7 @@ from game.item_registry import get_item_data
 from game.config import DEBUG
 
 class Item:
+    """Represente une instance d'un objet (identifiant et quantite)."""
 
     # un item est defini par son id et sa quantite (le reste des infos vient du registre)
     def __init__(self, item_id, count = 1):
@@ -54,7 +55,8 @@ class Item:
 
 
 
-class Inventory():
+class Inventory:
+    """Gere la grille d'inventaire, les objets collectables et l'equipement actuel."""
 
 # inventory est une grille de 24 slots + 2 pointeurs d'equipement (arme W, consommable X).
     def __init__(self, total_slots=24):
@@ -159,6 +161,7 @@ class Inventory():
 
 
     def consume_one(self, item_id):
+        """Consomme une unite de l'objet specifie (decremente la quantite)."""
         # si c'est un collectible
         if item_id in self._collectibles:
             if self._collectibles[item_id] > 0:
@@ -229,7 +232,8 @@ class Inventory():
 
 
     def sync_permanent_items(self, flags_dict):
-        # import local pour éviter les imports circulaires
+        """Ajoute les objets permanents debloques selon les drapeaux de sauvegarde."""
+        # import local pour eviter les imports circulaires
         from game.item_registry import ITEM_CATALOG 
         
         for item_id, data in ITEM_CATALOG.items():

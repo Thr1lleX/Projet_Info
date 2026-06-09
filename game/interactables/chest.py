@@ -7,6 +7,7 @@ from game.item_registry import ITEM_CATALOG
 from game.settings import settings
 
 class Chest(Interactable):
+    """Coffre interactif contenant du butin (loot) recupere par le joueur."""
     def __init__(self, scale, x, y, loot_data, room_name):
         super().__init__(scale)
         self.type = "chest"
@@ -44,9 +45,7 @@ class Chest(Interactable):
         self.update_graphics()
 
     def update_graphics(self):
-        """
-        surcharge pour choisir la bonne image selon le flag
-        """
+        """Surcharge pour choisir la bonne image selon l'etat du coffre."""
         super().update_graphics()
         
         if self.is_open:
@@ -56,6 +55,7 @@ class Chest(Interactable):
     
 
     def interact(self, scene, player=None):
+        """Ouvre le coffre, recupere le butin et affiche un message au joueur."""
         # check si ouvert
         if scene.current_save.get_flag(self.flag_name) or scene.session_flags.get(self.flag_name):
             return 

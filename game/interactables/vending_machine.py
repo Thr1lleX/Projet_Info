@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt, QTimer
 from game.settings import settings
 
 class VendingMachine(Interactable):
+    """Distributeur automatique permettant d'ameliorer l'epee du joueur."""
     def __init__(self, scale,x,y):
         super().__init__()
         self.x = x
@@ -36,6 +37,7 @@ class VendingMachine(Interactable):
 
 
     def interact(self, scene, player):
+        """Declenche l'amelioration de l'epee si elle n'est pas encore obtenue, ou joue un son."""
         if self.interact_cooldown >= 0:
             return
         
@@ -69,4 +71,5 @@ class VendingMachine(Interactable):
         scene.dialogue_manager.start_text('', font="font2") #c'est fait expres
             
     def update(self, dt,scene):
+        """Gere le temps de rechargement entre chaque interaction."""
         self.interact_cooldown -= dt

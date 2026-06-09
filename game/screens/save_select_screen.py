@@ -11,6 +11,7 @@ from game.save_manager import SaveManager
 
 
 class SaveSelectScreen(BaseScreen):
+    """Ecran interactif de l'ecran titre permettant de charger une sauvegarde existante."""
 
     _menu_start_ratio = 0.50
     _menu_spacing     = 4
@@ -20,6 +21,7 @@ class SaveSelectScreen(BaseScreen):
         self._menu = []
 
     def _build(self):
+        """Met a jour les slots disponibles, cree le fond, le titre et le menu de selection."""
         self._refresh_slots()
         self._build_background()
         self._build_title()
@@ -28,6 +30,7 @@ class SaveSelectScreen(BaseScreen):
 
 
     def _build_background(self):
+        """Cree l'arriere-plan du menu de selection de sauvegarde."""
         pixmap = QPixmap("assets/hud/settings_background.png")
         pixmap = pixmap.scaled(self.scene_w, self.scene_h, Qt.IgnoreAspectRatio, Qt.SmoothTransformation)
         bg = QGraphicsPixmapItem(pixmap)
@@ -35,7 +38,7 @@ class SaveSelectScreen(BaseScreen):
         self._items.append(bg)
         
     def _build_title(self):
-    
+        """Cree et centre le titre de l'ecran de selection de sauvegarde."""
         title = QGraphicsTextItem("Choisir une\nsauvegarde")
     
         title.setFont(get_font0(size=12))
@@ -56,6 +59,7 @@ class SaveSelectScreen(BaseScreen):
 
 
     def _activate(self):
+        """Joue un son specifique et declenche l'action de chargement ou de retour."""
         action = self._menu[self._selected]["action"]
         if action.startswith("slot"):
             self._play_sfx("snd_start")
@@ -64,6 +68,7 @@ class SaveSelectScreen(BaseScreen):
         self._dispatch(action)
 
     def _dispatch(self, action):
+        """Charge la sauvegarde selectionnee ou retourne a l'ecran titre."""
         sm = self.screen_manager
         if action == "slot1":
             sm.load_game(1)
@@ -75,10 +80,7 @@ class SaveSelectScreen(BaseScreen):
             sm.go_to_title()
     
     def _refresh_slots(self):
-        """
-        met a jour les slots disponibles a chaque fois qu'ouvre ecran
-        """
-    
+        """Met a jour la liste des sauvegardes disponibles a chaque fois qu'on ouvre l'ecran."""
         self._menu = [
             {
                 "label": "Partie 1",
@@ -105,10 +107,7 @@ class SaveSelectScreen(BaseScreen):
         self._select_first_enabled()
         
     def show(self, scene):
-        """
-        cette fonction permet de recharger ecran lorsqu'on l'ouvre
-        """
-
+        """Recharge l'ecran avec les donnees a jour lors de son affichage."""
         self._refresh_slots()
         
         # si ecran deja construit on nettoie anciens items

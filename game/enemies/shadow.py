@@ -14,6 +14,7 @@ from game.attacks.sword_slash_upgrade import SwordSlashUpgrade
 from game.attacks.sword_slash_tungsten import SwordSlashTungsten
 
 class Shadow(Enemy):
+    """Ennemi copiant les mouvements et attaques du joueur (effet miroir)."""
     def __init__(self, scale, x, y):
         super().__init__(scale, x, y)
 
@@ -62,13 +63,11 @@ class Shadow(Enemy):
         
 
     def stun(self, duration, wiggle=True):
-        """
-        immunise uminise au stun
-        """
+        """Immunise au stun."""
         return
 
     def take_damage(self, scene, damage, source=None):
-        """ Ne peut etre touche que par une epee """
+        """Ne peut etre touche que par une epee."""
         if not source or not isinstance(source, (SwordSlash, SwordSlashUpgrade, SwordSlashTungsten)):
             return
         super().take_damage(scene, damage, source)
@@ -202,7 +201,7 @@ class Shadow(Enemy):
         self.try_hit_player(scene)
 
     def try_hit_player(self, scene):
-        """ Surcharge pour empecher les degats de collision simples """
+        """Surcharge pour empecher les degats de collision simples."""
         pass
 
     def die(self):

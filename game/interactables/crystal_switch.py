@@ -8,9 +8,7 @@ from game.config import DEBUG
 import random
 
 class CrystalSwitch(Entity):
-    """
-    hertite de Entity mais on le met avec les interactables pour le faire spawn
-    """
+    """Interrupteur de cristal changeant d'etat au moindre coup, modifiant la disposition de la salle."""
     def __init__(self, scale, x, y):
         super().__init__(scale)
         self.x = x
@@ -39,18 +37,13 @@ class CrystalSwitch(Entity):
         self.update_graphics()
         
     def update_graphics(self):
-        """
-        surcharge methode de Entity
-        apelle par scene.py immediatement apres le spawn
-        """
+        """Synchronise l'etat avant de dessiner (appele juste apres le spawn)."""
         # on synchronise avant de dessiner
         self.sync_with_global_state()
         super().update_graphics()
         
     def sync_with_global_state(self):
-        """
-        verifie flag global et met a jour si necessaire
-        """
+        """Verifie le flag global et met a jour l'interrupteur si necessaire."""
         scene = self.scene()
         if scene and hasattr(scene, "get_flag"):
             is_blue = scene.get_flag("blue_switch")
@@ -70,6 +63,7 @@ class CrystalSwitch(Entity):
         }
 
     def take_damage(self, scene, damage, source=None):
+        """Change l'etat de l'interrupteur au moindre coup (inverse le flag global)."""
         if self.is_invulnerable:
             return
             
@@ -96,6 +90,7 @@ class CrystalSwitch(Entity):
     def die(self): pass # indestructible
 
     def interact(self, scene, player=None):
+        """Affiche un texte amusant lorsqu'on interagit avec Michel le cristal."""
         if random.random() < 0.66:
             voice = "snd_michel1"
         else: 

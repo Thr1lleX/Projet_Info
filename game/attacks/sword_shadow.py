@@ -4,6 +4,7 @@ from PyQt5.QtGui import QPen, QColor
 from game.attacks.attack_entity import MeleeAttack
 
 class SwordShadow(MeleeAttack):
+    """Attaque d'epee utilisee par l'ennemi Shadow."""
     def __init__(self, shadow_entity, direction,damage=1):
         
         self.source = shadow_entity
@@ -55,6 +56,7 @@ class SwordShadow(MeleeAttack):
         self.update_hitbox()
         
     def die(self):
+        """Supprime l'epee et libere l'etat d'attaque de l'ennemi."""
         if self.scene():
             self.scene().removeItem(self)
 
