@@ -1,0 +1,65 @@
+{
+  "tiles": [
+    [1, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 5, 0, 0, 0, 0, 5, 0, 0, 5, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 5, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 5, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 1],
+    [1, 0, 0, 5, 0, 5, 0, 0, 0, 0.5, 0, 5, 0, 0, 0, 1],
+    [1, 0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0, 0, 0, 0, 0, 1]
+  ],
+  "magic_wall": "spawn_jesus",
+  "biome": "river",
+  "music": "mus_mini_boss",
+  "fade_in": 1,
+  "conditional_music": {
+    "flag": "tung_vaincu",
+    "music": "mus_boss_clear",
+    "fade_in": 2
+  },
+  "transitions": {
+    "left": null,
+    "right": null,
+    "up": "room_town_jesus",
+    "down": "room_townA3"
+  },
+  "interactables": [
+    {
+      "auto_interact": true,
+      "despawn_if": "jesus_part",
+      "despawn_transition": {
+        "direction": "up",
+        "speed": 1,
+        "type": "slide"
+      },
+      "dialogue": "jesus_intro",
+      "npc_type": "jesus",
+      "size": [
+        1,
+        2
+      ],
+      "spawn_if": "spawn_jesus",
+      "spawn_transition": {
+        "direction": "up",
+        "speed": 1,
+        "type": "slide"
+      },
+      "type": "npc",
+      "x": 7,
+      "y": 2
+    }
+  ],
+  "enemies": [
+    {
+      "id": "tungtungsahur_boss",
+      "type": "tungtungsahur",
+      "x": 7,
+      "y": 4,
+	  "despawn_if": "tung_vaincu"
+    }
+  ]
+}
