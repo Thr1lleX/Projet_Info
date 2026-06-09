@@ -5,30 +5,31 @@
       "* Bonjour voyageur.",
       "* Le desert est dangereux."
     ],
+
     "set_flag": "met_oldman_test"
   },
-  "oldman_intro2": {
-    "lines": [
-      "* Nan je rigole je parle français."
-    ]
+  "oldman_intro2":{
+	  "lines":[
+	  "* Nan je rigole je parle français."
+	  ]
   },
-  "oldman_intro3": {
-    "font": "font3",
-    "lines": [
-      "* To gramma 'p' antiproswpeyei tun analogia metaxy tu~ perimetroy kai tu~ diametroy eno~ kykloy."
-    ]
+    "oldman_intro3":{
+	  "font": "font3",
+	  "lines":[
+	  "* To gramma 'p' antiproswpeyei tun analogia metaxy tu~ perimetroy kai tu~ diametroy eno~ kykloy."
+	  ]
   },
-  "oldman_intro4": {
-    "font": "font3",
-    "lines": [
-      "* Moy aresoyn ta kaka, ta katoyra, oi klanie~b!"
-    ]
-  },
+    "oldman_intro4":{
+	  "font": "font3",
+	  "lines":[
+	  "* Moy aresoyn ta kaka, ta katoyra, oi klanie~b!"
+	  ]
+  },  
   "farmer_intro": {
     "lines": [
       "* Bonjour voyageur des mers et de la Terre.",
       "* Je suis le pnj test des très longs dialogues qui sont interminables hehehehe. Là je dis juste des mots au hasard pour tester.",
-      "* heheheha."
+	  "* heheheha."
     ]
   },
   "farmer_test2": {
@@ -37,20 +38,20 @@
       "* Vraiment un homme mort."
     ]
   },
-  "farmer_test3": {
+    "farmer_test3": {
     "lines": [
       "* chockbar de bz en fait"
     ]
   },
-  "farmer_test4": {
-    "font": "font2",
+    "farmer_test4": {
+	"font": "font2",
     "lines": [
       "* ARRETE DE ME PARLER"
     ],
-    "set_flag": "parlation"
+	"set_flag": "parlation"
   },
   "panneau_histoire": {
-    "font": "font2",
+	"font" : "font2",
     "lines": [
       "Cette salle est remplie d'histoire."
     ]
@@ -63,15 +64,15 @@
   "minou": {
     "lines": [
       "* le pipi du caca, le pipi du là là.",
-      "* quoi, mais où mais le pipi du caca",
-      "* quoi, mais feur feur.",
-      "je sais plus..."
+	  "* quoi, mais où mais le pipi du caca",
+	  "* quoi, mais feur feur.",
+	  "je sais plus..."
     ]
   },
   "minou2": {
     "lines": [
       "* mais nan, tu lui as parlé",
-      "* tu sais pas de quoi il est capable"
+	  "* tu sais pas de quoi il est capable"
     ]
   },
   "minou_parlation": {
@@ -80,13 +81,13 @@
     ]
   },
   "minou_boss": {
-    "font": "font4",
-    "lines": [
-      "tes vraimen 1 gar bg pr avoir tuer thun thun thun sahur",
-      "brr brr brr patapim c moi",
-      "taa buter la concurense'.",
-      "zizi_lian"
-    ]
+	  "font" : "font4",
+	  "lines": [
+	    "tes vraimen 1 gar bg pr avoir tuer thun thun thun sahur",
+		"brr brr brr patapim c moi",
+		"taa buter la concurense'.",
+		"zizi_lian"
+		]
   },
   "panneau_test": {
     "lines": [
@@ -94,14 +95,11 @@
     ]
   },
   "panneau_test_parlation": {
-    "font": "font2",
+	"font" : "font2",
     "lines": [
       "En tant que panneau, je suis profondément choqué."
     ],
-    "set_flag": [
-      "sword_upgrade",
-      "jesus"
-    ]
+	"set_flag": ["sword_upgrade","jesus"]
   },
   "farmer_desert1": {
     "lines": [
@@ -111,122 +109,242 @@
   "farmer_desert2": {
     "lines": [
       "* Moi perso, j'me détends.",
-      "* Je sais pas pourquoi les monstres ne m'attaquent pas.",
-      "* Sûrement les developpeurs qui avaient la flemme de donner des points de vie aux pnjs."
+	  "* Je sais pas pourquoi les monstres ne m'attaquent pas.",
+	  "* Sûrement les developpeurs qui avaient la flemme de donner des points de vie aux pnjs."
     ]
   },
   "farmer_desert3": {
     "lines": [
       "* Du coup j'me détends.",
-      "* C'est plutôt bien ici."
+	  "* C'est plutôt bien ici."
     ]
   },
   "farmer_desert4": {
     "lines": [
       "* Dis donc, t'es plutôt opiniâtre toi.",
-      "* Si tu veux, je vais te dire un secret.",
-      "* À ce qu'il paraît, on raconte qu'une clef cachée se trouve vers le nord-est de la rivière.",
-      "* Tu devrais tenter d'y faire péter des trucs ;)"
+	  "* Si tu veux, je vais te dire un secret.",
+	  "* À ce qu'il paraît, on raconte qu'une clef cachée se trouve vers le nord-est de la rivière.",
+	  "* Si jamais tu t'as besoin d'une clef en plus, tu devrais tenter d'y faire péter des trucs ;)"
     ]
   },
   "farmer_desert_secret_key": {
     "lines": [
       "* Ah? Alors apparemment y'avait pas de clef ?",
-      "* J'me suis p'tet trompé.",
-      "* Je pense pas pourtant. Ah! Mais, vous les jeunots vous êtes bien impatients."
+	  "* J'me suis p'tet trompé.",
+	  "* Je pense pas pourtant. Ah! Mais, vous les jeunots vous êtes bien impatients."
     ]
   },
   "farmer_desert_secret_key2": {
     "lines": [
       "* Pourquoi tu cherchais cette clef à la base ?",
-      "* Bahahaha! Va savoir!"
+	  "* Bahahaha! Va savoir!"
     ]
   },
   "poseidon_entree": {
-    "font": "font3",
-    "lines": [
-      "* Loipon, mikre kakopoie, o Iusoy~ soy empisteytuke tu dynamu Toy.",
-      "* Fainetai oti ayto~ o adynamo~ empisteyetai ton opoiondupote.",
-      "* Alla aytu den einai u periptwsu moy!",
-      "* Esei~ oi Hnutoi den eiste tipota allo para mia omada deilwn!",
-      "* Den Ha eqete kamia elpida enantia sti~ dynamei~ toy kakoy...",
-      "* An pragmatika epiHymei~ na taxidecei~ sta boreia boyna, tote akoloyHuse me kai apodeixe me se mia monomaqia!"
-    ],
-    "set_flag": "parle_poseidon"
+	  "font" : "font3",
+	  "lines": [
+	  "* Loipon, mikre kakopoie, o Iusoy~ soy empisteytuke tu dynamu Toy.",
+	  "* Fainetai oti ayto~ o adynamo~ empisteyetai ton opoiondupote.",
+	  "* Alla aytu den einai u periptwsu moy!",
+	  "* Esei~ oi Hnutoi den eiste tipota allo para mia omada deilwn!",
+	  "* Den Ha eqete kamia elpida enantia sti~ dynamei~ toy kakoy...",
+	  "* An pragmatika epiHymei~ na taxidecei~ sta boreia boyna, tote akoloyHuse me kai apodeixe me se mia monomaqia!"
+	 ],
+	 "set_flag" : "parle_poseidon"
   },
   "panneau_entree_hell": {
-    "font": "font2",
-    "lines": [
-      "C'est une longue descente...",
-      "Es-tu sûr de vouloir continuer ?"
-    ]
+	  "font" : "font2",
+	  "lines": [
+		"C'est une longue descente...",
+		"Es-tu sûr de vouloir continuer ?"
+	]
   },
   "panneau_hell1": {
-    "font": "font2",
-    "lines": [
-      "Dans l'entrevue de l'enfer, se cachant dans la mer de sang."
-    ]
+	  "font" : "font2",
+	  "lines": [
+		"Dans l'entrevue de l'enfer, se cachant dans la mer de sang."
+	]
   },
   "panneau_hell2": {
-    "font": "font2",
-    "lines": [
-      "On ne pouvait cependant pas voir plus loin que ce que l'on voyait déjà."
-    ]
+	  "font" : "font2",
+	  "lines": [
+		"On ne pouvait cependant pas voir plus loin que ce que l'on voyait déjà."
+	]
   },
   "panneau_hell3": {
-    "font": "font2",
-    "lines": [
-      "Et pourtant, juste là, une lueur, brillant dans la mare rouge."
-    ]
+	  "font" : "font2",
+	  "lines": [
+		"Et pourtant, juste là, une lueur, brillant dans la mare rouge."
+	]
   },
   "panneau_hell4": {
-    "font": "font2",
-    "lines": [
-      "Était-ce la raison de cette venue ? Ou pour simplement se perdre ?"
-    ]
+	  "font" : "font2",
+	  "lines": [
+		"Était-ce la raison de cette venue ? Ou pour simplement se perdre ?"
+	]
+  },
+  "panneau_key_hell": {
+	  "font" : "font2",
+	  "lines" : [
+		"Il semblerait qu'il soit désormais trop tard pour atteindre votre objectif ici."
+	]
+  },
+  "hell_fin": {
+	  "font" : "font2",
+	  "lines" : [
+		"Ce fut au final la dernière fois qu'elle vit la lumière."
+	]
   },
   "farmer_town_1": {
     "lines": [
       "* Salut mec ! Comment ça va ?",
       "* Tu as reussi à m'atteindre on dirait...",
       "* Cette glace est bien tenace...",
-      "* Normalement elle fond le printemps venu.",
-      "* Mais depuis quelques temps, les temperatures ont chuté.",
-      "* C'est surement sa faute... *soupir* ",
-      "* Enfin bon, trève de bavardages...",
-      "* Tu as bien vu l'etat du village...",
-      "* Faut vraiment l'arreter avant qu'il ne soit trop tard."
+      "* Normalement elle fond au printemps venu.",
+      "* Mais depuis quelques temps, les températures ont chuté.",
+      "* C'est sûrement sa faute... *soupir* ",
+      "* Enfin bon, trêve de bavardages...",
+      "* Tu as bien vu l'état du village...",
+      "* Faut vraiment l'arrêter avant qu'il ne soit trop tard."
     ]
   },
   "jesus_intro": {
+    "font": "font1",
     "lines": [
       "* Bonjour, mon enfant.",
-      "* Tu as triomphé de Tung Tung Sahur.",
+      "* Tu as triomphe de Tung Tung Tung Sahur.",
       "* Si tu le veux bien...",
-      "* Je t'invite à me suivre...",
-      "* Car en guise de remerciement",
-      "* Je voudrais t'offrir un petit quelque chose...",
-      "* Suis moi!"
+      "* Je t'invite a me suivre...",
+      "car en guise de remerciement, je voudrais t'offrir un petit quelque chose...",
+      "* Suis-moi !"
     ],
-    "set_flag": "jesus"
+    "set_flag": "jesus_part"
   },
-  "jesus_boomerang": {
+  "jesus_eau": {
     "lines": [
+      "* Nan je déconne, je parle français.",
       "* Nous sommes mieux ici, n'est-ce pas ?",
-      "* Je suis bien content que tu sois en vie",
-      "* Tung Tung Sahur etait un ennemi redoutable",
-      "* Je reconnais en toi l'âme d'un sauveur",
-      "* Tu me rappelles un peu ...",
-      "* Hervé Robert...",
-      "* Peut-être l'as-tu deja croise ?",
-      "* Quoi qu'il en soit, même si il peut paraitre un peu distant",
-      "* c'est un allie de choix.",
-      "* Quoi qu'il en soit, ce combat m'a prouve que je peux te faire confiance",
+      "* Je suis bien content que tu sois en vie.",
+      "* Tung Tung Tung Sahur était un ennemi redoutable.",
+      "* Je reconnais en toi l'âme d'un sauveur.",
+      "* Tu me rappelles un peu...",
+      "* Robert Hervé...",
+      "* Peut-être l'as-tu déjà croisé ?",
+      "* C'était l'un de mes élèves.",
+      "* Quoi qu'il en soit, même s'il peut paraître un peu distant,",
+      "c'est un allié de choix.",
+      "* Quoi qu'il en soit, ce combat m'a prouvé que je peux te faire confiance.",
       "* Tiens, en guise de remerciement...",
-      "* Accepte cette benediction.",
-      "* Et maintenant, vas en paix, loin à l'Est, par delà les Oceans",
+      "* Accepte cette bénédiction.",
+      "* Et maintenant, va en paix, loin à l'est, par-delà les océans.",
       "* Loin, très loin d'ici."
     ],
     "set_flag": "jesus"
+  },
+  "jesus_eau2": {
+    "lines": [
+      "* Pour être honnête, je ne m'attendais pas à perdre face à Tung Tung Tung Sahur.",
+      "* Il disait plus tôt avoir un maître, je n'imagine pas la puissance de cet individu."
+    ]
+  },
+  "jesus_eau3": {
+    "lines": [
+      "* Je crois tout de même qu'il venait de l'est.",
+      "* Si c'est ta destination, fais très attention.",
+      "* J'ai connu par le passé un monstre terrifiant qui régnait sur les mers.",
+      "* Mais c'est surtout un idiot !"
+    ]
+  },
+  "jesus_eau4": {
+    "lines": [
+      "* Je te souhaite bonne chance pour ton voyage, mon enfant !",
+	  "(tu peux marcher sur l'eau)"
+    ]
+  },
+  "jesus_poseidon": {
+    "lines": [
+      "* Alors, apparemment, tu as croisé l'autre abruti ?",
+      "* Je déteste ce type, il ne pense qu'au combat et à 's'amuser' avec des mortels !",
+      "* Enfin bon, s'il a pu être d'une quelconque utilité..."
+    ]
+  },
+  "jesus_poseidon2": {
+    "lines": [
+      "* Tu sais... à une époque, on s'entendait bien.",
+      "* On allait prier dans les montagnes ensemble et on se combattait sur les eaux.",
+      "* Mais j'ai l'impression que ce type n'a jamais mûri durant tous ces siècles...",
+      "* Enfin bref, je te souhaite bonne chance pour tes futurs combats !"
+    ]
+  },
+  "panneau_donjon_room3" :{
+	  "lines" : [
+	  "* Il semble que ce panneau ait permis d'enclencher un mécanisme quelque part."
+	  ],
+	  "set_flag" : "panneau_shrine_magic_wall_room3"
+  },
+  "minou_shrine1" : {
+	  "lines" : [
+	  "* Oh mon dieu ! Ça faisait 1 semaine que j'étais coincé ici !",
+	  "* J'étais sur le point d'épuiser toutes mes réserves de nourriture. Heureusement que tu as ouvert le passage !"
+	  ]
+  },
+  "minou_shrine2" : {
+	  "lines" : [
+	  "* Quoi ? Bouger ?",
+	  "* Pourquoi je bougerais ? Je suis bien ici."
+	  ]
+  },
+  "minou_shrine_pomme" : {
+	  "lines" : [
+	  "* T'ES SÉRIEUX, TU M'AS VOLÉ MES POMMES ?!!!!!"
+	  ]
+  },
+  "minou_shrine_pomme2" : {
+	  "lines" : [
+	  "* Mes pommes sont pas encores matures espèce de détraqué."
+	  ]
+  },
+  "minou_shrine_pomme3" : {
+	  "lines" : [
+	  "* On ne touche pas aux pommes d’un homme sans s’attendre à se faire pénétrer le zi-zi par la colère divine.",
+	  "* Elle s'abattra sur toi lorsque tu périras dans ton sommeil."
+	  ]
+  },
+  "minou_shrine_pomme4" : {
+	  "lines" : [
+	  "* COMMENT ÇA TU CONNAIS JÉSUS !?"
+	  ]
+  },
+  "panneau_room_spear_bombe" : {
+	  "font" : "font2",
+	  "lines" : [
+	  "En cas d'échec, échappez-vous par la salle du haut."
+	  ]
+  },
+  "panneau_room_boomerang_hint" : {
+	  "font" : "font2",
+	  "lines" : [
+	  "Il semble que la salle suivante soit plus technique.",
+	  "Relis-moi, si tu souhaites un indice."
+	  ]
+  },
+  "panneau_room_boomerang_hint2" : {
+	  "font" : "font2",
+	  "lines" : [
+	  "Parfois, le plus important n'est pas le lancé, mais le retour."
+	  ]
+  },
+  "tungtung_trophes" : {
+	  "font" : "font4",
+	  "lines" : [
+	  "Ouaaa le gros tricheur en fait..."
+	  ]
+  },
+  "panneau_racourci_shrine" : {
+	  "font" : "font2",
+	  "lines" : [
+	  "Si jamais tu souhaites quitter le sanctuaire, pars vers la droite."
+	  ],
+	  "set_flag" : "raccourci_shrine"
   }
 }
