@@ -112,12 +112,16 @@ class Enemy(Entity):
                 # Verification rapide de connexite avant A* couteux
                 if not are_connected(grid, start_pos, goal_pos, settings.tile_size):
                     self.path = []
+                
+                                        
+                                        
                 else:
                     # On passe les deux dimensions
                     new_path = astar(grid, start_pos, goal_pos, settings.tile_size, w_tiles, h_tiles)
                     
                     if new_path is not None:
                         self.path = new_path
+
                     else:
                         self.path = []
                     
@@ -203,11 +207,16 @@ class Enemy(Entity):
             room = self.room_name
     
             if room not in scene.room_states:
-                scene.room_states[room] = {
-                    "killed_enemies": set()
-                }
+                scene.room_states[room] = {"killed_enemies": set()}
     
             scene.room_states[room]["killed_enemies"].add(self.enemy_id)
+            if self in scene.enemies:
+                scene.enemies.remove(self)
+            kill_all_flag = scene.room_data.get("kill_all")
+            if kill_all_flag and len(scene.enemies) == 0:
+                scene.session_flags[kill_all_flag] = True
+                if DEBUG:
+                    print(f"[ENEMY] Tous les ennemis tués ! Flag kill_all déclenché : {kill_all_flag}")
         self._drop_loot(scene)
 
         super().die()

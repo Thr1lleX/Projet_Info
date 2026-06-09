@@ -5,7 +5,7 @@ from PyQt5.QtGui import QColor
 
 from game.config import Z_SCREEN
 from game.fonts import get_font0
-from game.seetings import settings
+from game.settings import settings
 
 _C_NORMAL   = QColor(190, 190, 210)
 _C_SELECTED = QColor(255, 215, 0)

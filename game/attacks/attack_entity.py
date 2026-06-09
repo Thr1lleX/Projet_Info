@@ -5,6 +5,7 @@
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem
 #from PyQt5.QtMultimedia import QSoundEffect
 from PyQt5.QtGui import QPen, QColor
+from PyQt5.QtCore import Qt
 from game.config import DEBUG, BASE_TILE_SIZE
 from abc import abstractmethod
 
@@ -210,6 +211,8 @@ class TemporaryAttack(AttackEntity):
                 self.check_collisions(scene)
             else:
                 self.die()
+        
+        super().update(dt,scene)
 
     def update_position(self):
         """
@@ -426,6 +429,59 @@ class PersistentAttack(AttackEntity):
                 hitbox_zone.height(),
                 entity = self
         ):
+            scene.sfx_manager.play(self.die_sfx)
+            self.die()
+            return
+
+
+    def check_collisions(self, scene):
+        """
+        simple a comprendre, collision avec entites + murs
+        on fait un exception pour switch car bug de collision et ne se déclenche pas sinon
+        """
+        hitbox_zone = self.debug_rect.mapToScene(self.debug_rect.rect()).boundingRect()
+        hx, hy = hitbox_zone.x(), hitbox_zone.y()
+        hw, hh = hitbox_zone.width(), hitbox_zone.height()
+        
+        # collision avec bords de l'ecran
+        marge = 0 * settings.tile_size
+        limit_left = 0 - marge
+        limit_right = (16 * settings.tile_size) + marge
+        limit_top = (2 * settings.tile_size) - marge
+        limit_bottom = (13 * settings.tile_size) + marge
+        if (hx < limit_left) or (hx + hw > limit_right) or (hy < limit_top) or (hy + hh > limit_bottom):
+            scene.sfx_manager.play(self.die_sfx)
+            self.die()
+            return
+        
+        # collision avec ennemis
+        for item in scene.items(hitbox_zone):
+            if item != self.source and item != self:
+                # ignore le switch
+                if type(item).__name__ != "CrystalSwitch":
+                    # si touche ennemi, disparait
+                    if hasattr(item, "take_damage") and item not in self.targets_hit:
+                        item.take_damage(scene, self.damage, self)
+                        if hasattr(item, "stun"):
+                            item.stun(self.do_stun)
+                        self.targets_hit.add(item)
+                        scene.sfx_manager.play(self.die_sfx)
+                        self.die() 
+                        return
+
+        # collision LARGE (BoundingRect) UNIQUEMENT pour le switch
+        for item in scene.items(hitbox_zone, Qt.IntersectsItemBoundingRect):
+            if item != self.source and item != self:
+                if type(item).__name__ == "CrystalSwitch":
+                    if hasattr(item, "take_damage") and item not in self.targets_hit:
+                        item.take_damage(scene, self.damage, self)
+                        self.targets_hit.add(item)
+                        scene.sfx_manager.play(self.die_sfx)
+                        self.die()
+                        return
+
+        # collisions avec murs
+        if scene.is_blocking_rect(hx, hy, hw, hh, entity=self):
             scene.sfx_manager.play(self.die_sfx)
             self.die()
             return

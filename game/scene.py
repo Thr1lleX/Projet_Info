@@ -68,6 +68,12 @@ class GameScene(QGraphicsScene):
         
         if DEBUG:
             self.addItem(self.player.debug_rect)
+            
+            
+        # --- PRECALCUL COLLISIONS MULTI-TILES ---
+        # On trouve la taille max definie dans le tileset pour optimiser la recherche
+        self.max_w = max([props.get("size", (1, 1))[0] for props in TILE_TYPES.values()])
+        self.max_h = max([props.get("size", (1, 1))[1] for props in TILE_TYPES.values()])
         
         
         # --- GAME LOOP ---
@@ -121,6 +127,8 @@ class GameScene(QGraphicsScene):
 
         self.update_crt(settings.crt_overlay)
         
+        # stock les tuiles dont la collision est désactivée temporairement
+        self.deferred_collision_tiles = set()
         
         if DEBUG:
             self.persistent_items.add(self.player.debug_rect)
@@ -157,10 +165,11 @@ class GameScene(QGraphicsScene):
             #gestion de surveillange du flag de magic_wall
             magic_flag = self.room_data.get("magic_wall")
             poofed_room_flag = f"magic_poofed_{self.current_room}"
-            if magic_flag and self.get_flag(magic_flag) and not self.get_flag(poofed_room_flag):
+            if magic_flag and self.check_magic_wall_condition(magic_flag) and not self.get_flag(poofed_room_flag):
                 self.poof_all_magic_walls()
                 
             self.player.update(dt, self)
+            self._update_deferred_collisions()
             self.check_room_transition()
             self.update_animations(dt)
             
@@ -248,6 +257,8 @@ class GameScene(QGraphicsScene):
             y a t il collision ou non.
 
         """
+        # if isinstance(entity, Player) and DEBUG:
+        #     return False
         # coins du rectangle
         points = [
             (x, y),
@@ -282,20 +293,24 @@ class GameScene(QGraphicsScene):
                     continue
                 return True
     
-            tile_id = self.room_data["tiles"][tile_y][tile_x]
+            # tile_id = self.room_data["tiles"][tile_y][tile_x]
             
-            tile = TILE_TYPES[tile_id]
+            # tile = TILE_TYPES[tile_id]
             
-            # jesus update
-            if tile["name"] == "water" and entity.can_go_on_water:
-                continue
+            # # jesus update
+            # if tile["name"] == "water" and entity.can_go_on_water:
+            #     continue
             
-            if tile["name"] == "black" and entity.can_go_on_black:
-                continue
+            # if tile["name"] == "black" and entity.can_go_on_black:
+            #     continue
             
-            if tile["collision"] == 1:
+            # if tile["collision"] == 1:
+            #     return True
+            
+            if self.is_tile_blocking(tile_x, tile_y, entity):
                 return True
         
+        # interactables
         target_rect = QRectF(x, y, w, h)
         for obj in self.interactables:
             if obj.collision:
@@ -303,6 +318,46 @@ class GameScene(QGraphicsScene):
                     return True
     
         return False
+    
+    
+    def is_tile_blocking(self, tile_x, tile_y, entity=None):
+        """
+        check si case (tile_x,tile_y) de la grille est bloquante en prenant en compte "size"
+        """
+        if not (0 <= tile_x < GRID_WIDTH and 0 <= tile_y < GRID_HEIGHT):
+            return True
+
+        for dy in range(self.max_h):
+            for dx in range(self.max_w):
+                check_x = tile_x - dx
+                check_y = tile_y - dy
+
+                if 0 <= check_x < GRID_WIDTH and 0 <= check_y < GRID_HEIGHT:
+                    
+                    if entity == self.player and (check_x, check_y) in self.deferred_collision_tiles:
+                        continue
+                    
+                    tile_id = self.room_data["tiles"][check_y][check_x]
+                    tile = TILE_TYPES.get(tile_id)
+
+                    if not tile:
+                        continue
+                    size_w, size_h = tile.get("size", (1, 1))
+
+                    if dx < size_w and dy < size_h:
+                        
+                        if entity:
+                            # jesus update
+                            if tile["name"] == "water" and getattr(entity, 'can_go_on_water', False):
+                                continue
+                            if tile["name"] == "black" and getattr(entity, 'can_go_on_black', False):
+                                continue
+
+                        if tile.get("collision") == 1:
+                            return True
+                            
+        return False
+
 
 
     def load_biome_tileset(self, biome_name):
@@ -390,7 +445,7 @@ class GameScene(QGraphicsScene):
         magic_flag = room.get("magic_wall")
         # flag pour check si on a deja poof dans salle
         poofed_room_flag = f"magic_poofed_{self.current_room}"   
-        if magic_flag and self.get_flag(magic_flag):
+        if magic_flag and self.check_magic_wall_condition(magic_flag):
             if self.get_flag(poofed_room_flag):
                 for y, row in enumerate(room["tiles"]):
                     for x, tile_id in enumerate(row):
@@ -470,10 +525,11 @@ class GameScene(QGraphicsScene):
                 self.addItem(item)
     
                 if DEBUG and TILE_TYPES[tile_id]["collision"] == 1:
+                    size_w, size_h = TILE_TYPES[tile_id].get("size", (1, 1))
                     rect = QGraphicsRectItem(
                         x * settings.tile_size,
                         (y + HUD_HEIGHT) * settings.tile_size,
-                        settings.tile_size, settings.tile_size
+                        settings.tile_size * size_w, settings.tile_size * size_h
                     )
                     rect.setPen(QPen(QColor("blue"), 1))
                     rect.setZValue(500)
@@ -551,6 +607,8 @@ class GameScene(QGraphicsScene):
         self.animated_tile_items.clear()
         self.snow_anim_data = None
         
+        self.deferred_collision_tiles.clear()
+        
         # nettoyer scene (items persistants), conserver joueur, ecran, fondu... lors de chgmt
         for item in list(self.items()):
             if item not in self.persistent_items: 
@@ -571,7 +629,8 @@ class GameScene(QGraphicsScene):
     
         room_w = GRID_WIDTH * settings.tile_size
         #room_h = GRID_HEIGHT * settings.tile_size
-    
+        
+        self.room_data = self.apply_conditional_transitions(self.room_data)
         transitions = self.room_data.get("transitions", {})
     
         if hx < 0:
@@ -623,11 +682,19 @@ class GameScene(QGraphicsScene):
         
     def start_room_music(self):
         """
-        Fonction pour start musique, avec gestion fade in
+        Fonction pour start musique, avec gestion fade in et de flags
         """
         music = self.room_data.get("music")
         
         fade_in_value = self.room_data.get("fade_in", 0)
+        
+        if "conditional_music" in self.room_data:
+            cond_data = self.room_data["conditional_music"]
+            flag_name = cond_data.get("flag")
+            
+            if flag_name and self.get_flag(flag_name):
+                music = cond_data.get("music", music)
+                fade_in_value = cond_data.get("fade_in", fade_in_value)
     
         if music:
             name = f"{music}"
@@ -641,6 +708,13 @@ class GameScene(QGraphicsScene):
         """
         music = self.room_data.get("music")
     
+        if "conditional_music" in self.room_data:
+            cond_data = self.room_data["conditional_music"]
+            flag_name = cond_data.get("flag")
+            
+            if flag_name and self.get_flag(flag_name):
+                music = cond_data.get("music", music)
+                
         if not music:
             return False
     
@@ -655,9 +729,16 @@ class GameScene(QGraphicsScene):
         """
 
         room = load_room(f"rooms/{room_name}.json")
-    
+        
         next_music = room.get("music")
-    
+        
+        if "conditional_music" in room:
+            cond_data = room["conditional_music"]
+            flag_name = cond_data.get("flag")
+            
+            if flag_name and self.get_flag(flag_name):
+                next_music = cond_data.get("music", next_music)
+                
         if not next_music:
             return False
     
@@ -680,6 +761,7 @@ class GameScene(QGraphicsScene):
             return
             
         blue_active = self.get_flag("blue_switch")
+        px, py, pw, ph = self.player.get_hitbox()
         
         for y, row in enumerate(self.room_data["tiles"]):
             for x, tile_id in enumerate(row):
@@ -693,6 +775,44 @@ class GameScene(QGraphicsScene):
                 if new_id and new_id != tile_id:
                     self.room_data["tiles"][y][x] = new_id
                     self.refresh_single_tile(x, y, new_id)
+                    
+                    # gestion de l'overlap joueur
+                    tile_info = TILE_TYPES.get(new_id)
+                    if tile_info and tile_info.get("collision") == 1:
+                        tile_left = x * settings.tile_size
+                        tile_top = (y + HUD_HEIGHT) * settings.tile_size
+                        tile_right = tile_left + settings.tile_size
+                        tile_bottom = tile_top + settings.tile_size
+
+                        if (px < tile_right and px + pw > tile_left and
+                                py < tile_bottom and py + ph > tile_top):
+                            self.deferred_collision_tiles.add((x, y))
+                            
+
+    def _update_deferred_collisions(self):
+        if not self.deferred_collision_tiles:
+            return
+
+        px, py, pw, ph = self.player.get_hitbox()
+        to_remove = []
+
+        for tx, ty in self.deferred_collision_tiles:
+            tile_left = tx * settings.tile_size
+            tile_top = (ty + HUD_HEIGHT) * settings.tile_size
+            tile_right = tile_left + settings.tile_size
+            tile_bottom = tile_top + settings.tile_size
+
+            # Si le joueur ne touche PLUS du tout la tuile, on prepare sa reactivation
+            overlap = (px < tile_right and px + pw > tile_left and
+                       py < tile_bottom and py + ph > tile_top)
+            if not overlap:
+                to_remove.append((tx, ty))
+
+        # On nettoie le set
+        for target in to_remove:
+            self.deferred_collision_tiles.remove(target)
+            if DEBUG:
+                print(f"[COLLISION] Tuile {target} réactivée, le joueur est sorti.")
 
     def reposition_player(self, direction):
         """
@@ -787,6 +907,14 @@ class GameScene(QGraphicsScene):
     
             if DEBUG:
                 self.addItem(enemy.debug_rect)
+        
+        # check au cas ou il n'y ait pas d'ennemi
+        kill_all_flag = room.get("kill_all")
+        if kill_all_flag and len(self.enemies) == 0:
+            if not self.get_flag(kill_all_flag):
+                self.session_flags[kill_all_flag] = True
+                if DEBUG:
+                    print(f"[SCENE] Salle vide au chargement, flag kill_all validé : {kill_all_flag}")
                 
     def game_over(self):
         if hasattr(self, "game_over_triggered") and self.game_over_triggered:
@@ -887,6 +1015,19 @@ class GameScene(QGraphicsScene):
                     self.visual_effects.append(effect)
         self.session_flags[poofed_room_flag] = True
         self.sfx_manager.play("snd_poof")
+    
+    def check_magic_wall_condition(self, magic_flag_data):
+        """
+        verifie si la condition du magic_wall est remplie
+        """
+        if not magic_flag_data:
+            return False
+
+        if isinstance(magic_flag_data, list):
+            # Condition OU : un des les flags doit etre True
+            return any(self.get_flag(f) for f in magic_flag_data)
+
+        return self.get_flag(magic_flag_data)
 
     def refresh_single_tile(self, tx, ty, new_id):
         """
@@ -894,9 +1035,12 @@ class GameScene(QGraphicsScene):
         """
         px = tx * settings.tile_size
         py = (ty + HUD_HEIGHT) * settings.tile_size
+        ground_z = TILE_TYPES[0].get("z", 0) if 0 in TILE_TYPES else 0
         
         for item in self.items(QRectF(px, py, settings.tile_size, settings.tile_size)):
             if type(item) is QGraphicsPixmapItem and item not in self.persistent_items:
+                if new_id not in (0, 4) and item.zValue() == ground_z:
+                    continue
                 self.removeItem(item)
         
         pix = self.tileset.get(new_id)
@@ -920,7 +1064,7 @@ class GameScene(QGraphicsScene):
     
     def spawn_interactables(self, room):
         self.interactables = []
-        self.pending_npcs = []
+        self.pending_npcs = []                     
         current_biome = room.get("biome", "default")
         for data in room.get("interactables", []):
             interactable_type = data.get("type")
@@ -976,6 +1120,10 @@ class GameScene(QGraphicsScene):
                 if self.get_flag(interactable.flag_name):
                     interactable.is_open = True
                 interactable.update_graphics()
+            elif interactable_type == "locked_door_up":
+                interactable = interactable_class(settings.scale, data.get("x"), data.get("y"),self.current_room,current_biome)
+                if self.get_flag(interactable.flag_name):
+                    interactable.is_open = True  
             else:
                 interactable = interactable_class(settings.scale, x, y)
 
@@ -1018,7 +1166,7 @@ class GameScene(QGraphicsScene):
             )
     
             interactable.interactable_id = data.get("id")
-            interactable.auto_interact = data.get("auto_interact", False)
+            interactable.auto_interact = data.get("auto_interact", False)         
     
             self.interactables.append(interactable)
             self.addItem(interactable)

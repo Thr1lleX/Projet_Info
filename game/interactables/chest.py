@@ -67,6 +67,8 @@ class Chest(Interactable):
         
         # marque flag d'ouverture
         scene.session_flags[self.flag_name] = True # On marque le coffre comme ouvert
+        if DEBUG:
+            print(f"[CHEST] : Coffre ouvert déclenche flag {self.flag_name}")
         
         # calcul du nom pour l'affichage (pluriel mdr & gestion d'erreur)
         if not self.loot_id or self.loot_id == "none":

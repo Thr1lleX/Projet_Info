@@ -30,7 +30,7 @@ class Tungtungsahur(Enemy):
         super().__init__(scale, x, y)
 
         # --- STATS DE BASE ---
-        self._pv_max = 25
+        self._pv_max = 20
         self.pv_main = self._pv_max
         self.aggro_range = settings.tile_size * 16
         self.speed = 0
@@ -46,7 +46,7 @@ class Tungtungsahur(Enemy):
         
         base_path = "assets/enemies/tungtungsahur/"
         self.taille_boss = (1,2)
-        self.death_cry ="snd_death_poseidon"
+        self.death_cry ="snd_tuntun"
 
 
         # chargement des sprites 
@@ -95,6 +95,8 @@ class Tungtungsahur(Enemy):
         # spawn de mobs pour la phase 2
         self.cycle_count = 0             # nb de cycles recovery depuis dernier spawn
         self.speed_multiplier = 1.0
+        
+        self.sfx_cooldown = 0.0
             
         # Initialisation sur la première frame de sortie
         self.setPos(self.x, self.y)
@@ -107,9 +109,8 @@ class Tungtungsahur(Enemy):
 
     @x.setter
     def x(self, value):
-        # Limite x dans les tuiles de coordonnées [1, 16]
         min_x = 1 * settings.tile_size
-        max_x = 15 * settings.tile_size
+        max_x = 14 * settings.tile_size
         self._x = max(min_x, min(value, max_x))
 
     @property
@@ -118,19 +119,10 @@ class Tungtungsahur(Enemy):
 
     @y.setter
     def y(self, value):
-        # Limite y dans les tuiles de coordonnées [1, 9]
         min_y = (1+HUD_HEIGHT) * settings.tile_size
         max_y = (9+HUD_HEIGHT) * settings.tile_size
         self._y = max(min_y, min(value, max_y))
 
-    # def take_damage(self, scene, damage, source=None):
-    #     """ 
-    #     Surcharge pour gerer l'insensibilite sous l'eau. 
-    #     """
-    #     if self.is_invulnerable:
-    #         return
-    #     super().take_damage(scene, damage, source)
-    
     def _update_visual_direction(self):
         """
         il regarde vers le haut si le joueur l'a complètement dépasse
@@ -176,19 +168,19 @@ class Tungtungsahur(Enemy):
             super().setPixmap(tinted)
             return
 
-        # # clignotement blanc
-        # if getattr(self, "is_invulnerable", False):
-        #     blink_delay = 0.7
-        #     blink_speed = 0.3
-        #     if self.invuln_timer >= blink_delay:
-        #         if int((self.invuln_timer - blink_delay) / blink_speed) % 2 == 0:
-        #             tinted = pixmap.copy()
-        #             painter = QPainter(tinted)
-        #             painter.setCompositionMode(QPainter.CompositionMode_SourceAtop)
-        #             painter.fillRect(tinted.rect(), QColor(255, 255, 255, 45))
-        #             painter.end()
-        #             super().setPixmap(tinted)
-        #             return
+        # clignotement blanc
+        if getattr(self, "is_invulnerable", False):
+            blink_delay = 0.7
+            blink_speed = 0.3
+            if self.invuln_timer >= blink_delay:
+                if int((self.invuln_timer - blink_delay) / blink_speed) % 2 == 0:
+                    tinted = pixmap.copy()
+                    painter = QPainter(tinted)
+                    painter.setCompositionMode(QPainter.CompositionMode_SourceAtop)
+                    painter.fillRect(tinted.rect(), QColor(255, 255, 255, 45))
+                    painter.end()
+                    super().setPixmap(tinted)
+                    return
 
         super().setPixmap(pixmap)
         
@@ -200,8 +192,18 @@ class Tungtungsahur(Enemy):
         pass
 
     def update(self, dt, scene):
+        # sert a rien, on fait ça avec musique de room -> fait des bugs sinon
+        # if not getattr(self, "_music_started", False):
+        #     self._music_started = True
+        #     if hasattr(scene, "music_manager"):
+        #         scene.music_manager.play("mus_mini_boss", fade_in=1)
+                
         if self._update_death_sequence(dt, scene):
             return
+        
+        if self.sfx_cooldown > 0:
+            self.sfx_cooldown -= dt
+            
         # 1. Gerer les états bloquants (Stun, Knockback) s'il est vulnerable
         if not self.is_invulnerable:
             if self.kb_active:
@@ -209,19 +211,12 @@ class Tungtungsahur(Enemy):
                 self.update_graphics()
                 self.update_damage_state(dt)
                 return
-            # ne peut pas etre stun
-            # if self.is_stunned:
-            #     self.apply_stun_wiggle(dt, scene)
-            #     self.update_graphics()
-            #     self.update_damage_state(dt)
-            #     self.update_stun_animation(dt)
-            #     return
 
         if not self.target:
             return
         
         # gestion de buff mi-vie (enraged)
-        if self.pv_main <= 2*self._pv_max / 3:
+        if self.pv_main <= int(2*self._pv_max / 3):
             if not self.is_buffed:       # premier passage en P2
                 self.cycle_count = 0     # reset le compteur
             self.is_buffed = True
@@ -231,8 +226,6 @@ class Tungtungsahur(Enemy):
             self.speed_multiplier = 1.0
 
         # Mise à jour continue de la direction visuelle si le boss est visible (pour regarder le joueur)
-        # je ne mets pas emerging car moche
-
         self.state_timer -= dt
         if self.phase == "idle_menace":
             self._update_idle_menace(dt, scene)
@@ -249,95 +242,6 @@ class Tungtungsahur(Enemy):
         
             # if self.phase in ["idle_pause", "charging"]:
         #     self._update_visual_direction()
-
-        # # 2. Gestion des timers de phase
-        # self.state_timer -= dt
-        
-        # if self.phase == "emerging":
-        #     self.is_invulnerable = False
-        #     self._play_animation(dt, self._get_anim_list("sortie"), forward=True, loop=False)
-            
-        #     if self.state_timer <= 0:
-        #         self.phase = "charging"
-        #         self.state_timer = 1.5
-        #         self.current_frame_index = 0
-        #         sfx_charge = random.choice(["snd_charge_poseidon","snd_charge_poseidon2"])
-        #         scene.sfx_manager.play(sfx_charge)
-
-        # elif self.phase == "charging":
-        #     self._play_animation(dt, self._get_anim_list("idle"), forward=True, loop=True)
-            
-        #     if self.state_timer <= 0:
-        #         self._execute_attack(scene)
-        #         self.phase = "idle_pause"
-        #         self.state_timer = 1.0 # self.pause
-        #         self.current_frame_index = 0
-
-        # elif self.phase == "idle_pause":
-        #     self._play_animation(dt, self._get_anim_list("idle"), forward=True, loop=True)
-
-        #     if self.state_timer <= 0:
-        #         # --- comportement aleatoire entre les attaques ---
-        #         if self.current_attack == "multi":
-        #             # Apres un multi, c'est necessairement un solo (simple)
-        #             self.current_attack = "simple"
-        #         else:
-        #             # Apres un solo, 1 chance sur 3 de refaire un solo (2/3 d'avoir un multi)
-        #             if random.random() < (1.0 / 3.0):
-        #                 self.current_attack = "simple"
-        #             else:
-        #                 self.current_attack = "multi"
-
-        #         self.phase = "diving"
-        #         self.state_timer = 1.0 
-        #         self.is_invulnerable = True
-                
-        #         liste_sortie = self._get_anim_list("sortie")
-        #         self.current_frame_index = max(0, len(liste_sortie) - 1)
-
-        # elif self.phase == "diving":
-        #     self._play_animation(dt, self._get_anim_list("sortie"), forward=False, loop=False)
-            
-        #     if self.state_timer <= 0:
-        #         self.phase = "hidden"
-        #         self.hide()
-        #         self.state_timer = random.uniform(0.5, 2.0)
-
-        # elif self.phase == "hidden":
-        #     if self.state_timer <= 0:
-        #         self._relocate()
-        #         self.show()
-        #         self.phase = "emerging"
-        #         self.state_timer = 1.0
-        #         self.current_frame_index = 0
-
-        # self.update_graphics()
-        # self.update_damage_state(dt)
-        
-        # #self.try_hit_player(scene)
-
-        # self.update_buff_animation(dt)
-        
-        # # 2. Surcharge specifique du comportement visuel du buff pour Poseidon (Gestion du Fondu)
-        # if hasattr(self, 'buff_item') and self.buff_item:
-        #     if self.is_buffed:
-        #         self.buff_item.setVisible(True)
-                
-        #         if self.phase == "emerging":
-        #             opacity = max(0.0, min(1.0, 1.0 - self.state_timer))
-        #             self.buff_item.setOpacity(opacity)
-                    
-        #         elif self.phase == "diving":
-        #             opacity = max(0.0, min(1.0, self.state_timer))
-        #             self.buff_item.setOpacity(opacity)
-                    
-        #         elif self.phase == "hidden":
-        #             self.buff_item.setOpacity(0.0)
-                    
-        #         else:
-        #             self.buff_item.setOpacity(1.0)
-        #     else:
-        #         self.buff_item.setOpacity(0.0)
 
     # Differentes methodes des comportments:
 
@@ -362,7 +266,9 @@ class Tungtungsahur(Enemy):
 
         if not getattr(self, "_pre_charge_initialized", False):
             self._pre_charge_initialized = True
-            scene.sfx_manager.play("snd_thunthun")
+            if self.sfx_cooldown <= 0:
+                scene.sfx_manager.play("snd_tuntun")
+                self.sfx_cooldown = 3.0
 
             px,py = self.target.get_center()
 
@@ -501,7 +407,7 @@ class Tungtungsahur(Enemy):
 
         if not getattr(self, "_summon_done", False):
             self._summon_done = True
-            scene.sfx_manager.play("snd_thunthun")
+            scene.sfx_manager.play("snd_tuntun2")
             self._spawn_minions(scene)
 
         if self.state_timer<=0:
@@ -571,8 +477,10 @@ class Tungtungsahur(Enemy):
         if self.zone_marker and self.zone_marker.scene():
             scene.removeItem(self.zone_marker)
             self.zone_marker = None
-
-        scene.sfx_manager.play("snd_thunthun")
+        
+        if self.sfx_cooldown <= 0:
+                scene.sfx_manager.play("snd_tuntun")
+                self.sfx_cooldown = 3.0
 
         target_col = int(self.charge_target_x // settings.tile_size)
         target_row = int((self.charge_target_y - HUD_HEIGHT * settings.tile_size) // settings.tile_size)
@@ -598,8 +506,8 @@ class Tungtungsahur(Enemy):
                 
     def _spawn_minions(self, scene):
         ts = settings.tile_size
-        min_x = ts
-        max_x = (GRID_WIDTH-1) * ts
+        min_x = 1 * ts
+        max_x = (GRID_WIDTH-2) * ts
         min_y = (1 + HUD_HEIGHT) * ts
         max_y = (9 + HUD_HEIGHT) * ts
         
@@ -619,104 +527,7 @@ class Tungtungsahur(Enemy):
             
             scene.enemies.append(e)
             scene.addItem(e)
-        
-    # --- LOGIQUE D'ATTAQUE ---
 
-    # def _execute_attack(self, scene):
-    #     if self.current_attack == "simple":
-    #         dx = self.target.x - self.x
-    #         dy = self.target.y - self.y
-            
-    #         # Choix de la direction cardinale dominante
-    #         if abs(dx) > abs(dy):
-    #             direction = "right" if dx > 0 else "left"
-    #         else:
-    #             direction = "down" if dy > 0 else "up"
-            
-    #         trident = Trident(source=self, direction=direction, damage=3, speed=12.0* self.speed_multiplier,target = self.target)
-    #         trident.setPos(self.x + settings.tile_size / 2, self.y + settings.tile_size / 2)
-            
-    #         scene.addItem(trident)
-    #         scene.projectiles.append(trident)
-            
-    #     elif self.current_attack == "multi":
-    #         base_speed = 7 * self.speed_multiplier
-    #         safe_col = random.randint(2, 14)
-            
-    #         for col in range(1, 15):
-    #             if col == safe_col:
-    #                 speed = base_speed / 1.4
-    #             else:
-    #                 speed = base_speed * random.uniform(0.9, 1.1)
-                
-    #             trident = Trident(source=self, direction="down", damage=1.5, speed=speed)
-                
-    #             spawn_x = col * settings.tile_size
-    #             spawn_y = -2 * settings.tile_size + (HUD_HEIGHT * settings.tile_size)
-    #             trident.x = spawn_x
-    #             trident.y = spawn_y
-    #             trident.setPos(spawn_x, spawn_y)
-                
-    #             scene.addItem(trident)
-    #             scene.projectiles.append(trident)
-
-    # # --- LOGIQUE DE DEPLACEMENT / TELEPORTATION ---
-    
-    # def _relocate(self):
-    #     if self.current_attack == "simple":
-    #         px, py = self.target.x, self.target.y
-    #         offset_x = random.uniform(1, 4) * settings.tile_size * random.choice([-1, 1])
-    #         offset_y = random.uniform(1, 4) * settings.tile_size * random.choice([-1, 1])
-    #         new_x = px + offset_x
-    #         new_y = py + offset_y
-            
-    #     else:
-    #         new_x = random.uniform(4, 11) * settings.tile_size
-    #         new_y = random.uniform(4, 7) * settings.tile_size
-
-    #     self.x = new_x
-    #     self.y = new_y
-
-    #     self.setPos(self.x, self.y)
-
-    #     self._update_visual_direction()
-
-    # # --- GESTION DES ANIMATIONS MANUELLES ---
-
-    # def _get_anim_list(self, action):
-    #     """ Retourne la bonne liste de QPixmap selon l'action et la direction """
-    #     if action == "idle":
-    #         return self.anim_idle_up if self.visual_dir == "up" else self.anim_idle_down
-    #     elif action == "sortie":
-    #         return self.anim_sortie_up if self.visual_dir == "up" else self.anim_sortie_down
-
-    # def _play_animation(self, dt, frame_list, forward=True, loop=True):
-    #     """ Gère la progression d'une liste de frames à 9 fps avec garde-fous anti-IndexError """
-    #     if not frame_list:
-    #         return
-
-    #     self.anim_frame_timer += dt
-    #     time_per_frame = 1.0 / self.fps
-        
-    #     if self.anim_frame_timer >= time_per_frame:
-    #         self.anim_frame_timer -= time_per_frame
-            
-    #         if forward:
-    #             self.current_frame_index += 1
-    #             if self.current_frame_index >= len(frame_list):
-    #                 self.current_frame_index = 0 if loop else len(frame_list) - 1
-    #         else:
-    #             self.current_frame_index -= 1
-    #             if self.current_frame_index < 0:
-    #                 self.current_frame_index = len(frame_list) - 1 if loop else 0
-                    
-    #     # --- GARDE-FOUS (CLAMP DE SECURITE CONTRE LES BRUSQUES CHANGEMENTS DE PHASES) ---
-    #     if self.current_frame_index >= len(frame_list):
-    #         self.current_frame_index = 0 if forward else len(frame_list) - 1
-    #     if self.current_frame_index < 0:
-    #         self.current_frame_index = len(frame_list) - 1 if not forward else 0
-            
-    #     self.setPixmap(frame_list[self.current_frame_index])
         
     # -- GESTION DE LA MORT ---
     
@@ -753,23 +564,23 @@ class Tungtungsahur(Enemy):
             "* Tung tung tung",
             "* Tung tung tung",
             "* Tung tung tung",
-            "* Tung tung sahur",
-            "* Nan je deconne je parle français",
-            "* Tu as peut-être reussi à m'avoir",
+            "* Tung tung tung sahur",
+            "* Nan je déconne, je parle français.",
+            "* Tu as peut-être réussi à m'avoir,",
             "* Mais sache que... tu...",
             "* Tu es encore loin de pouvoir rivaliser avec lui...",
-            "* Mon maitre qui domine ce monde",
-            "* Celui qui règne sans merci au delà des terres et des mers",
-            "* Inutile de te reveler son nom...",
+            "* Mon maître qui domine ce monde,",
+            "* Celui qui règne sans merci au-delà des terres et des mers.",
+            "* Inutile de te révéler son nom...",
             "* Tu l'apprendras bien assez vite...",
-            "* All... Hail ... Em... *meurt*"
-
+            "* All... Hail... Em... *meurt*"
         ]
-        scene.dialogue_manager.start_text(dialogues)
+        scene.dialogue_manager.start_text(dialogues,"font4")
 
         # 3. Changer la musique
         if hasattr(scene, "music_manager"):
-            scene.music_manager.play("mus_truth")
+            scene.music_manager.player.setLoopCount(1)
+            scene.music_manager.play("mus_tung_vaincu")
 
         # Assurer que le boss est visible et regarde vers le bas pendant qu'il parle
         self.show()
@@ -788,8 +599,7 @@ class Tungtungsahur(Enemy):
             if not scene.dialogue_manager.active:
                 
                 self.phase = "dying_fall"
-                self.state_timer = 1.0 # Durée de l'anim de plongée (9 frames)
-                liste_sortie = self.anim_sortie
+                self.state_timer = 1.0
                 self.current_frame_index = 0
                 
                 if self.target:
@@ -808,16 +618,11 @@ class Tungtungsahur(Enemy):
             if self.state_timer <= 0:
                 self.phase = "dead"
                 self.hide()
-                scene.session_flags["tungtungsahur_mort"] = True
-                magic_wall_flag = scene.room_data.get("magic_wall")
-                if magic_wall_flag:
-                    scene.session_flags[magic_wall_flag] = True
+                scene.session_flags["tung_vaincu"] = True
                 
                 if hasattr(scene, "music_manager"):
-                    # On force la durée à 2 secondes juste pour cette fois, 
-                    # puis on lance le fade_out
-                    scene.music_manager.fade_out_duration = 10
-                    scene.music_manager.start_fade_out()
+                    scene.music_manager.player.setLoopCount(-2)
+                    scene.start_room_music()
                     if self.target:
                         self.target.is_cinematic = False
                     

@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from game.enemies.enemy import Enemy
 from game.config import BASE_TILE_SIZE, HUD_HEIGHT, DEBUG
 from game.settings import settings
-from game.pathfinder import get_walkable_grid, line_of_sight, is_area_walkable, astar, _pixel_to_tile, are_connected
+from game.pathfinder import get_walkable_grid, line_of_sight, is_area_walkable, astar, _pixel_to_tile
 from game.attacks.fireball import Fireball
 
 class Wizmount(Enemy):
@@ -223,7 +223,9 @@ class Wizmount(Enemy):
         py_offset = py + offset_y
 
         f_half_size = (settings.tile_size * 0.5) / 2.0
-        grid = get_walkable_grid(scene.room_data)
+        can_black = getattr(Fireball, 'can_go_on_black', True)
+        can_water = getattr(Fireball, 'can_go_on_water', True)
+        grid = get_walkable_grid(scene.room_data, can_go_on_black=can_black, can_go_on_water=can_water)
 
         # Cas 1 : Alignement horizontal (Le projectile se déplace sur l'axe X)
         # On regarde si l'épaisseur Y du projectile intersecte la hitbox Y du joueur
@@ -255,6 +257,10 @@ class Wizmount(Enemy):
         grid = get_walkable_grid(scene.room_data)
         height_grid = len(grid)
         width_grid = len(grid[0]) if height_grid > 0 else 0
+        
+        can_black = True
+        can_water = True
+        proj_grid = get_walkable_grid(scene.room_data, can_go_on_black=can_black, can_go_on_water=can_water)
 
         wx, wy = self.get_center()
         px, py = self.target.get_center()
@@ -279,7 +285,7 @@ class Wizmount(Enemy):
                         cand_y = (r + HUD_HEIGHT) * settings.tile_size + settings.tile_size/2
                         
                         # Vérification d'un chemin droit de 1 tuile de large (1.0, 1.0)
-                        if line_of_sight((cand_x, cand_y), (px, py), grid, settings.tile_size, 1.0, 1.0):
+                        if line_of_sight((cand_x, cand_y), (px, py), proj_grid, settings.tile_size, 1.0, 1.0):
                             d = (cand_x - wx)**2 + (cand_y - wy)**2
                             if d < min_dist:
                                 min_dist = d
@@ -294,6 +300,7 @@ class Wizmount(Enemy):
                         if is_area_walkable(grid, c, r, w_tiles, h_tiles, width_grid, height_grid):
                             cand_x = c * settings.tile_size + settings.tile_size
                             cand_y = (r + HUD_HEIGHT) * settings.tile_size + settings.tile_size
+                            
                             d = (cand_x - wx)**2 + (cand_y - wy)**2
                             if d < min_dist_fallback:
                                 min_dist_fallback = d
@@ -342,20 +349,16 @@ class Wizmount(Enemy):
         
         start_pos_astar = (self.x + settings.tile_size / 2.0, self.y + settings.tile_size / 2.0)
         
-        # Verification rapide de connexite avant A* couteux
-        if not are_connected(grid, start_pos_astar, final_destination, settings.tile_size):
-            self.path = []
-        else:
-            new_path = astar(grid, start_pos_astar, final_destination, settings.tile_size, w_tiles, h_tiles)
-            
-            if new_path is not None:
-                # Si on est en fallback (joueur caché), on s'arrête à une distance respectueuse (~3 cases)
-                if best_target_pixel is None and len(new_path) > 3:
-                    self.path = new_path[:-3]
-                else:
-                    self.path = new_path
+        new_path = astar(grid, start_pos_astar, final_destination, settings.tile_size, w_tiles, h_tiles)
+        
+        if new_path is not None:
+            # Si on est en fallback (joueur caché), on s'arrête à une distance respectueuse (~3 cases)
+            if best_target_pixel is None and len(new_path) > 3:
+                self.path = new_path[:-3]
             else:
-                self.path = []
+                self.path = new_path
+        else:
+            self.path = []
             
         if self.show_path:
             self.draw_debug_path(scene)

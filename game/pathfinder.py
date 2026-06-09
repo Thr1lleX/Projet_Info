@@ -10,7 +10,7 @@ import math
 from game.tileset import TILE_TYPES
 from game.config import HUD_HEIGHT
 
-def get_walkable_grid(room_data):
+def get_walkable_grid(room_data,can_go_on_black=False, can_go_on_water=False):
     """
     Construit une grille 2D de booleens a partir des donnees de la salle.
     True = case accessible, False = case bloquante.
@@ -19,7 +19,17 @@ def get_walkable_grid(room_data):
     for row in room_data.get("tiles", []):
         grid_row = []
         for tile_id in row:
-            is_blocking = TILE_TYPES.get(tile_id, {}).get("collision", 0) == 1
+            tile_info = TILE_TYPES.get(tile_id, {})
+            is_blocking = tile_info.get("collision", 0) == 1
+            
+            # si case bloque monstre, on regarde pour projectile
+            if is_blocking:
+                tile_type = str(tile_info.get("type", "")).lower()
+                if can_go_on_water and ("water" in tile_type or tile_id == 4):
+                    is_blocking = False
+                elif can_go_on_black and ("black" in tile_type or tile_id in [3, 3.5]):
+                    is_blocking = False
+            
             grid_row.append(not is_blocking)
         grid.append(grid_row)
     return grid
@@ -82,9 +92,7 @@ def are_connected(grid, pos_a, pos_b, tile_size):
     col_b, row_b = _pixel_to_tile(pos_b[0], pos_b[1], tile_size)
 
     reachable = flood_fill(grid, col_a, row_a)
-    return (col_b, row_b) in reachable
-
-
+    return (col_b, row_b) in reachable 
 def heuristic(a, b):
     """Distance euclidienne entre deux cases de la grille."""
     return math.hypot(a[0] - b[0], a[1] - b[1])

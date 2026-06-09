@@ -23,8 +23,8 @@ class Crouby(Enemy):
         self.give_stun = 0
         
         self.loot = [
-            ("pomme",0.5),
-            ("mana",0.25)
+            ("pomme",0.25),
+            ("mana",0.12)
         ]
         
 

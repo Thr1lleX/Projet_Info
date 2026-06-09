@@ -2,7 +2,7 @@
 import math
 import random
 from PyQt5.QtGui import QPixmap,QPainter,QColor
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 
 from game.enemies.enemy import Enemy
 from game.config import BASE_TILE_SIZE, HUD_HEIGHT
@@ -482,6 +482,8 @@ class Poseidon(Enemy):
                 scene.sfx_manager.play("snd_sword_tungsten")
                 if hasattr(scene, "player"):
                     scene.player.obtain_item("sword_tungsten",duration=4.5)
+                    
+                    QTimer.singleShot(5000, scene.start_room_music) #5 secondes
 
                 
             return True

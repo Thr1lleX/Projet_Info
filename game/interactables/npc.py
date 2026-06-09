@@ -30,10 +30,9 @@ class NPC(Interactable):
 
         self.x = x
         self.y = y
-
         self.size = size or (1, 1)
         self.hitbox_width = self.size[0] * settings.tile_size
-        self.hitbox_height = self.size[1] * settings.tile_size
+        self.hitbox_height = self.size[1] * settings.tile_size              
         
         self.target_x = x
         self.target_y = y
@@ -97,7 +96,7 @@ class NPC(Interactable):
 
             if self.frames:
                 self.setPixmap(self.frames[0])
-        self.was_auto_interact = False
+        self.was_auto_interact = False      
         
         self.update_graphics()
         self.init_slide()
@@ -147,7 +146,7 @@ class NPC(Interactable):
             if getattr(self, "was_auto_interact", False) and hasattr(scene, "player") and scene.player:
                 scene.player.is_cinematic = False
         
-            transition = self.despawn_transition
+            transition = self.despawn_transition                                                                                      
         
             if transition.get("type") == "slide":
                 self.start_slide(
@@ -209,11 +208,13 @@ class NPC(Interactable):
                     if self.x >= self.target_x:
                         self.x = self.target_x
                         self.slide_direction = None
+                        self.slide_direction = None
+                        
         if not self.slide_direction and not self.is_despawning:
             if getattr(self, "auto_interact", False):
                 self.was_auto_interact = True
                 self.interact(scene)
-                self.auto_interact = False
+                self.auto_interact = False                        
         
         self.update_graphics()
         

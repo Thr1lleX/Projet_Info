@@ -125,7 +125,19 @@ TILE_TYPES = {
         "animated": False,
         "z": 2
     },
+    14: {
+        "name": "door_up",
+        "collision": 0,
+        "z": 3,
+        "size" :(2,1)
+    },
+    99: {
+        "name": "gros_front",
+        "collision": 0,
+        "z": 3
+    }
 }
+    
 
 """
 assignation collisions 0 intangible, 1 dur

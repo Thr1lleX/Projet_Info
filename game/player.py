@@ -43,9 +43,8 @@ class Player(Entity):
         # -- STATS --
 
         self.speed = settings.base_speed
-        
+
         self._pv_max = 6
-            
         self.pv_main = self._pv_max
         
         self.defense = 1
@@ -56,7 +55,7 @@ class Player(Entity):
         self.attack_delay = 0.2   # s entre attaques, doit etre supp a anim
         self.attack_pressed = False
 
-        self.damage = 1 # degats qu'inflinge le joueur
+        self.damage = 100 # degats qu'inflinge le joueur
         
         # -- Dammaged--
         self.invuln_duration = 0.60 #en s

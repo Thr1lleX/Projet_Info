@@ -5,7 +5,7 @@ import math
 from game.attacks.attack_entity import PersistentAttack
 from game.dropped_item import DroppedItem
 from game.settings import settings
-
+from PyQt5.QtCore import Qt
 class Boomerang(PersistentAttack):
     def __init__(self, source, direction):
         speed = 8
@@ -116,3 +116,20 @@ class Boomerang(PersistentAttack):
                         scene.sfx_manager.play("snd_item")
 
         super().check_collisions(scene)
+
+    # def check_collisions(self, scene):
+    #     hitbox_zone = self.debug_rect.mapToScene(self.debug_rect.rect()).boundingRect()
+
+    #     # ---> AJOUT DE Qt.IntersectsItemBoundingRect ICI AUSSI <---
+    #     for item in scene.items(hitbox_zone, Qt.IntersectsItemBoundingRect):
+    #         if isinstance(item, DroppedItem):
+    #             inventory = scene.screen_manager.inventory
+    #             if inventory.add_item(item.item_id, 1):
+    #                 if item in scene.dropped_items:
+    #                     scene.dropped_items.remove(item)
+    #                 scene.removeItem(item)
+                    
+    #                 if hasattr(scene, "sfx_manager"):
+    #                     scene.sfx_manager.play("snd_item")
+
+    #     super().check_collisions(scene)
