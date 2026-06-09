@@ -31,7 +31,6 @@ from game.dialogue_manager import DialogueManager
 
 # --- SCENE ---
 class GameScene(QGraphicsScene):
-class GameScene(QGraphicsScene):
     """Scene de jeu contenant la logique principale (entites, decor, transitions)."""
     def __init__(self, screen_manager=None):
         super().__init__()

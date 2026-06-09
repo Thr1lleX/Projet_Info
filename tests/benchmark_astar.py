@@ -116,7 +116,7 @@ for strat_name in STRATEGIES:
               f" {statistics.median(t):>7.3f}ms {min(t):>7.3f}ms {max(t):>7.3f}ms")
     print()
 
-FRAME_MS = 16.7
+FRAME_MS = 16
 print(f"Budget frame @60fps : {FRAME_MS} ms\n")
 
 # ───────────────────────────────────────
@@ -145,6 +145,7 @@ ax1.set_xlabel("Duree par appel (ms)")
 ax1.set_ylabel("Nombre d'appels")
 ax1.set_title("Chemin POSSIBLE")
 ax1.legend(fontsize=6)
+ax1.grid(linestyle = "--", zorder = 0)
 
 # ── Panneau 2 : Histogramme superpose (chemins impossibles) ──
 ax2 = fig.add_subplot(gs[0, 1])
@@ -157,6 +158,7 @@ ax2.axvline(FRAME_MS, color="red", ls="--", lw=1.3, label=f"Budget frame")
 ax2.set_xlabel("Duree par appel (ms)")
 ax2.set_title("Chemin IMPOSSIBLE")
 ax2.legend(fontsize=6)
+ax2.grid(linestyle = "--", zorder = 0)
 
 # ── Panneau 3 : Barplot comparatif des moyennes ──
 ax3 = fig.add_subplot(gs[0, 2])
@@ -165,7 +167,7 @@ bar_w = 0.35
 for i, sn in enumerate(strat_names):
     means = [statistics.mean(results[sn][sc]) for sc in scenario_names]
     bars = ax3.bar([xi + i * bar_w for xi in x], means, bar_w,
-                   label=sn, color=colors_strat[sn], alpha=0.85)
+                   label=sn, color=colors_strat[sn], alpha=0.85, zorder = 67)
     for bar, val in zip(bars, means):
         ax3.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.003,
                  f"{val:.3f}", ha="center", va="bottom", fontsize=6)
@@ -174,6 +176,7 @@ ax3.set_xticklabels([s.split("(")[0].strip() for s in scenario_names], fontsize=
 ax3.set_ylabel("Duree moyenne (ms)")
 ax3.set_title("Comparaison des moyennes")
 ax3.legend(fontsize=7)
+ax3.grid(linestyle = "--", zorder = 0)
 
 # ── Panneau 4 : Boxplot par scenario ──
 ax4 = fig.add_subplot(gs[1, 0])
@@ -191,10 +194,11 @@ bp = ax4.boxplot(box_data, labels=box_labels, patch_artist=True,
 for patch, c in zip(bp["boxes"], box_colors):
     patch.set_facecolor(c)
     patch.set_alpha(0.7)
-ax4.axhline(FRAME_MS, color="red", ls="--", lw=1)
+# ax4.axhline(FRAME_MS, color="red", ls="--", lw=1)
 ax4.set_ylabel("Duree (ms)")
 ax4.set_title("Boxplot comparatif")
 ax4.tick_params(axis="x", labelsize=5.5)
+ax4.grid(linestyle = "--", zorder = 0)
 
 # ── Panneau 5 : Speedup (ratio A* seul / are_connected+A*) ──
 ax5 = fig.add_subplot(gs[1, 1])
@@ -206,7 +210,7 @@ for sc in scenario_names:
 
 bar_colors = ["#E86B4C" if s > 1.05 else "#95A5A6" if s >= 0.95 else "#4C9BE8"
               for s in speedups]
-bars = ax5.bar(range(len(scenario_names)), speedups, color=bar_colors, alpha=0.85)
+bars = ax5.bar(range(len(scenario_names)), speedups, color=bar_colors, alpha=0.85, zorder = 67)
 ax5.axhline(1.0, color="gray", ls="--", lw=1, label="x1 (egalite)")
 for bar, val in zip(bars, speedups):
     ax5.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.02,
@@ -216,6 +220,8 @@ ax5.set_xticklabels([s.split("(")[0].strip() for s in scenario_names], fontsize=
 ax5.set_ylabel("Speedup (A* seul / connected+A*)")
 ax5.set_title("Gain de performance")
 ax5.legend(fontsize=7)
+ax5.grid(linestyle = "--", zorder = 0)
+
 
 # ── Panneau 6 : Tableau recapitulatif ──
 ax6 = fig.add_subplot(gs[1, 2])
