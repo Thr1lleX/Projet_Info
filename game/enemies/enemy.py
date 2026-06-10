@@ -51,6 +51,7 @@ class Enemy(Entity):
         self.idle_state = "pause"
         self.idle_dx = 0
         self.idle_dy =0
+        self.is_connected = True
 
 
         if DEBUG:
@@ -115,10 +116,13 @@ class Enemy(Entity):
                 # Verification rapide de connexite avant A* couteux
                 if not are_connected(grid, start_pos, goal_pos, settings.tile_size):
                     self.path = []
+                    self.is_connected = False
+                else:
+                    self.is_connected = True
                 
                                         
                                         
-                else:
+                
                     # On passe les deux dimensions
                     new_path = astar(grid, start_pos, goal_pos, settings.tile_size, w_tiles, h_tiles)
                     
@@ -130,6 +134,12 @@ class Enemy(Entity):
                     
                 if self.show_path:
                     self.draw_debug_path(scene)
+            
+            if not self.is_connected:
+                self.wander(dt, scene)
+                self.update_graphics()
+                self.update_damage_state(dt)
+                return
 
             if self.path:
                 next_pos = self.path[0]
@@ -340,4 +350,4 @@ class Enemy(Entity):
                 self.idle_timer = 0.0
         
             
-        
+        
