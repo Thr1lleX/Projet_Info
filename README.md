@@ -1,7 +1,7 @@
 Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py sur False, puis lancer le main.py 
 
-Concernant la repartition du travail : Un nom d'auteur est indique au debut des codes si jamais il est considere comme code grandement (idees et implementation principale) par l'un des membres du groupe. Une attribution stricte est difficile, etant donne que chacun a ete amene à modifier, ajouter ou supprimer le code de l'autre.
-Si pas d'auteur precise, ou bien le code est trop court, ou bien il est trop important et modifie pour donner un auteur clair.
+Concernant la repartition du travail : Un nom d'auteur est indique au debut des codes si jamais il est considere comme code grandement (idees et implementation principale) par l'un des membres du groupe. Une attribution stricte est difficile, étant donne que chacun a été amené à modifier, ajouter ou supprimer le code de l'autre.
+Si pas d'auteur precisé, ou bien le code est trop court, ou bien il est trop important et modifie pour donner un auteur clair.
 
 # Fait:
 - scene générale avec déplacements
