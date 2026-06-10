@@ -47,5 +47,5 @@ Si pas d'auteur precisé: ou bien le code est trop court, ou bien il est trop im
 
 # À faire:
 
-- (.exe) - pas obligatoire
+- ~~(.exe) - pas obligatoire~~
 
