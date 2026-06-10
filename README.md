@@ -1,4 +1,4 @@
-Code testé pour les versions suivantes :  
+</u>Code testé pour les versions suivantes :  </u>
 Python      : 3.9.21  
 PyQt5       : 5.15.9  
 PyQt5-Qt5   : 5.15.2  
