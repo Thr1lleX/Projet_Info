@@ -14,7 +14,7 @@ class Spear(MeleeAttack):
         self.source = player
         self.direction = direction
 
-        self.damage = self.source.damage
+        self.damage = self.source.damage * 2
         
         self.pos = (0,3)
         self.size = (1,4)
