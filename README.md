@@ -1,10 +1,10 @@
 Code testé pour les versions suivantes:
 
-Python      : 3.9.21 \n
-PyQt5       : 5.15.9
-PyQt5-Qt5   : 5.15.2
-PyQt5-sip   : 12.13.0
-pygame      : 2.2.0
+Python      : 3.9.21  
+PyQt5       : 5.15.9  
+PyQt5-Qt5   : 5.15.2  
+PyQt5-sip   : 12.13.0  
+pygame      : 2.2.0  
 
 Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py sur False, puis lancer le main.py (s'il y a des messages dans la console, alors le débug mode est activé).
 
