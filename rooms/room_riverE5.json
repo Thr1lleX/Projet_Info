@@ -22,7 +22,7 @@
   },
   "interactables": [
     {
-      "loot": "pomme",
+      "loot": "potion",
       "type": "chest",
       "x": 8,
       "y": 6
