@@ -46,6 +46,7 @@ Si pas d'auteur precisé: ou bien le code est trop court, ou bien il est trop im
 - boss final
 - quelques ennemis
 - quelques quêtes
+- équilibrage
 
 
 # À faire:
