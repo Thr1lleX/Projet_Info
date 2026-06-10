@@ -10,6 +10,7 @@ def use_item(player, scene):
     inventory = scene.screen_manager.inventory
     item_id = inventory._equipped_item_id
     if item_id is None:
+        scene.sfx_manager.play("snd_false")
         return False
     data = get_item_data(item_id)
     if data is None:
