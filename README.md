@@ -1,4 +1,12 @@
-Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py sur False, puis lancer le main.py 
+Code testé pour les versions suivantes:
+
+Python      : 3.9.21
+PyQt5       : 5.15.9
+PyQt5-Qt5   : 5.15.2
+PyQt5-sip   : 12.13.0
+pygame      : 2.2.0
+
+Pour expérience de jeu normale, mettre la variable DEBUG dans game.config.py sur False, puis lancer le main.py (s'il y a des messages dans la console, alors le débug mode est activé).
 
 Concernant la repartition du travail : Un nom d'auteur est indique au debut des codes si jamais il est considere comme code grandement (idees et implementation principale) par l'un des membres du groupe. Une attribution stricte est difficile, étant donne que chacun a été amené à modifier, ajouter ou supprimer le code de l'autre.
 Si pas d'auteur precisé, ou bien le code est trop court, ou bien il est trop important et modifie pour donner un auteur clair.
