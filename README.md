@@ -1,6 +1,6 @@
 Code testé pour les versions suivantes:
 
-Python      : 3.9.21
+Python      : 3.9.21 \n
 PyQt5       : 5.15.9
 PyQt5-Qt5   : 5.15.2
 PyQt5-sip   : 12.13.0
