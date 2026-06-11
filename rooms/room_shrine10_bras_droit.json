@@ -23,9 +23,9 @@
   "enemies": [
     {
       "despawn_if": "bras_droit_vaincu",
-      "id": "placeholder1_5287",
+      "id": "brasdroitboss",
       "set_flag": "bras_droit_vaincu",
-      "type": "placeholder1",
+      "type": "brasdroit",
       "x": 7,
       "y": 5
     }
