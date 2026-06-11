@@ -243,8 +243,8 @@ class GameScene(QGraphicsScene):
 
     def is_blocking_rect(self, x, y, w, h, entity=None):
         """Verifie si le rectangle specifie entre en collision avec un element bloquant."""
-        if isinstance(entity, Player) and DEBUG:
-            return False
+        # if isinstance(entity, Player) and DEBUG:
+        #     return False
         # coins du rectangle
         points = [
             (x, y),
