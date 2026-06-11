@@ -89,6 +89,13 @@ class NPC(Interactable):
         self.current_frame = 0
         self.animation_timer = 0
         self.frame_duration = 0.5 #2 fois plus longtemps que tiles
+        
+        # spawn_transition fondu
+        self.opacity = 1.0
+        self.fade_speed = 0
+        self.fade_direction = None  # "in" ou "out"
+        
+        self.setOpacity(self.opacity)
 
         if self.npc_type:
             sprite_path = f"assets/npc/{self.npc_type}"
@@ -100,38 +107,45 @@ class NPC(Interactable):
         self.was_auto_interact = False      
         
         self.update_graphics()
-        self.init_slide()
+        self.init_transition()
     
-    def init_slide(self):
+    def init_transition(self):
         """Initialise le deplacement d'apparition du NPC depuis l'exterieur de l'ecran."""
         if self.scene.get_flag(self.spawn_memory_flag):
             return
     
-        if self.spawn_transition.get("type") != "slide":
-            return
-    
-        direction = self.spawn_transition.get("direction", "down")
-    
-        screen_w = GRID_WIDTH * settings.tile_size
-        screen_h = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
-    
-        margin = settings.tile_size * 2
-    
-        # spawn hors écran
-        if direction == "down":
-            self.y = screen_h + margin
-    
-        elif direction == "up":
-            self.y = -margin
-    
-        elif direction == "left":
-            self.x = -margin
-    
-        elif direction == "right":
-            self.x = screen_w + margin
-    
-        self.start_slide(direction,self.spawn_transition.get("speed", 1.0))
-        self.scene.current_save.data["flags"][self.spawn_memory_flag] = True
+        
+        transition_type = self.spawn_transition.get("type")
+        
+        if transition_type == "slide":        
+            direction = self.spawn_transition.get("direction", "down")
+        
+            screen_w = GRID_WIDTH * settings.tile_size
+            screen_h = (GRID_HEIGHT + HUD_HEIGHT) * settings.tile_size
+        
+            margin = settings.tile_size * 2
+        
+            # spawn hors écran
+            if direction == "down":
+                self.y = screen_h + margin
+        
+            elif direction == "up":
+                self.y = -margin
+        
+            elif direction == "left":
+                self.x = -margin
+        
+            elif direction == "right":
+                self.x = screen_w + margin
+        
+            self.start_slide(direction,self.spawn_transition.get("speed", 1.0))
+            self.scene.current_save.data["flags"][self.spawn_memory_flag] = True
+            
+        elif transition_type == "fade":
+            self.opacity = 0.0
+            self.setOpacity(self.opacity)
+            self.start_fade("in", self.spawn_transition.get("speed", 0.03))
+            self.scene.current_save.data["flags"][self.spawn_memory_flag] = True
         
     def update(self, dt,scene=None):
         """Gere le defilement de l'animation, les deplacements (slide) et les disparitions."""
@@ -150,26 +164,42 @@ class NPC(Interactable):
                     transition.get("direction", "down"),
                     transition.get("speed", 1.0)
                 )
+            elif transition.get("type") == "fade":
+                self.start_fade("out", transition.get("speed", 0.03))
             else:
                 scene.removeItem(self)
                 scene.interactables.remove(self)
                 return
         # suppression apres sortie ecran
         if self.is_despawning:
-        
-            limit = (
-                GRID_HEIGHT
-                + HUD_HEIGHT
-                + 2
-            ) * settings.tile_size
-        
-            if self.y > limit:
+            if self.despawn_transition.get("type") == "fade" and self.opacity <= 0.0:
                 scene.removeItem(self)
-        
                 if self in scene.interactables:
                     scene.interactables.remove(self)
-        
                 return
+            elif self.despawn_transition.get("type") == "slide":
+                limit = (GRID_HEIGHT+ HUD_HEIGHT + 2) * settings.tile_size
+            
+                if self.y > limit:
+                    scene.removeItem(self)
+            
+                    if self in scene.interactables:
+                        scene.interactables.remove(self)
+            
+                    return
+        # fade
+        if self.fade_direction:
+            fade_amount = self.fade_speed * dt * 60
+            if self.fade_direction == "in":
+                self.opacity += fade_amount
+                if self.opacity >= 1.0:
+                    self.opacity = 1.0
+                    self.fade_direction = None # transition terminee
+            elif self.fade_direction == "out":
+                self.opacity -= fade_amount
+                if self.opacity <= 0.0:
+                    self.opacity = 0.0
+            self.setOpacity(self.opacity)
         
         # slide
         if self.slide_direction:
@@ -207,7 +237,7 @@ class NPC(Interactable):
                         self.slide_direction = None
                         self.slide_direction = None
                         
-        if not self.slide_direction and not self.is_despawning:
+        if not self.slide_direction and not self.is_despawning and not self.fade_direction:
             if getattr(self, "auto_interact", False):
                 self.was_auto_interact = True
                 self.interact(scene)
@@ -253,7 +283,7 @@ class NPC(Interactable):
 
     def interact(self, scene, player=None):
         """Declenche le dialogue et joue un son aleatoire specifique au NPC."""
-        if self.slide_direction is not None or self.is_despawning:
+        if self.slide_direction is not None or self.is_despawning or self.fade_direction is not None:
             return #bloque interaction si slide
         self.check_conditions(scene)
         
@@ -301,3 +331,10 @@ class NPC(Interactable):
         }
     
         self.slide_direction = movement_map[origin_direction]
+            
+    def start_fade(self, direction="out", speed=0.03):
+        """
+        demarre un fondu (sortant ou entrant)
+        """
+        self.fade_direction = direction
+        self.fade_speed = speed
