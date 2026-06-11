@@ -33,7 +33,7 @@
       "despawn_if": "jesus_part",
       "despawn_transition": {
         "direction": "up",
-        "speed": 1,
+        "speed": 1.25,
         "type": "slide"
       },
       "dialogue": "jesus_intro",
@@ -45,7 +45,7 @@
       "spawn_if": "spawn_jesus",
       "spawn_transition": {
         "direction": "up",
-        "speed": 1,
+        "speed": 1.25,
         "type": "slide"
       },
       "type": "npc",

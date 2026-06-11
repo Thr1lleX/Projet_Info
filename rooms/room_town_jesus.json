@@ -24,6 +24,10 @@
   "interactables": [
     {
       "conditional_dialogue": [
+	    {
+          "dialogue": "jesus_eau",
+          "flag": "parle_robert_herve"
+        },
         {
           "dialogue": [
             "jesus_eau2",
@@ -40,7 +44,7 @@
           "flag": "open_passage"
         }
       ],
-      "dialogue": "jesus_eau",
+      "dialogue": "jesus_eau_alternatif",
       "npc_type": "jesus",
       "size": [
         1,

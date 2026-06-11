@@ -33,5 +33,20 @@
       "x": 10,
       "y": 3
     }
-  ]
+  ],
+  "interactables": [
+	{
+      "type": "npc",
+	  "npc_type": "robert_herve",
+	  "x": 14,
+      "y": 1,
+	  "dialogue": "robert_herve1",
+	  "despawn_if": ["parle_robert_herve","tung_vaincu"],
+	  "despawn_transition": {
+		"type": "slide",
+		"direction": "up",
+		"speed": 1.2
+	  }
+    }
+	]
 }

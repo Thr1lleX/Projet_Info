@@ -48,15 +48,15 @@
 	  "despawn_if": "parlation",
 
 	  "spawn_transition": {
-		"type": "slide",
-		"direction": "left",
-		"speed": 1.2
+		"type": "fade",
+		"direction": "in",
+		"speed": 0.05
 	  },
 
 	  "despawn_transition": {
-		"type": "slide",
-		"direction": "down",
-		"speed": 1.2
+		"type": "fade",
+		"direction": "out",
+		"speed": 0.005
 	  }
     },  
 	{
