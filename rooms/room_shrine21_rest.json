@@ -14,7 +14,7 @@
   ],
   "magic_wall": "raccourci_shrine",
   "biome": "shrine",
-  "music": "mus_calm",
+  "music": "mus_calm2",
   "fade_in": 2,
   "transitions": {
     "left": null,
