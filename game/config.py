@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Parametres globaux et constantes du jeu."""
 
-# --- CONFIG
+# --- CONFIG 
 
-DEBUG = False
+DEBUG = True
 
 BASE_TILE_SIZE = 16
 
@@ -41,7 +40,7 @@ HUD_ITEM_SLOT_PATH   = "assets/hud/item_slot.png"
 # --- TITRE ET MENUS ---
 # Taille attendue pour title_bg.png : 1024 x 832 px (GRID_WIDTH*TILE_SIZE x (GRID_HEIGHT+HUD_HEIGHT)*TILE_SIZE)
 TITLE_BG_PATH = "assets/title_bg.png"
-GAME_TITLE    = "heheheha"
+GAME_TITLE    = "Emby's Quest:\nTuntsu"
 LOGO = 'assets/logo.png'
 
 # ITEMS
