@@ -53,8 +53,12 @@ class TitleScreen(BaseScreen):
         title.setFont(get_font0(size=16))
         title.setDefaultTextColor(QColor(255, 215, 0))
         title.setZValue(Z_SCREEN + 1)
-        tw = title.boundingRect().width()
-        title.setPos((self.scene_w - tw) / 2, int(self.scene_h * 0.18))
+        
+        title.setTextWidth(self.scene_w)
+        option = title.document().defaultTextOption()
+        option.setAlignment(Qt.AlignHCenter)
+        title.document().setDefaultTextOption(option)
+        title.setPos(0, int(self.scene_h * 0.1))
         self._items.append(title)
 
     def _activate(self):
