@@ -243,8 +243,8 @@ class GameScene(QGraphicsScene):
 
     def is_blocking_rect(self, x, y, w, h, entity=None):
         """Verifie si le rectangle specifie entre en collision avec un element bloquant."""
-        # if isinstance(entity, Player) and DEBUG:
-        #     return False
+        if isinstance(entity, Player) and DEBUG:
+            return False
         # coins du rectangle
         points = [
             (x, y),
@@ -558,7 +558,21 @@ class GameScene(QGraphicsScene):
     # --- CHARGEMENT DES SALLES ---
         
     def _change_room_internal(self, room_name, direction):
-        """Charge une salle, nettoie la precedente et repositionne le joueur."""
+        """
+        Fonction de changement de salle
+        On load la room suivante,
+        met la scene en etat de transition pour freeze,
+        nettoie la scene,
+        reddessine la scene avec draw_room
+        
+        utilisee lors de transition.update()
+
+        Parameters
+        ----------
+        room_name : voir fichier json
+        direction : str, direction de la transition - voir check_room_transition()
+
+        """
         room = load_room(f"rooms/{room_name}.json")
         room = self.apply_conditional_transitions(room)
         self.current_room = room_name
@@ -965,7 +979,9 @@ class GameScene(QGraphicsScene):
         return self.get_flag(magic_flag_data)
 
     def refresh_single_tile(self, tx, ty, new_id):
-        """Met a jour visuellement une seule case de la grille."""
+        """
+        supprime l'ancien sprite a (tx, ty) et place le nouveau
+        """
         px = tx * settings.tile_size
         py = (ty + HUD_HEIGHT) * settings.tile_size
         ground_z = TILE_TYPES[0].get("z", 0) if 0 in TILE_TYPES else 0
@@ -1071,7 +1087,11 @@ class GameScene(QGraphicsScene):
                 interactable.debug_rect.show()
 
     def check_pending_npcs(self):
-        """Verifie si des PNJ en attente doivent apparaitre suite a un changement."""
+        """
+        cette fonction permet de checker si un npc possede une 
+        propriete de spawn et si son flag est rempli
+        appelee dans game_loop()
+        """
         for data in self.pending_npcs[:]:
             spawn_if = data.get("spawn_if")
     
@@ -1142,8 +1162,15 @@ class GameScene(QGraphicsScene):
             print(f"Sauvegarde écrite : slot {slot}")
 
     def get_flag(self, flag_name):
-        """Verifie l'etat d'un drapeau (session prioritaire sur sauvegarde)."""
-        if flag_name in self.session_flags:
-            return self.session_flags[flag_name]
-        return self.current_save.get_flag(flag_name)
-        #return self.session_flags.get(flag_name) or self.current_save.get_flag(flag_name)
+        """Verifie l'etat d'un drapeau (session prioritaire sur sauvegarde)
+        ou d'une liste de drapeaux avec condition ANY true"""
+        
+        if isinstance(flag_name, list):
+            # Condition OU : un des les flags doit etre True
+            return any(self.get_flag(f) for f in flag_name)
+        
+        else:
+            if flag_name in self.session_flags:
+                return self.session_flags[flag_name]
+            return self.current_save.get_flag(flag_name)
+            #return self.session_flags.get(flag_name) or self.current_save.get_flag(flag_name)

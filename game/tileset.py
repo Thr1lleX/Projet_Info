@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-"""Definit le dictionnaire des types de cases (tiles) et leurs proprietes."""
 
 # --- TILESET --
 TILE_TYPES = {
@@ -131,6 +130,11 @@ TILE_TYPES = {
         "collision": 0,
         "z": 3,
         "size" :(2,1)
+    },
+    90: {
+        "name": "facade_shrine",
+        "collision": 0,
+        "z": 105
     },
     99: {
         "name": "gros_front",
