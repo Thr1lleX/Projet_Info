@@ -112,7 +112,7 @@ class Shadow(Enemy):
         self.update_damage_state(dt)
 
         # --- MOUVEMENT EN MIROIR PARFAIT (Controles purs) ---
-        if not self.is_charging_proximity_attack:
+        if not self.is_charging_proximity_attack and not self.is_attacking:
             self.speed = self.target.speed 
     
             # On extrait les intentions de déplacement directes du joueur via ses touches (ignore le knockback)
