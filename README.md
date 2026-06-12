@@ -41,10 +41,10 @@ Si pas d'auteur precisé: ou bien le code est trop court, ou bien il est trop im
 - hud scene generale
 - interrupteur & tiles reagissant a flag
 - salles et reste du jeu
+- quelques ennemis
 
 # En cours:
 - boss final
-- quelques ennemis
 - quelques quêtes
 - équilibrage
 
