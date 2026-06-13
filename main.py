@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Point d'entrée principal du jeu."""
+"""
+Created on Sat Apr 25 12:25:20 2026
+
+@author: mateo
+"""
 import sys
 
 from PyQt5.QtWidgets import QApplication
@@ -15,6 +19,7 @@ from game.screens.inventory_screen import InventoryScreen
 from game.screens.save_select_screen import SaveSelectScreen
 from game.screens.save_menu_screen import SaveMenuScreen
 from game.screens.controls_screen import ControlsScreen
+from game.screens.credits_screen import CreditsScreen
 
 from game.item import Inventory
 from game.config import GAME_TITLE, LOGO
@@ -22,7 +27,6 @@ from game.config import GAME_TITLE, LOGO
 
 
 def main():
-    """Initialise PyQt5, configure le gestionnaire d'écrans et lance le jeu."""
     app = QApplication(sys.argv)
 
     window = GameWindow()
@@ -42,6 +46,7 @@ def main():
     sm.register_screen("inventory", InventoryScreen(sm))
     sm.register_screen("save_select",SaveSelectScreen(sm))
     sm.register_screen("save_menu",SaveMenuScreen(sm))
+    sm.register_screen("credits", CreditsScreen(sm))
 
     # injection du screen_manager dans la fenetre
     window.screen_manager = sm
