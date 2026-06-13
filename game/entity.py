@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Classe de base pour toutes les entites du jeu (joueur, ennemis, PNJ)."""# Auteur : essentiellement Mateo
+
+# Auteur : essentiellement Mateo
 
 from PyQt5.QtWidgets import QGraphicsPixmapItem, QGraphicsRectItem
 from PyQt5.QtGui import QPixmap, QPen, QColor, QPainter
@@ -12,7 +13,6 @@ from game.settings import settings
 import random
 
 class Entity(QGraphicsPixmapItem):
-    """Gere la physique, les collisions, les statistiques et l'affichage d'une entite."""
     def __init__(self, scale):
         super().__init__()
 
@@ -140,7 +140,6 @@ class Entity(QGraphicsPixmapItem):
             self.debug_rect.setZValue(999)
 
     def get_hitbox(self, x=None, y=None):
-        """Renvoie les coordonnees et dimensions de la hitbox de l'entite."""
         if x is None:
             x = self.x
         if y is None:
@@ -154,7 +153,6 @@ class Entity(QGraphicsPixmapItem):
         )
 
     def get_center(self):
-        """Renvoie les coordonnees du centre de l'entite basees sur sa hitbox."""
         x, y, w, h = self.get_hitbox()
         return (x+w/2,y+h/2)
 
@@ -172,6 +170,17 @@ class Entity(QGraphicsPixmapItem):
     #     y = max(0, min(y, room_h - h))
     
     #     return x, y    
+
+    def rects_overlap(a, b):
+        ax, ay, aw, ah = a
+        bx, by, bw, bh = b
+    
+        return (
+            ax < bx + bw
+            and ax + aw > bx
+            and ay < by + bh
+            and ay + ah > by
+        )
 
     def shrink_hitbox(self, hx, hy, hw, hh, margin):
         """
@@ -271,7 +280,6 @@ class Entity(QGraphicsPixmapItem):
             self.die()
         
     def die(self):
-        """Gere la mort de l'entite (suppression de la scene et nettoyage)."""
         scene = self.scene()
         if scene:
             # retirer de la liste ennemis si besoin
@@ -283,7 +291,9 @@ class Entity(QGraphicsPixmapItem):
         self.setVisible(False)
 
     def apply_red_flash(self):
-        """Active un effet visuel rouge temporaire suite a des degats."""
+        """
+        Fonction pour declencher effet visuel de degats
+        """
         # sauvegarde des sprites originaux si n'existent pas
         if not self._base_sprites:
             self._base_sprites = self.sprites.copy()
@@ -310,7 +320,9 @@ class Entity(QGraphicsPixmapItem):
             self.sprites[key] = tinted
             
     def apply_white_flash(self):
-        """Effet visuel de clignotement blanc pour indiquer l'invulnerabilite."""
+        """
+        Effet visuel de clignotement blanc (invulnérabilité)
+        """
         if not self._base_sprites:
             self._base_sprites = self.sprites.copy()
     
@@ -400,7 +412,11 @@ class Entity(QGraphicsPixmapItem):
         
                 
     def _move_with_collision_limit(self, axis, amount):
-        """Deplace pixel par pixel sur un axe jusqu'a bloquer contre un mur ou une limite."""
+        """
+        deplace sur un axe en appliquand deplcement max autorise
+        axis : "x" ou "y"
+        amount : déplacement en pixels (float)
+        """
         if amount == 0:
             return
     
@@ -455,7 +471,6 @@ class Entity(QGraphicsPixmapItem):
                 self.y = test_y
 
     def _is_out_of_bounds(self, x, y):
-        """Verifie si les coordonnees de la hitbox sortent des limites de la scene."""
         scene = self.scene()
         if not scene:
             return False
@@ -476,7 +491,9 @@ class Entity(QGraphicsPixmapItem):
 
 
     def update_graphics(self):
-        """Affiche le sprite courant de l'entite a sa position actuelle."""
+        """
+        affiche joeur et hitbox
+        """
         self.setPixmap(self.sprites[self.direction])
         self.setPos(self.x, self.y)
         
@@ -494,7 +511,7 @@ class Entity(QGraphicsPixmapItem):
     def update_damage_state(self, dt):
         """
         Fonction qui permet de mettre l'effect rouge lorsque degat prit
-        et qui maintenant gere le stun
+        et qui maintenant gere le stun mdr
         """
         # degats flash rouge
         if self.is_damaged:
@@ -577,7 +594,6 @@ class Entity(QGraphicsPixmapItem):
         self._move_with_collision_limit("y", dy)
     
     def update_stun_animation(self, dt):
-        """Met a jour et affiche l'animation de l'etourdissement au-dessus de l'entite."""
         if not self.is_stunned:
             self.stun_item.setVisible(False)
             return
@@ -598,7 +614,6 @@ class Entity(QGraphicsPixmapItem):
         self.stun_item.setPos(offset_x, offset_y)
         
     def update_buff_animation(self, dt):
-        """Met a jour et affiche l'animation de bonus au-dessus de l'entite."""
         if not self.is_buffed:
             self.buff_item.setVisible(False)
             return
@@ -626,7 +641,11 @@ class Entity(QGraphicsPixmapItem):
     ### EFFETS, ON AJOUTE UN COOLDOWN D'INVULERABILITE
     
     def stun(self, duration, wiggle=True):
-        """Etourdit l'entite pour une duree donnee (empeche mouvement et attaque)."""
+        """
+        applique un stun pendant 'duration' s
+        
+        stun empeche de bouger, d'attaquer et fait un petit mvt
+        """
         # empeche l'application de stun a ennemi invulnerable aux effets
         if self.is_effect_immune:
             return 

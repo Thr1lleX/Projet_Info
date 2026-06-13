@@ -49,7 +49,7 @@ class Player(Entity):
         self._pv_max = 6
         self.pv_main = self._pv_max
         
-        self.defense = 1
+        self.defense = 100
         
         # --Attaques--
         
@@ -57,7 +57,7 @@ class Player(Entity):
         self.attack_delay = 0.2   # s entre attaques, doit etre supp a anim
         self.attack_pressed = False
 
-        self.damage = 1 # degats qu'inflinge le joueur
+        self.damage = 100 # degats qu'inflinge le joueur
         
         # -- Dammaged--
         self.invuln_duration = 0.60 #en s
@@ -182,16 +182,31 @@ class Player(Entity):
         if self.is_sliding:
             return
         
+        scene = self.scene()
+        if scene is None:
+            return
+        
+
+        
+        scene = self.scene()
+        if scene is None:
+            return
+        
+        sm = getattr(scene, 'screen_manager', None)
+        
+        if key == settings.keys["INTERACT"] and sm and getattr(sm, 'interact_blocked', False):
+            return
+
+        if key == settings.keys["ITEM"] and sm and getattr(sm, 'item_blocked', False):
+            return
+        
+        
         if key == settings.keys["INTERACT"]:
             if self.interact_pressed:
                 return
             self.interact_pressed = True
     
         self.keys.add(key)
-        
-        scene = self.scene()
-        if scene is None:
-            return
             
         # gestion exclusive de l'interaction
         if key == settings.keys["INTERACT"]:
@@ -208,7 +223,14 @@ class Player(Entity):
  
 
     def update(self, dt, scene):
-        """Met a jour la logique du joueur (etats, deplacements, animations, armes)."""
+        """
+        Cette fonction va s'occuper de charger logique au fur et a mesure en gros
+        
+        On divise ca en 3:
+            - les systemes globaux qui doivent toujours etre updates
+            - tout ce qui est lie au deplacement
+            - follow logic, en l'occurence les armes suivent le joueur lors de knockback
+        """
         
         if getattr(self, 'is_obtaining_item', False):
             if self.obtain_duration > 0:

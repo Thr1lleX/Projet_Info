@@ -27,6 +27,7 @@ class ScreenManager:
     STATE_GAME_OVER = "game_over"
     STATE_SETTINGS  = "settings"
     STATE_SAVE_MENU = "save_menu"
+    STATE_CREDITS = "credits"
 
     def __init__(self, window):
         self.window         = window
@@ -112,9 +113,13 @@ class ScreenManager:
                 if key == settings.keys["PAUSE"] or key == settings.keys["INVENTORY"]:
                     return True
             if key == settings.keys["PAUSE"]:
+                if getattr(self, 'pause_blocked', False):
+                    return True
                 self.open_pause()
                 return True
             if key == settings.keys["INVENTORY"]:
+                if getattr(self, 'inventory_blocked', False):
+                    return True
                 self.open_inventory()
                 return True
 
@@ -416,3 +421,18 @@ class ScreenManager:
         
         # re-affiche ecran de parametres
         self.show_screen("settings")
+    
+    # ------------------------------------------------------------------
+    # Credits de fin
+    # ------------------------------------------------------------------
+
+    def go_to_credits(self):
+        """Bascule vers l'ecran des credits de fin et lance la musique dediee."""
+        self.hide_current_screen()
+        self._create_fresh_scene()
+        
+        if hasattr(self, 'music_manager'):
+            self.music_manager.play("mus_ending")
+            
+        self.show_screen("credits")
+        self.state = self.STATE_CREDITS

@@ -873,6 +873,11 @@ class GameScene(QGraphicsScene):
         """Declenche la sequence de fin de partie."""
         if hasattr(self, "game_over_triggered") and self.game_over_triggered:
             return
+        
+        self.screen_manager.pause_blocked = False
+        self.screen_manager.inventory_blocked = False
+        self.screen_manager.interact_blocked = False
+        self.screen_manager.item_blocked = False
 
         self.game_over_triggered = True
         self.is_transitioning = True
@@ -927,8 +932,7 @@ class GameScene(QGraphicsScene):
         flags_for_sync = dict(flags)
         # Mapping quête -> item permanent : si le maire a donné le feu, débloquer la fireball
         if flags_for_sync.get("mayor_gave_fire"):
-            flags_for_sync["has_fireball"] = True
-        
+            flags_for_sync["has_fireball"] = True                          
         if inv_data is not None:
             self.screen_manager.inventory.from_save_data(inv_data)
         self.screen_manager.inventory.sync_permanent_items(flags_for_sync)

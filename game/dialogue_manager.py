@@ -310,7 +310,7 @@ class DialogueManager:
                     self.scene.sfx_manager.play("snd_sys_item")
                 
                 # 2. Lancer l'animation (dure 4.5 secondes)
-                self.scene.player.obtain_item("fireball", duration=4.5)
+                self.scene.player.obtain_item("fireball", duration=2.5)
                 
                 # 3. Ajouter physiquement l'objet à l'inventaire en direct (via le screen_manager !)
                 if hasattr(self.scene, "screen_manager") and hasattr(self.scene.screen_manager, "inventory"):
