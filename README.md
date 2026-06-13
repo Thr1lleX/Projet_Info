@@ -42,10 +42,10 @@ Si pas d'auteur precisé: ou bien le code est trop court, ou bien il est trop im
 - interrupteur & tiles reagissant a flag
 - salles et reste du jeu
 - quelques ennemis
-
-# En cours:
 - boss final
 - quelques quêtes
+
+# En cours:
 - équilibrage
 
 
