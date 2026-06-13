@@ -12,7 +12,7 @@ class ProjectGrenade(PersistentAttack):
         super().__init__(
             source=source,
             direction=direction,
-            damage=1.0,
+            damage=1.5,
             spr_path="enemies/macron/project_grenade", 
             nb_frames=4,
             size=(1, 1),
@@ -135,7 +135,7 @@ class DalleLumineuse(QGraphicsRectItem):
         self.y = y
         self.setRect(0, 0, settings.tile_size, settings.tile_size)
         self.setPos(x, y)
-        self.setZValue(10) 
+        self.setZValue(1) 
         self.setPen(QPen(Qt.NoPen))
         
         self.timer = 0.0
@@ -173,7 +173,7 @@ class DalleLumineuse(QGraphicsRectItem):
                 tile_hitbox = (self.x,self.y,settings.tile_size,settings.tile_size)
                 
                 if scene.player.rects_overlap(player_hitbox, tile_hitbox):
-                    scene.player.take_damage(scene, 0.5, source=macron)
+                    scene.player.take_damage(scene, 1, source=macron)
                     
             if self.timer >= self.duration_solid:
                 self.state = "fade"
