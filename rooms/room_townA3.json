@@ -23,18 +23,18 @@
   },
   "enemies": [
     {
-      "despawn_if": "tung_vaincu",
       "id": "placeholder2_4132",
       "type": "placeholder2",
       "x": 3,
-      "y": 4
+      "y": 4,
+      "despawn_if": "tung_vaincu"
     },
     {
-      "despawn_if": "tung_vaincu",
-      "id": "placeholder2_6096",
-      "type": "placeholder2",
+      "id": "placeholder2_shiny_9546",
+      "type": "placeholder2_shiny",
       "x": 13,
-      "y": 5
+      "y": 4,
+      "set_flag": "shiny_dead"
     }
   ]
 }
