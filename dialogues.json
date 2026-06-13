@@ -241,6 +241,27 @@
     ],
     "set_flag": "jesus"
   },
+  "jesus_eau_alternatif": {
+    "lines": [
+      "* Nan je déconne, je parle français.",
+      "* Nous sommes mieux ici, n'est-ce pas ?",
+      "* Je suis bien content que tu sois en vie.",
+      "* Tung Tung Tung Sahur était un ennemi redoutable.",
+      "* Je reconnais en toi l'âme d'un sauveur.",
+      "* Tu me rappelles un peu...",
+      "* Robert Hervé...",
+      "* Peut-être l'as-tu déjà croisé ?",
+      "* C'était l'un de mes élèves.",
+	  "* Ah ? Tu ne lui as jamais parlé ?",
+	  "... j'ai un peu l'air d'un con là...",
+      "* Quoi qu'il en soit, ce combat m'a prouvé que je peux te faire confiance.",
+      "* Tiens, en guise de remerciement...",
+      "* Accepte cette bénédiction.",
+      "* Et maintenant, va en paix, loin à l'est, par-delà les océans.",
+      "* Loin, très loin d'ici."
+    ],
+    "set_flag": "jesus"
+  },
   "jesus_eau2": {
     "lines": [
       "* Pour être honnête, je ne m'attendais pas à perdre face à Tung Tung Tung Sahur.",
@@ -346,5 +367,53 @@
 	  "Si jamais tu souhaites quitter le sanctuaire, pars vers la droite."
 	  ],
 	  "set_flag" : "raccourci_shrine"
-  }
+  },
+  "panneau_indice_shadow": {
+	  "font" : "font2",
+	  "lines" : [
+	  "Tu n'y arriveras jamais si tu n'es pas capable de faire face à toi-même.",
+	  "Parfois, rien qu'un instant suffit."
+	  ]
+  },
+  "robert_herve1":{
+	  "lines" : [
+	  "* Hey salut toi ! Moi c'est Robert Hervé.",
+	  "* Tu viens de l'extérieur du pays ?", 
+	  "* Faut faire attention ici. Les monstres se multiplient de plus en plus ces derniers temps, je me demande pourquoi.",
+	  "* Quoi ?  Tu te demandes comment je peux marcher sur l'eau ?",
+	  "* Vois-tu, il y a un village à l'ouest d'ici, proche de la rivière.",
+	  "* Si tu y vas, tu croiseras sûrement mon maître qui m'a appris la magie.",
+	  "* Sur ce, je pars vers le sanctuaire, on se reverra peut-être plus tard."
+	  ],
+	  "set_flag" : "parle_robert_herve"
+  },
+  "robert_herve_mort":{
+	  "lines" : [
+	  "* Tu... es... là...",
+	  "* J'ai... tenté de... l'arrêter, mais...", 
+	  "*Ngh*",
+	  "* Je ne pense pas que je vais m'en sortir, mon ami...",
+	  "* Macron..",
+	  "il est...",
+	  "beaucoup trop... ",
+	  "fort...",
+	  "* Ses troupes sont déjà à l'intérieur du sanctuaire.",
+	  "* Je pense que ce n'est qu'une question de temps avant qu'il ait accès aux pouvoirs sacrés.",
+	  "* Fais attention... le bras droit de Macron... est une créature au pouvoir incommensurable...",
+	  "*Gnh...*",
+	  "* Avant que je parte, j'ai une dernière chose à te dire.",
+	  "* Excuse-moi te t'avoir menti...",
+	  "* Mon vrai nom... n'est pas Robert Hervé...",
+	  "* En réalité, je m'appelle...",
+	  "* Hervé Robert"
+	  ],
+	  "set_flag" : "mort_herve_robert"
+  },
+  "robert_herve_mort_pas_parle":{
+	  "lines" : [
+	  "t ki ?",
+	  "*meurt*"
+	  ],
+	  "set_flag" : "mort_herve_robert"
+  }  
 }
