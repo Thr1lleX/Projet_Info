@@ -5,31 +5,30 @@
       "* Bonjour voyageur.",
       "* Le desert est dangereux."
     ],
-
     "set_flag": "met_oldman_test"
   },
-  "oldman_intro2":{
-	  "lines":[
-	  "* Nan je rigole je parle français."
-	  ]
+  "oldman_intro2": {
+    "lines": [
+      "* Nan je rigole je parle français."
+    ]
   },
-    "oldman_intro3":{
-	  "font": "font3",
-	  "lines":[
-	  "* To gramma 'p' antiproswpeyei tun analogia metaxy tu~ perimetroy kai tu~ diametroy eno~ kykloy."
-	  ]
+  "oldman_intro3": {
+    "font": "font3",
+    "lines": [
+      "* To gramma 'p' antiproswpeyei tun analogia metaxy tu~ perimetroy kai tu~ diametroy eno~ kykloy."
+    ]
   },
-    "oldman_intro4":{
-	  "font": "font3",
-	  "lines":[
-	  "* Moy aresoyn ta kaka, ta katoyra, oi klanie~b!"
-	  ]
-  },  
+  "oldman_intro4": {
+    "font": "font3",
+    "lines": [
+      "* Moy aresoyn ta kaka, ta katoyra, oi klanie~b!"
+    ]
+  },
   "farmer_intro": {
     "lines": [
       "* Bonjour voyageur des mers et de la Terre.",
       "* Je suis le pnj test des très longs dialogues qui sont interminables hehehehe. Là je dis juste des mots au hasard pour tester.",
-	  "* heheheha."
+      "* heheheha."
     ]
   },
   "farmer_test2": {
@@ -38,20 +37,20 @@
       "* Vraiment un homme mort."
     ]
   },
-    "farmer_test3": {
+  "farmer_test3": {
     "lines": [
       "* chockbar de bz en fait"
     ]
   },
-    "farmer_test4": {
-	"font": "font2",
+  "farmer_test4": {
+    "font": "font2",
     "lines": [
       "* ARRETE DE ME PARLER"
     ],
-	"set_flag": "parlation"
+    "set_flag": "parlation"
   },
   "panneau_histoire": {
-	"font" : "font2",
+    "font": "font2",
     "lines": [
       "Cette salle est remplie d'histoire."
     ]
@@ -64,15 +63,15 @@
   "minou": {
     "lines": [
       "* le pipi du caca, le pipi du là là.",
-	  "* quoi, mais où mais le pipi du caca",
-	  "* quoi, mais feur feur.",
-	  "je sais plus..."
+      "* quoi, mais où mais le pipi du caca",
+      "* quoi, mais feur feur.",
+      "je sais plus..."
     ]
   },
   "minou2": {
     "lines": [
       "* mais nan, tu lui as parlé",
-	  "* tu sais pas de quoi il est capable"
+      "* tu sais pas de quoi il est capable"
     ]
   },
   "minou_parlation": {
@@ -81,13 +80,13 @@
     ]
   },
   "minou_boss": {
-	  "font" : "font4",
-	  "lines": [
-	    "tes vraimen 1 gar bg pr avoir tuer thun thun thun sahur",
-		"brr brr brr patapim c moi",
-		"taa buter la concurense'.",
-		"zizi_lian"
-		]
+    "font": "font4",
+    "lines": [
+      "tes vraimen 1 gar bg pr avoir tuer thun thun thun sahur",
+      "brr brr brr patapim c moi",
+      "taa buter la concurense'.",
+      "zizi_lian"
+    ]
   },
   "panneau_test": {
     "lines": [
@@ -95,11 +94,14 @@
     ]
   },
   "panneau_test_parlation": {
-	"font" : "font2",
+    "font": "font2",
     "lines": [
       "En tant que panneau, je suis profondément choqué."
     ],
-	"set_flag": ["sword_upgrade","jesus"]
+    "set_flag": [
+      "sword_upgrade",
+      "jesus"
+    ]
   },
   "farmer_desert1": {
     "lines": [
@@ -109,91 +111,91 @@
   "farmer_desert2": {
     "lines": [
       "* Moi perso, j'me détends.",
-	  "* Je sais pas pourquoi les monstres ne m'attaquent pas.",
-	  "* Sûrement les developpeurs qui avaient la flemme de donner des points de vie aux pnjs."
+      "* Je sais pas pourquoi les monstres ne m'attaquent pas.",
+      "* Sûrement les developpeurs qui avaient la flemme de donner des points de vie aux pnjs."
     ]
   },
   "farmer_desert3": {
     "lines": [
       "* Du coup j'me détends.",
-	  "* C'est plutôt bien ici."
+      "* C'est plutôt bien ici."
     ]
   },
   "farmer_desert4": {
     "lines": [
       "* Dis donc, t'es plutôt opiniâtre toi.",
-	  "* Si tu veux, je vais te dire un secret.",
-	  "* À ce qu'il paraît, on raconte qu'une clef cachée se trouve vers le nord-est de la rivière.",
-	  "* Si jamais tu t'as besoin d'une clef en plus, tu devrais tenter d'y faire péter des trucs ;)"
+      "* Si tu veux, je vais te dire un secret.",
+      "* À ce qu'il paraît, on raconte qu'une clef cachée se trouve vers le nord-est de la rivière.",
+      "* Si jamais tu t'as besoin d'une clef en plus, tu devrais tenter d'y faire péter des trucs ;)"
     ]
   },
   "farmer_desert_secret_key": {
     "lines": [
       "* Ah? Alors apparemment y'avait pas de clef ?",
-	  "* J'me suis p'tet trompé.",
-	  "* Je pense pas pourtant. Ah! Mais, vous les jeunots vous êtes bien impatients."
+      "* J'me suis p'tet trompé.",
+      "* Je pense pas pourtant. Ah! Mais, vous les jeunots vous êtes bien impatients."
     ]
   },
   "farmer_desert_secret_key2": {
     "lines": [
       "* Pourquoi tu cherchais cette clef à la base ?",
-	  "* Bahahaha! Va savoir!"
+      "* Bahahaha! Va savoir!"
     ]
   },
   "poseidon_entree": {
-	  "font" : "font3",
-	  "lines": [
-	  "* Loipon, mikre kakopoie, o Iusoy~ soy empisteytuke tu dynamu Toy.",
-	  "* Fainetai oti ayto~ o adynamo~ empisteyetai ton opoiondupote.",
-	  "* Alla aytu den einai u periptwsu moy!",
-	  "* Esei~ oi Hnutoi den eiste tipota allo para mia omada deilwn!",
-	  "* Den Ha eqete kamia elpida enantia sti~ dynamei~ toy kakoy...",
-	  "* An pragmatika epiHymei~ na taxidecei~ sta boreia boyna, tote akoloyHuse me kai apodeixe me se mia monomaqia!"
-	 ],
-	 "set_flag" : "parle_poseidon"
+    "font": "font3",
+    "lines": [
+      "* Loipon, mikre kakopoie, o Iusoy~ soy empisteytuke tu dynamu Toy.",
+      "* Fainetai oti ayto~ o adynamo~ empisteyetai ton opoiondupote.",
+      "* Alla aytu den einai u periptwsu moy!",
+      "* Esei~ oi Hnutoi den eiste tipota allo para mia omada deilwn!",
+      "* Den Ha eqete kamia elpida enantia sti~ dynamei~ toy kakoy...",
+      "* An pragmatika epiHymei~ na taxidecei~ sta boreia boyna, tote akoloyHuse me kai apodeixe me se mia monomaqia!"
+    ],
+    "set_flag": "parle_poseidon"
   },
   "panneau_entree_hell": {
-	  "font" : "font2",
-	  "lines": [
-		"C'est une longue descente...",
-		"Es-tu sûr de vouloir continuer ?"
-	]
+    "font": "font2",
+    "lines": [
+      "C'est une longue descente...",
+      "Es-tu sûr de vouloir continuer ?"
+    ]
   },
   "panneau_hell1": {
-	  "font" : "font2",
-	  "lines": [
-		"Dans l'entrevue de l'enfer, se cachant dans la mer de sang."
-	]
+    "font": "font2",
+    "lines": [
+      "Dans l'entrevue de l'enfer, se cachant dans la mer de sang."
+    ]
   },
   "panneau_hell2": {
-	  "font" : "font2",
-	  "lines": [
-		"On ne pouvait cependant pas voir plus loin que ce que l'on voyait déjà."
-	]
+    "font": "font2",
+    "lines": [
+      "On ne pouvait cependant pas voir plus loin que ce que l'on voyait déjà."
+    ]
   },
   "panneau_hell3": {
-	  "font" : "font2",
-	  "lines": [
-		"Et pourtant, juste là, une lueur, brillant dans la mare rouge."
-	]
+    "font": "font2",
+    "lines": [
+      "Et pourtant, juste là, une lueur, brillant dans la mare rouge."
+    ]
   },
   "panneau_hell4": {
-	  "font" : "font2",
-	  "lines": [
-		"Était-ce la raison de cette venue ? Ou pour simplement se perdre ?"
-	]
+    "font": "font2",
+    "lines": [
+      "Était-ce la raison de cette venue ? Ou pour simplement se perdre ?"
+    ]
   },
   "panneau_key_hell": {
-	  "font" : "font2",
-	  "lines" : [
-		"Il semblerait qu'il soit désormais trop tard pour atteindre votre objectif ici."
-	]
+    "font": "font2",
+    "lines": [
+      "Il semblerait qu'il soit désormais trop tard pour atteindre votre objectif ici."
+    ]
   },
   "hell_fin": {
-	  "font" : "font2",
-	  "lines" : [
-		"Ce fut au final la dernière fois qu'elle vit la lumière."
-	]
+    "font": "font2",
+    "lines": [
+      "Ce fut au final la dernière fois qu'elle vit la lumière."
+    ]
   },
   "farmer_town_1": {
     "lines": [
@@ -252,8 +254,8 @@
       "* Robert Hervé...",
       "* Peut-être l'as-tu déjà croisé ?",
       "* C'était l'un de mes élèves.",
-	  "* Ah ? Tu ne lui as jamais parlé ?",
-	  "... j'ai un peu l'air d'un con là...",
+      "* Ah ? Tu ne lui as jamais parlé ?",
+      "... j'ai un peu l'air d'un con là...",
       "* Quoi qu'il en soit, ce combat m'a prouvé que je peux te faire confiance.",
       "* Tiens, en guise de remerciement...",
       "* Accepte cette bénédiction.",
@@ -279,7 +281,7 @@
   "jesus_eau4": {
     "lines": [
       "* Je te souhaite bonne chance pour ton voyage, mon enfant !",
-	  "(tu peux marcher sur l'eau)"
+      "(tu peux marcher sur l'eau)"
     ]
   },
   "jesus_poseidon": {
@@ -297,123 +299,304 @@
       "* Enfin bref, je te souhaite bonne chance pour tes futurs combats !"
     ]
   },
-  "panneau_donjon_room3" :{
-	  "lines" : [
-	  "* Il semble que ce panneau ait permis d'enclencher un mécanisme quelque part."
-	  ],
-	  "set_flag" : "panneau_shrine_magic_wall_room3"
+  "panneau_donjon_room3": {
+    "lines": [
+      "* Il semble que ce panneau ait permis d'enclencher un mécanisme quelque part."
+    ],
+    "set_flag": "panneau_shrine_magic_wall_room3"
   },
-  "minou_shrine1" : {
-	  "lines" : [
-	  "* Oh mon dieu ! Ça faisait 1 semaine que j'étais coincé ici !",
-	  "* J'étais sur le point d'épuiser toutes mes réserves de nourriture. Heureusement que tu as ouvert le passage !"
-	  ]
+  "minou_shrine1": {
+    "lines": [
+      "* Oh mon dieu ! Ça faisait 1 semaine que j'étais coincé ici !",
+      "* J'étais sur le point d'épuiser toutes mes réserves de nourriture. Heureusement que tu as ouvert le passage !"
+    ]
   },
-  "minou_shrine2" : {
-	  "lines" : [
-	  "* Quoi ? Bouger ?",
-	  "* Pourquoi je bougerais ? Je suis bien ici."
-	  ]
+  "minou_shrine2": {
+    "lines": [
+      "* Quoi ? Bouger ?",
+      "* Pourquoi je bougerais ? Je suis bien ici."
+    ]
   },
-  "minou_shrine_pomme" : {
-	  "lines" : [
-	  "* T'ES SÉRIEUX, TU M'AS VOLÉ MES POMMES ?!!!!!"
-	  ]
+  "minou_shrine_pomme": {
+    "lines": [
+      "* T'ES SÉRIEUX, TU M'AS VOLÉ MES POMMES ?!!!!!"
+    ]
   },
-  "minou_shrine_pomme2" : {
-	  "lines" : [
-	  "* Mes pommes sont pas encores matures espèce de détraqué."
-	  ]
+  "minou_shrine_pomme2": {
+    "lines": [
+      "* Mes pommes sont pas encores matures espèce de détraqué."
+    ]
   },
-  "minou_shrine_pomme3" : {
-	  "lines" : [
-	  "* On ne touche pas aux pommes d’un homme sans s’attendre à se faire pénétrer le zi-zi par la colère divine.",
-	  "* Elle s'abattra sur toi lorsque tu périras dans ton sommeil."
-	  ]
+  "minou_shrine_pomme3": {
+    "lines": [
+      "* On ne touche pas aux pommes d’un homme sans s’attendre à se faire pénétrer le zi-zi par la colère divine.",
+      "* Elle s'abattra sur toi lorsque tu périras dans ton sommeil."
+    ]
   },
-  "minou_shrine_pomme4" : {
-	  "lines" : [
-	  "* COMMENT ÇA TU CONNAIS JÉSUS !?"
-	  ]
+  "minou_shrine_pomme4": {
+    "lines": [
+      "* COMMENT ÇA TU CONNAIS JÉSUS !?"
+    ]
   },
-  "panneau_room_spear_bombe" : {
-	  "font" : "font2",
-	  "lines" : [
-	  "En cas d'échec, échappez-vous par la salle du haut."
-	  ]
+  "panneau_room_spear_bombe": {
+    "font": "font2",
+    "lines": [
+      "En cas d'échec, échappez-vous par la salle du haut."
+    ]
   },
-  "panneau_room_boomerang_hint" : {
-	  "font" : "font2",
-	  "lines" : [
-	  "Il semble que la salle suivante soit plus technique.",
-	  "Relis-moi, si tu souhaites un indice."
-	  ]
+  "panneau_room_boomerang_hint": {
+    "font": "font2",
+    "lines": [
+      "Il semble que la salle suivante soit plus technique.",
+      "Relis-moi, si tu souhaites un indice."
+    ]
   },
-  "panneau_room_boomerang_hint2" : {
-	  "font" : "font2",
-	  "lines" : [
-	  "Parfois, le plus important n'est pas le lancé, mais le retour."
-	  ]
+  "panneau_room_boomerang_hint2": {
+    "font": "font2",
+    "lines": [
+      "Parfois, le plus important n'est pas le lancé, mais le retour."
+    ]
   },
-  "tungtung_trophes" : {
-	  "font" : "font4",
-	  "lines" : [
-	  "Ouaaa le gros tricheur en fait..."
-	  ]
+  "tungtung_trophes": {
+    "font": "font4",
+    "lines": [
+      "Ouaaa le gros tricheur en fait..."
+    ]
   },
-  "panneau_racourci_shrine" : {
-	  "font" : "font2",
-	  "lines" : [
-	  "Si jamais tu souhaites quitter le sanctuaire, pars vers la droite."
-	  ],
-	  "set_flag" : "raccourci_shrine"
+  "panneau_racourci_shrine": {
+    "font": "font2",
+    "lines": [
+      "Si jamais tu souhaites quitter le sanctuaire, pars vers la droite."
+    ],
+    "set_flag": "raccourci_shrine"
   },
   "panneau_indice_shadow": {
-	  "font" : "font2",
-	  "lines" : [
-	  "Tu n'y arriveras jamais si tu n'es pas capable de faire face à toi-même.",
-	  "Parfois, rien qu'un instant suffit."
-	  ]
+    "font": "font2",
+    "lines": [
+      "Tu n'y arriveras jamais si tu n'es pas capable de faire face à toi-même.",
+      "Parfois, rien qu'un instant suffit."
+    ]
   },
-  "robert_herve1":{
-	  "lines" : [
-	  "* Hey salut toi ! Moi c'est Robert Hervé.",
-	  "* Tu viens de l'extérieur du pays ?", 
-	  "* Faut faire attention ici. Les monstres se multiplient de plus en plus ces derniers temps, je me demande pourquoi.",
-	  "* Quoi ?  Tu te demandes comment je peux marcher sur l'eau ?",
-	  "* Vois-tu, il y a un village à l'ouest d'ici, proche de la rivière.",
-	  "* Si tu y vas, tu croiseras sûrement mon maître qui m'a appris la magie.",
-	  "* Sur ce, je pars vers le sanctuaire, on se reverra peut-être plus tard."
-	  ],
-	  "set_flag" : "parle_robert_herve"
+  "robert_herve1": {
+    "lines": [
+      "* Hey salut toi ! Moi c'est Robert Hervé.",
+      "* Tu viens de l'extérieur du pays ?",
+      "* Faut faire attention ici. Les monstres se multiplient de plus en plus ces derniers temps, je me demande pourquoi.",
+      "* Quoi ?  Tu te demandes comment je peux marcher sur l'eau ?",
+      "* Vois-tu, il y a un village à l'ouest d'ici, proche de la rivière.",
+      "* Si tu y vas, tu croiseras sûrement mon maître qui m'a appris la magie.",
+      "* Sur ce, je pars vers le sanctuaire, on se reverra peut-être plus tard."
+    ],
+    "set_flag": "parle_robert_herve"
   },
-  "robert_herve_mort":{
-	  "lines" : [
-	  "* Tu... es... là...",
-	  "* J'ai... tenté de... l'arrêter, mais...", 
-	  "*Ngh*",
-	  "* Je ne pense pas que je vais m'en sortir, mon ami...",
-	  "* Macron..",
-	  "il est...",
-	  "beaucoup trop... ",
-	  "fort...",
-	  "* Ses troupes sont déjà à l'intérieur du sanctuaire.",
-	  "* Je pense que ce n'est qu'une question de temps avant qu'il ait accès aux pouvoirs sacrés.",
-	  "* Fais attention... le bras droit de Macron... est une créature au pouvoir incommensurable...",
-	  "*Gnh...*",
-	  "* Avant que je parte, j'ai une dernière chose à te dire.",
-	  "* Excuse-moi te t'avoir menti...",
-	  "* Mon vrai nom... n'est pas Robert Hervé...",
-	  "* En réalité, je m'appelle...",
-	  "* Hervé Robert"
-	  ],
-	  "set_flag" : "mort_herve_robert"
+  "robert_herve_mort": {
+    "lines": [
+      "* Tu... es... là...",
+      "* J'ai... tenté de... l'arrêter, mais...",
+      "*Ngh*",
+      "* Je ne pense pas que je vais m'en sortir, mon ami...",
+      "* Macron..",
+      "il est...",
+      "beaucoup trop... ",
+      "fort...",
+      "* Ses troupes sont déjà à l'intérieur du sanctuaire.",
+      "* Je pense que ce n'est qu'une question de temps avant qu'il ait accès aux pouvoirs sacrés.",
+      "* Fais attention... le bras droit de Macron... est une créature au pouvoir incommensurable...",
+      "*Gnh...*",
+      "* Avant que je parte, j'ai une dernière chose à te dire.",
+      "* Excuse-moi te t'avoir menti...",
+      "* Mon vrai nom... n'est pas Robert Hervé...",
+      "* En réalité, je m'appelle...",
+      "* Hervé Robert"
+    ],
+    "set_flag": "mort_herve_robert"
   },
-  "robert_herve_mort_pas_parle":{
-	  "lines" : [
-	  "t ki ?",
-	  "*meurt*"
-	  ],
-	  "set_flag" : "mort_herve_robert"
-  }  
+  "robert_herve_mort_pas_parle": {
+    "lines": [
+      "t ki ?",
+      "*meurt*"
+    ],
+    "set_flag": "mort_herve_robert"
+  },
+  "shiny_mort": {
+    "set_flag": "shiny_dead",
+    "lines": [
+      "Vous avez trouvé un Cheveu Magique !"
+    ]
+  },
+  "mayor_A_1": {
+    "lines": [
+      " * QUI EST LÀ ??? Vous ne m'aurez pas, maudits monstres !!",
+      " * Oh ! Mais... Je ne vous connais pas, vous...",
+      " * Vous dites vous appeler... Emby ? ",
+      " * Eh bien, ravi de faire votre connaissance !",
+      " * Mon nom est Monsieur le Maire, et je suis l'adjoint du village, enfin ce qu'il en reste...",
+      " * Comme vous l'avez vu, notre village est en feu, tout le monde a déguerpi",
+      " * C'est de sa faute... TungTungSahur",
+      " * Cette atrocité est partie vers l'Ouest, et frappe à mort avec son bout de bois quiconque s'approche trop près",
+      " * C'est un ennemi redoutable",
+      " * Comment ? Moi ? Oui, j'aurais pu l'en empêcher si seulement...",
+      " * Vois-tu, j'étais autrefois un grand mage de sanctuaire du nord",
+      " * Dans les montagnes enneigées tout au nord...",
+      " * Il faut savoir que chaque mage possède sa propre magie élémentaire",
+      " * Et la mienne repose sur des cheveux magiques qu'on peut trouver sur des monstres particuliers",
+      " * Sur lesquels de la mousse verte commence à pousser",
+      " * Ils sont très rares, mais greffer ces cheveux sur mon crâne permet de développer une magie unique.",
+      " * Plus j'en ai, au mieux je peux utiliser mes compétences de mage",
+      " * Or voyez-vous, mon crâne est dégarni, parfaitement sphérique et luisant",
+      " * Et sans magie ni subordonnés, je suis incapable d'aider qui que ce soit.",
+      " * Cependant, si jamais tu trouves des monstres recouverts de mousse verte, tue-les et apporte-les moi.",
+      " * Tuer ne serait-ce qu'un seul de ces fléaux...",
+      " * Me permettrait de vous concocter un artefact surpuissant pour votre aventure,",
+      " * Et de refonder le village..."
+    ],
+    "set_flag": "mayor_spoke_first"
+  },
+  "mayor_A_2": {
+    "lines": [
+      " * Il y a quelques jours, en partant en reconnaissance,",
+      " * J'ai croisé une de ces créatures avec de la mousse verte.",
+      " * Elle se trouvait à l'ouest, non loin d'ici...",
+      " * Si vous la tuez, je saurai vous récompenser comme il se doit.",
+      " * J'espère que tu auras plus de chance que moi..."
+    ]
+  },
+  "mayor_B_full": {
+    "lines": [
+      " * QUI EST LÀ ??? Vous ne m'aurez pas, maudits monstres !!",
+      " * Oh ! Mais... Je ne vous connais pas, vous...",
+      " * Vous dites vous appeler... Emby ? ",
+      " * Eh bien, ravi de faire votre connaissance !",
+      " * Mon nom est Monsieur le Maire, et je suis l'adjoint du village, enfin ce qu'il en reste...",
+      " * Comme vous l'avez vu, notre village est en feu, tout le monde a déguerpi",
+      " * C'est de sa faute... TungTungSahur",
+      " * Cette atrocité est partie vers l'Ouest, et frappe à mort avec son bout de bois quiconque s'approche trop près",
+      " * C'est un ennemi redoutable",
+      " * Vois-tu, j'étais autrefois un grand mage de sanctuaire du nord",
+      " * Et ma magie repose sur des cheveux magiques",
+      " * Que l'on trouve sur certains monstres couverts de mousse verte.",
+      " * Mais mon crâne est dégarni et sans ces cheveux, je ne peux rien faire...",
+      " * Quoi ?! Tu as réussi à en trouver un ?!",
+      " * C'est... incroyable. Ces cheveux magiques, c'est exactement ce qu'il me fallait !",
+      " * Tiens, prends cette magie de feu en récompense.",
+      " * Mais attention, le vrai danger vient de l'ouest — Tungtungsahur rôde encore.",
+      " * Reviens me voir quand tu en auras eu raison."
+    ],
+    "set_flag": [
+      "mayor_spoke_first",
+      "mayor_gave_fire"
+    ]
+  },
+  "mayor_B_1": {
+    "lines": [
+      " * Quoi ?! Tu as réussi à en trouver un ?!",
+      " * C'est... incroyable. Ces cheveux magiques",
+      " * C'est bien ce qu'il me fallait pour te donner un peu de puissance.",
+      " * Tiens, prends cette magie de feu en récompense.",
+      " * Mais attention, le vrai danger vient de l'ouest — Tungtungsahur rôde encore.",
+      " * Reviens me voir quand tu en auras eu raison."
+    ],
+    "set_flag": "mayor_gave_fire"
+  },
+  "mayor_C_full": {
+    "lines": [
+      " * QUI EST LÀ ??? Vous ne m'aurez pas, maudits monstres !!",
+      " * Oh ! Mais... Je ne vous connais pas, vous...",
+      " * Vous dites vous appeler... Emby ? ",
+      " * Eh bien, ravi de faire votre connaissance !",
+      " * Mon nom est Monsieur le Maire, et je suis l'adjoint du village",
+      " * Enfin ce qu'il en reste...",
+      " * Comment ? Vous avez éliminé Tungtungsahur ??",
+      " * Oh mon dieu ! C'est... c'est fabuleux !",
+      " * Je n'en reviens pas... Il est vraiment parti ?",
+      " * Permettez-moi de vous exprimer ma gratitude la plus sincère.",
+      " * Il ne reste qu'une chose à faire désormais...",
+      " * Vois-tu, j'étais autrefois un grand mage de sanctuaire du nord",
+      " * Et ma magie repose sur des cheveux magiques",
+      " * Que l'on trouve sur certains monstres couverts de mousse verte.",
+      " * Mon crâne est dégarni et sans ces cheveux, je ne peux rien faire...",
+      " * Si jamais tu trouves ces créatures, tue-les et apporte-les moi.",
+      " * Tuer ne serait-ce qu'une seule me permettrait de vous concocter un artefact surpuissant,",
+      " * Et de refonder le village..."
+    ],
+    "set_flag": "mayor_spoke_first"
+  },
+  "mayor_C_1": {
+    "lines": [
+      " * Hein, quoi, vous avez éliminé Tungtungsahur ??",
+      " * Oh mon dieu ! C'est... c'est fabuleux !",
+      " * Je n'en reviens pas... Il est vraiment parti ?",
+      " * Permettez-moi de vous exprimer ma gratitude la plus sincère.",
+      " * Il ne reste qu'une chose à faire désormais...",
+      " * Si jamais tu trouves des monstres recouverts de mousse verte",
+      " * Tue-les et apporte-les moi.",
+      " * Tuer ne serait-ce qu'une seule me permettrait de vous concocter",
+      " * Un artefact surpuissant pour votre aventure, et de refonder le village..."
+    ],
+    "set_flag": "mayor_spoke_first"
+  },
+  "mayor_C_2": {
+    "lines": [
+      " * Il y a quelques jours, en partant en reconnaissance,",
+      " * J'ai croisé une de ces créatures avec de la mousse verte.",
+      " * Elle se trouvait à l'ouest, non loin d'ici...",
+      " * Si vous la tuez, je saurai vous récompenser comme il se doit.",
+      " * J'espère que tu auras plus de chance que moi..."
+    ]
+  },
+  "mayor_D_full": {
+    "lines": [
+      " * QUI EST LÀ ??? Vous ne m'aurez pas, maudits monstres !!",
+      " * Oh ! Mais... Je ne vous connais pas, vous...",
+      " * Vous dites vous appeler... Emby ?",
+      " * Eh bien, ravi de faire votre connaissance !",
+      " * Mon nom est Monsieur le Maire, et je suis l'adjoint du village, enfin ce qu'il en reste...",
+      " * Comme vous l'avez vu, notre village est en feu, tout le monde a déguerpi",
+      " * C'est de sa faute... TungTungSahur",
+      " * Cette atrocité est partie vers l'Ouest",
+      " * Et frappe à mort avec son bout de bois quiconque s'approche trop près",
+      " * Hein, quoi, vous l'avez éliminé ??",
+      " * Oh mon dieu ! C'est... c'est fabuleux !",
+      " * Je n'en reviens pas... Il est vraiment parti ?",
+      " * Permettez-moi de vous exprimer ma gratitude la plus sincère.",
+      " * Il ne reste qu'une chose à faire désormais...",
+      " * Voyez-vous, en l'état, je ne suis pas assez puissant pour refonder le village seul",
+      " * Mais ma magie repose sur des cheveux magiques",
+      " * Que l'on trouve sur certains monstres couverts de mousse verte...",
+      " * Mon crâne est dégarni et sans ces cheveux, je ne peux rien faire.",
+      "  * ... Attendez... Vous avez AUSSI trouvé les cheveux magiques ?",
+      "  * Mais quel miracle !",
+      "  * Tiens, prends cette magie de feu en récompense."
+    ],
+    "set_flag": "mayor_gave_fire"
+  },
+  "mayor_D_short": {
+    "lines": [
+      " * Quoi... vous avez fait les deux ?! Le monstre ET les cheveux magiques ?",
+      " * Je n'en reviens pas...",
+      " * Permettez-moi de vous exprimer toute ma gratitude.",
+      " * Tenez, voici la magie de feu en récompense."
+    ],
+    "set_flag": "mayor_gave_fire"
+  },
+  "mayor_after_notung": {
+    "lines": [
+      " * La magie de feu est à toi désormais.",
+      " * Mais il reste encore Tungtungsahur à l'ouest...",
+      " * Reviens me voir quand ce sera fait."
+    ]
+  },
+  "mayor_after_general": {
+    "lines": [
+      " * Je vais pouvoir refonder le village sereinement grâce à toi !",
+      " * Un immense merci pour ton aide.",
+      " * Je vous souhaite un agréable voyage, Emby."
+    ]
+  },
+  "mayor_after_fire": {
+    "lines": [
+      " * Voilà. Avec cette magie de feu, tu seras armé pour la suite.",
+      " * Que les flammes te protègent, voyageur."
+    ]
+  }
 }
