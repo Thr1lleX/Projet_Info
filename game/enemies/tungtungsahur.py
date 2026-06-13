@@ -626,6 +626,16 @@ class Tungtungsahur(Enemy):
                 self.phase = "dead"
                 self.hide()
                 scene.session_flags["tung_vaincu"] = True
+                scene.current_save.data["flags"]["tung_vaincu"] = True
+
+                # flag composite si shiny est mort aussi
+                if scene.get_flag("shiny_dead"):
+                    scene.session_flags["shiny_et_tung_dead"] = True
+                    if scene.get_flag("mayor_spoke_first"):
+                        scene.session_flags["shiny_tung_dead_spoke"] = True
+                # flag composite tung mort + déjà parlé au maire
+                if scene.get_flag("mayor_spoke_first"):
+                    scene.session_flags["tung_vaincu_spoke"] = True
                 
                 if hasattr(scene, "music_manager"):
                     scene.music_manager.player.setLoopCount(-2)
