@@ -20,7 +20,7 @@ class Macron(Enemy):
         
         super().__init__(scale, self._x, self._y)
 
-        self._pv_max = 150
+        self._pv_max = 300
         self.pv_main = self._pv_max
         self.speed = 0 
         self.use_pathfinding = False 
