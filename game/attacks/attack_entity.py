@@ -16,9 +16,19 @@ from game.settings import settings
 
 
 class AttackEntity(QGraphicsPixmapItem):
-    """Generalise la notion d'attaques et de projectiles a l'ecran."""
+    """
+    Le but de cette classe est de generaliser la notion d'attaques et projectiles 
+    a l'ecran
+    Nos attaques au corps a corps (MeleeAttack et projectiles heritent donc de cette classe.
+    """
     def __init__(self, source, direction, damage, duration = None):
-        """Initialise l'attaque (source, direction, degats, duree)."""
+        """
+        source pour eviter de se toucher soi meme et calculer effets (knockback, stats...)
+        direction pour anime et hitbox
+        damage ok
+        duration = None (infini, projectile)
+        
+        """
         super().__init__()
         self.source = source
         self.direction = direction
@@ -77,7 +87,9 @@ class AttackEntity(QGraphicsPixmapItem):
             self.die()
 
     def update_hitbox(self):
-        """Met a jour et positionne la zone de collision (hitbox)."""
+        """
+        setRect fais un rectangle pour du (x,y,w,h)
+        """
         # +1 pour correspondance entre navigage de frame (0...n-1) et nom frame (1...n)
         data = self.raw_hitbox_data.get(self.current_frame+1) 
     
@@ -126,7 +138,11 @@ class AttackEntity(QGraphicsPixmapItem):
         
 
     def check_collisions(self, scene):
-        """Gere les collisions avec les entites et applique les degats/recul."""
+        """
+        Fonction qui va generer knockback au joueur 
+        par rapport a position de l'epee et de l'ennemi
+        comme si l'ennemi nous avait frappe
+        """
         hitbox_zone = self.debug_rect.mapToScene(
             self.debug_rect.rect()
         ).boundingRect()
@@ -164,7 +180,11 @@ class AttackEntity(QGraphicsPixmapItem):
 # Differenciation des classes selon si l'attaque dure ou non
 
 class TemporaryAttack(AttackEntity):
-    """Classe pour les attaques qui durent le temps de leur animation (ex: melee, bombes)."""
+    """
+    Classe pour les attaques qui durent le temps de leur animation
+    Typiquement, armes de melee & bombes
+    Attention, on ne fait pas la rotation des bombes, voir MeleeAttack
+    """
 
     def __init__(self, source, direction, damage, duration):
         super().__init__(source, direction, damage, duration)
@@ -174,7 +194,9 @@ class TemporaryAttack(AttackEntity):
         
         
     def update(self, dt, scene):
-        """Met a jour specifiquement les attaques temporaires."""
+        """
+        update specifique aux attaques peristantes
+        """
         self.update_position()
 
         self.anim_timer += dt
@@ -193,12 +215,17 @@ class TemporaryAttack(AttackEntity):
         super().update(dt,scene)
 
     def update_position(self):
-        """Applique le decalage statique pour centrer l'animation."""
+        """
+        Applique l'offset statique pour centrer l'explosion.
+        """
         self.setPos(self.x + self.anim_offset[0], self.y + self.anim_offset[1])
                 
 
 class MeleeAttack(TemporaryAttack):
-    """Classe pour les attaques de melee qui restent pres du joueur et tournent."""
+    """
+    Classe pour les attaque de melee, qui restent pres du joueur 
+    et tournent autour de lui selon direction (epee, spear...)
+    """
     def __init__(self, source, direction, damage, duration, spr_path, nb_frames, size, pos):
         super().__init__(source, direction, damage, duration)
         self.setZValue(98)
@@ -239,12 +266,31 @@ class MeleeAttack(TemporaryAttack):
 
             
     def transform_point(self, x,y):
-        """Surcharge la transformation pour appliquer la rotation de l'arme."""
+        """
+        On override la transformation linéaire pour appliquer notre rotation.
+        Ainsi,update_hitbox donne la hitbox et la retourne et recentre 
+        selon la direction (self.direction) 
+        """
         (nx, ny), offset = self.rotate_point(x, y, self.direction)
         return nx + offset[0], ny + offset[1]
 
     def rotate_point(self,x,y,direction):
-        """Tourne un point autour de l'origine selon la direction."""
+        """
+        Fonction pour rotation autour de 0,0 un point de la hitbox 
+        renvoie aussi offset
+
+        Parameters
+        ----------
+        x : int
+            abscisse en pxl.
+        y : int
+            ordonnee en pxl.
+        direction : str
+            "up","left","right","down".
+        -------
+        nouevelles coordonnees + offset.
+
+        """
         # pour la logique fait un dessin, simple a comprendre
         if direction == "up":
             offset = (0,0)
@@ -304,7 +350,9 @@ class PersistentAttack(AttackEntity):
         self.current_dt = 0
 
     def update(self, dt, scene):
-        """Gere la boucle d'animation du projectile."""
+        """
+        boucle d'animation
+        """
         self.current_dt = dt
         self.elapsed_time += dt
 
@@ -325,7 +373,10 @@ class PersistentAttack(AttackEntity):
         self.check_collisions(scene)
 
     def update_position(self):
-        """Gere le mouvement en ligne droite du projectile."""
+        """
+        mouvement de base en ligne droite, 
+        a override si on veut une autre loi de deplacement
+        """
         move_dist = self.projectile_speed * settings.tile_size * self.current_dt
 
         if self.direction == "up":
@@ -339,50 +390,55 @@ class PersistentAttack(AttackEntity):
             
         self.setPos(self.x + self.anim_offset[0], self.y + self.anim_offset[1])
 
-    def check_collisions(self, scene):
-        """Gere la collision avec les entites et les murs (obsolete)."""
-        hitbox_zone = self.debug_rect.mapToScene(self.debug_rect.rect()).boundingRect()
-        hx, hy = hitbox_zone.x(), hitbox_zone.y()
-        hw, hh = hitbox_zone.width(), hitbox_zone.height()
+    # def check_collisions(self, scene):
+    #     """
+    #     simple a comprendre, collision avec entites + murs
+    #     """
+    #     hitbox_zone = self.debug_rect.mapToScene(self.debug_rect.rect()).boundingRect()
+    #     hx, hy = hitbox_zone.x(), hitbox_zone.y()
+    #     hw, hh = hitbox_zone.width(), hitbox_zone.height()
         
-        # collision avec bords de l'ecran
-        marge = 0 * settings.tile_size
-        limit_left = 0 - marge
-        limit_right = (16 * settings.tile_size) + marge
-        limit_top = (2 * settings.tile_size) - marge
-        limit_bottom = (13 * settings.tile_size) + marge
-        if (hx < limit_left) or (hx + hw > limit_right) or (hy < limit_top) or (hy + hh > limit_bottom):
-            scene.sfx_manager.play(self.die_sfx)
-            self.die()
-            return
+    #     # collision avec bords de l'ecran
+    #     marge = 0 * settings.tile_size
+    #     limit_left = 0 - marge
+    #     limit_right = (16 * settings.tile_size) + marge
+    #     limit_top = (2 * settings.tile_size) - marge
+    #     limit_bottom = (13 * settings.tile_size) + marge
+    #     if (hx < limit_left) or (hx + hw > limit_right) or (hy < limit_top) or (hy + hh > limit_bottom):
+    #         scene.sfx_manager.play(self.die_sfx)
+    #         self.die()
+    #         return
         
-        # collision avec ennemis
-        for item in scene.items(hitbox_zone):
-            if item != self.source and item != self:
-                # si touche ennemi, disparait
-                if hasattr(item, "take_damage") and item not in self.targets_hit:
-                    item.take_damage(scene, self.damage, self)
-                    item.stun(self.do_stun)
-                    self.targets_hit.add(item)
-                    scene.sfx_manager.play(self.die_sfx)
-                    self.die() 
-                    return
+    #     # collision avec ennemis
+    #     for item in scene.items(hitbox_zone):
+    #         if item != self.source and item != self:
+    #             # si touche ennemi, disparait
+    #             if hasattr(item, "take_damage") and item not in self.targets_hit:
+    #                 item.take_damage(scene, self.damage, self)
+    #                 item.stun(self.do_stun)
+    #                 self.targets_hit.add(item)
+    #                 scene.sfx_manager.play(self.die_sfx)
+    #                 self.die() 
+    #                 return
 
-        # collisions avec murs
-        if scene.is_blocking_rect(
-                hitbox_zone.x(),
-                hitbox_zone.y(),
-                hitbox_zone.width(),
-                hitbox_zone.height(),
-                entity = self
-        ):
-            scene.sfx_manager.play(self.die_sfx)
-            self.die()
-            return
+    #     # collisions avec murs
+    #     if scene.is_blocking_rect(
+    #             hitbox_zone.x(),
+    #             hitbox_zone.y(),
+    #             hitbox_zone.width(),
+    #             hitbox_zone.height(),
+    #             entity = self
+    #     ):
+    #         scene.sfx_manager.play(self.die_sfx)
+    #         self.die()
+    #         return
 
 
     def check_collisions(self, scene):
-        """Gere la collision avec les entites et les murs (disparait au contact)."""
+        """
+        simple a comprendre, collision avec entites + murs
+        on fait un exception pour switch car bug de collision et ne se déclenche pas sinon
+        """
         hitbox_zone = self.debug_rect.mapToScene(self.debug_rect.rect()).boundingRect()
         hx, hy = hitbox_zone.x(), hitbox_zone.y()
         hw, hh = hitbox_zone.width(), hitbox_zone.height()
@@ -431,7 +487,9 @@ class PersistentAttack(AttackEntity):
             return
 
     def die(self):
-        """Joue une animation de destruction puis supprime le projectile."""
+        """
+        joue une animation de fin puis supprime le projectile
+        """
         # si eviter double appel
         if hasattr(self, "dying") and self.dying:
             return

@@ -7,7 +7,6 @@ from game.sfx import SFXManager
 from game.attacks.attack_entity import MeleeAttack
 
 class Spear(MeleeAttack):
-    """Attaque de type lance (melee) utilisee par le joueur."""
     def __init__(self, player, direction):
         
         # --- PARAMETRES DE DEFINITION POUR APPEL A CLASSES ANTERIEURES ---
@@ -62,7 +61,6 @@ class Spear(MeleeAttack):
     # ------
         
     def die(self):
-        """Supprime la lance et libere l'etat d'attaque du joueur."""
         if self.scene():
             self.scene().removeItem(self)
 
