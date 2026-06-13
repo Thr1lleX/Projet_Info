@@ -923,9 +923,15 @@ class GameScene(QGraphicsScene):
         inv_data = self.current_save.data.get("inventory")
         flags = self.current_save.data.get("flags", {})
         
+        # Copie pour ne pas modifier la save directement
+        flags_for_sync = dict(flags)
+        # Mapping quête -> item permanent : si le maire a donné le feu, débloquer la fireball
+        if flags_for_sync.get("mayor_gave_fire"):
+            flags_for_sync["has_fireball"] = True
+        
         if inv_data is not None:
             self.screen_manager.inventory.from_save_data(inv_data)
-        self.screen_manager.inventory.sync_permanent_items(flags)
+        self.screen_manager.inventory.sync_permanent_items(flags_for_sync)
             
     def try_break_tile(self, tile_x, tile_y):
         """Detruit une case destructible aux coordonnees specifiees."""

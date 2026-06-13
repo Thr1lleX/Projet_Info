@@ -49,7 +49,7 @@ ITEM_CATALOG = {
     "stack_max" : 1,
     "effect": "shoot_fireball",
     "slot":4,
-    "required_flag": "has_fireball"
+    "required_flag": "mayor_gave_fire"
     },
 "spear":{ 
     "name" : "Lance", 

@@ -290,6 +290,8 @@ class DialogueManager:
 
         self.active = False
         
+        # Capturer l'ID avant réinitialisation pour les hooks post-dialogue
+        closing_id = self.current_dialogue_id
 
         if self.box.scene():
             self.scene.removeItem(self.box)
@@ -300,6 +302,21 @@ class DialogueManager:
         self.current_dialogue = None
         self.current_dialogue_id = None
         
+        # Hook : animation et obtention du bâton de feu après le dialogue du maire
+        if closing_id in ["mayor_B_full", "mayor_B_1", "mayor_D_full", "mayor_D_short"]:
+            if hasattr(self.scene, "player") and self.scene.player:
+                # 1. Jouer un son d'obtention d'objet
+                if hasattr(self.scene, "sfx_manager"):
+                    self.scene.sfx_manager.play("snd_sys_item")
+                
+                # 2. Lancer l'animation (dure 4.5 secondes)
+                self.scene.player.obtain_item("fireball", duration=4.5)
+                
+                # 3. Ajouter physiquement l'objet à l'inventaire en direct (via le screen_manager !)
+                if hasattr(self.scene, "screen_manager") and hasattr(self.scene.screen_manager, "inventory"):
+                    self.scene.screen_manager.inventory.add_item("fireball", 1)
+
+
 
     # ==========================================================
     # Démarrage de texte dynamique (sans JSON)
