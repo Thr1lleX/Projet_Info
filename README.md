@@ -72,12 +72,13 @@ python -m venv .venv
 source .venv/bin/activate        # Windows: .venv\Scripts\activate
 
 # Install dependencies
-pip install PyQt5 pygame
+pip install PyQt5==5.15.9 PyQt5-Qt5==5.15.2 PyQt5-sip==12.13.0 pygame==2.2.0
+
 
 # Run
 python main.py
 ```
-
+(pygame==2.6.1 if error with recent Python versions)
 
 ## Testing
 
